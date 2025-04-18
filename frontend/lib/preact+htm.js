@@ -5,6 +5,6 @@ export * from '/vendor/preact.module.js';
 export * from '/vendor/hooks.module.js';
 
 import htm from '/vendor/htm.module.js';
-import { h as createElement } from '/vendor/preact.module.js';
+import { createElement } from '/vendor/preact.module.js';
 
 export const h = htm.bind(createElement);

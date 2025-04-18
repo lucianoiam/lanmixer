@@ -65,9 +65,24 @@ function TrackMuteButton({ track, ...props }) {
    );
 }
 
-export function TrackStrip({ track, ...props }) {
+export function TrackStrip({ track, className, style, ...props }) {
+   const [name, setName] = useState('');
+
+   useEffect(async () => {
+      setName(await host.getTrackName(track));
+   }, [track, setName]);
+
+   className += (name && name.indexOf('MIDI') === -1) ? ""
+      : " pointer-events-none opacity-25";
+
    return h`
-      <div className="flex flex-col gap-5">
+      <div
+         className="flex flex-col items-center gap-5 ${className}"
+         style=${style}
+      >
+         <div style=${{ height: '1em' }}>
+            ${name}
+         </div>
          <${TrackVolumeFader}
             track=${track}
             ...${props}
@@ -82,7 +97,8 @@ export function TrackStrip({ track, ...props }) {
             mode="latch"
             style=${{
                width: 37,
-               height: 37
+               height: 37,
+               backgroundColor: '#404040'
             }}
          />
       </div>
@@ -98,12 +114,13 @@ export function ParameterValueKnob({ param, ...props }) {
    };
 
    useEffect(async () => {
+      setRange(await host.getParameterRange(param));
       setValue(await host.getParameterValue(param));
 
       host.addParameterValueListener(param, setValue);
 
       return () => {
-         host.removeTrackVolumeListener(param, setValue);
+         host.removeParameterValueListener(param, setValue);
       };
    }, [param, setValue]);
 
