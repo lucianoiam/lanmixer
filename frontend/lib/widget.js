@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { html, createElement, useEffect, useState }
+import { h, createElement, useEffect, useState }
    from '/lib/preact+htm.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '/vendor/guinda/guinda.react.module.js';
@@ -66,12 +66,8 @@ function TrackMuteButton({ track, ...props }) {
 }
 
 export function TrackStrip({ track, ...props }) {
-   return html`
-      <div style=${{
-         display: 'flex',
-         flexDirection: 'column',
-         gap: '1em'
-      }}>
+   return h`
+      <div className="flex flex-col gap-5">
          <${TrackVolumeFader}
             track=${track}
             ...${props}
