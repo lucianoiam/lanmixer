@@ -11,7 +11,10 @@ const { host } = dawscript;
 const MIN_VOLUME = -64.0;
 const MAX_VOLUME = 6.0
 
-function TrackVolumeFader({ track, ...props }) {
+function TrackVolumeFader({
+   track,
+   ...props
+}) {
    const [value, setValue] = useState(MIN_VOLUME);
 
    const onInput = (e) => {
@@ -39,7 +42,10 @@ function TrackVolumeFader({ track, ...props }) {
    );
 }
 
-function TrackMuteButton({ track, ...props }) {
+function TrackMuteButton({
+   track,
+   ...props
+}) {
    const [value, setValue] = useState(false);
 
    const onInput = (e) => {
@@ -65,15 +71,17 @@ function TrackMuteButton({ track, ...props }) {
    );
 }
 
-export function TrackStrip({ track, className, style, ...props }) {
+export function TrackStrip({
+   track,
+   className = '',
+   style = {},
+   ...props
+}) {
    const [name, setName] = useState('');
 
    useEffect(async () => {
       setName(await host.getTrackName(track));
    }, [track, setName]);
-
-   className += (name && name.indexOf('MIDI') === -1) ? ""
-      : " pointer-events-none opacity-25";
 
    return h`
       <div
@@ -105,7 +113,10 @@ export function TrackStrip({ track, className, style, ...props }) {
    `;
 }
 
-export function ParameterValueKnob({ param, ...props }) {
+export function ParameterValueKnob({
+   param,
+   ...props
+}) {
    const [value, setValue] = useState(0);
    const [range, setRange] = useState([ 0, 1.0 ]);
 
