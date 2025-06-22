@@ -1,11 +1,13 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, useEffect, useState, useRef } from './lib/preact+htm.js';
-import MixerView from './mixer.js';
+import { h, useEffect, useState, useRef } from './preact+htm.js';
 
 
-export default function OfflineView({ isOnline }) {
+export default function OfflineView({
+   isOnline,
+   className
+}) {
    const [isVisible, setVisible] = useState(false);
    const timer = useRef(null);
 
@@ -23,15 +25,17 @@ export default function OfflineView({ isOnline }) {
       return () => clearTimeout(timer.current);
    }, [isOnline]);
 
-   const className = isVisible ? 'block' : 'hidden';
+   className += isVisible ? ' block' : ' hidden';
 
    return h`
-      <div class="${className} h-screen-safe w-screen absolute bg-default bg-opacity-90 flex items-center justify-center">
+      <div
+         class="bg-default bg-opacity-90 flex items-center justify-center ${className}"
+      >
          <img
             src="static/offline.png"
             style=${{
-               width: '96px',
-               height: '96px'
+               width: 96,
+               height: 96
             }}
          />
       </div>

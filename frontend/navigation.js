@@ -1,15 +1,16 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, useEffect, useState }
-   from './lib/preact+htm.js';
-import MixerView from './mixer.js';
+import { h, useEffect, useState } from '/lib/preact+htm.js';
 
 
-export default function NavigationView() {
+export default function NavigationView({
+   className
+}) {
    return h`
-      <div class="h-screen-safe w-screen absolute">
-         <${MixerView} />
+      <div
+         className="${className}"
+      >
       </div>
    `;
 }

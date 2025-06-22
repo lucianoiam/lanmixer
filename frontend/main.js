@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: MIT
 
 import { h, createElement, render, useEffect, useState }
-   from './lib/preact+htm.js';
+   from '/lib/preact+htm.js';
+import { ButtonComponent } from '/vendor/guinda/guinda.react.module.js';
+import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
-import OfflineView from './offline.js';
+import OfflineView from '/lib/offline.js';
 
 
 function MainView() {
@@ -18,10 +20,28 @@ function MainView() {
    }, [setOnline]);
 
    return h`
-      <${NavigationView} />
-      <${OfflineView}
-         isOnline=${isOnline}
-      />
+      <div
+         className="relative size-screen"
+         style=${{
+            minWidth: 512,
+            minHeight: 384
+         }}
+      >
+         <div
+            className="absolute inset-0 flex flex-row"
+         >
+            <!--<$ {NavigationView}
+               className="w-36"
+            />-->
+            <${MixerView}
+               className=""
+            />
+         </div>
+         <${OfflineView}
+            isOnline=${isOnline}
+            className="absolute inset-0"
+         />
+      </div>
    `;
 }
 

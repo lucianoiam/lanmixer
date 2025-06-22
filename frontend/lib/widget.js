@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { h, createElement, useEffect, useState }
-   from '/lib/preact+htm.js';
+   from './preact+htm.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '/vendor/guinda/guinda.react.module.js';
 
@@ -11,15 +11,46 @@ const { host } = dawscript;
 const MIN_VOLUME = -64.0;
 const MAX_VOLUME = 6.0
 
-function TrackVolumeFader({
-   track,
-   ...props
+
+export function TrackLabel({
+   track
+}) {
+   const [name, setName] = useState('');
+
+   useEffect(async () => {
+      setName(await host.getTrackName(track));
+   }, [track, setName]);
+
+   return h`
+      <label>
+         ${name}
+      </label>
+   `;
+}
+
+export function TrackStrip({
+   track
+}) {
+   return h`
+      <div
+         className="flex flex-col items-center gap-5"
+      >
+         <${VolumeFader}
+            track=${track}
+         />
+         <${MuteButton}
+            track=${track}
+         />
+      </div>
+   `;
+}
+
+export function VolumeFader({
+   track
 }) {
    const [value, setValue] = useState(MIN_VOLUME);
 
-   const onInput = (e) => {
-      host.setTrackVolume(track, e.target.value);
-   };
+   const onInput = (e) => host.setTrackVolume(track, e.target.value);
 
    useEffect(async () => {
       setValue(await host.getTrackVolume(track));
@@ -33,24 +64,24 @@ function TrackVolumeFader({
 
    return createElement(
       FaderComponent, {
-         ...props,
          value,
          onInput,
          min: MIN_VOLUME,
-         max: MAX_VOLUME
+         max: MAX_VOLUME,
+         style: {
+            width: 37,
+            height: 200
+         }
       }
    );
 }
 
-function TrackMuteButton({
-   track,
-   ...props
+export function MuteButton({
+   track
 }) {
    const [value, setValue] = useState(false);
 
-   const onInput = (e) => {
-      host.setTrackMute(track, e.target.value);
-   };
+   const onInput = (e) => host.setTrackMute(track, e.target.value);
 
    useEffect(async () => {
       setValue(await host.isTrackMute(track));
@@ -64,65 +95,44 @@ function TrackMuteButton({
 
    return createElement(
       ButtonComponent, {
-         ...props,
          value,
-         onInput
+         onInput,
+         mode: 'latch',
+         style: {
+            width: 37,
+            height: 37,
+            backgroundColor: '#404040'
+         }
       }
    );
 }
 
-export function TrackStrip({
+export function FXButton({
    track,
-   className = '',
-   style = {},
-   ...props
+   onClick
 }) {
-   const [name, setName] = useState('');
+   const onInput = (ev) => onClick(track, ev.currentTarget.value);
 
-   useEffect(async () => {
-      setName(await host.getTrackName(track));
-   }, [track, setName]);
-
-   return h`
-      <div
-         className="flex flex-col items-center gap-5 ${className}"
-         style=${style}
-      >
-         <div style=${{ height: '1em' }}>
-            ${name}
-         </div>
-         <${TrackVolumeFader}
-            track=${track}
-            ...${props}
-            style=${{
-               width: 37,
-               height: 200
-            }}
-         />
-         <${TrackMuteButton}
-            track=${track}
-            ...${props}
-            mode="latch"
-            style=${{
-               width: 37,
-               height: 37,
-               backgroundColor: '#404040'
-            }}
-         />
-      </div>
-   `;
+   return createElement(
+      ButtonComponent, {
+         onInput,
+         mode: 'latch',
+         style: {
+            width: 37,
+            height: 37,
+            backgroundColor: '#404040'
+         }
+      }
+   );
 }
 
-export function ParameterValueKnob({
-   param,
-   ...props
+export function ParameterKnob({
+   param
 }) {
    const [value, setValue] = useState(0);
    const [range, setRange] = useState([ 0, 1.0 ]);
 
-   const onInput = (e) => {
-      host.setParameterValue(param, e.target.value);
-   };
+   const onInput = (e) => host.setParameterValue(param, e.target.value);
 
    useEffect(async () => {
       setRange(await host.getParameterRange(param));
@@ -137,7 +147,6 @@ export function ParameterValueKnob({
 
    return createElement(
       KnobComponent, {
-         ...props,
          value,
          onInput,
          min: range[0],
