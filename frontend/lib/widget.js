@@ -107,14 +107,16 @@ export function MuteButton({
    );
 }
 
-export function FXButton({
+export function PluginsButton({
    track,
+   value,
    onClick
 }) {
-   const onInput = (ev) => onClick(track, ev.currentTarget.value);
+   const onInput = (ev) => onClick(ev.currentTarget.value ? track : null);
 
    return createElement(
       ButtonComponent, {
+         value,
          onInput,
          mode: 'latch',
          style: {

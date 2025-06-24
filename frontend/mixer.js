@@ -1,16 +1,16 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, createElement, useEffect, useState } from '/lib/preact+htm.js';
-import { FXButton, TrackLabel, TrackStrip } from '/lib/widget.js';
+import { h, useEffect, useState } from '/lib/preact+htm.js';
+import { PluginsButton, TrackLabel, TrackStrip } from '/lib/widget.js';
+import PluginsView from './plugins.js';
+
 const { host, TrackType } = dawscript;
 
 
-export default function MixerView({
-   className
-}) {
+export default function MixerView() {
    const [tracks, setTracks] = useState([]);
-   const [showFX, setShowFX] = useState(false);
+   const [pluginsViewTrack, setPluginsViewTrack] = useState(null);
 
    useEffect(async () => {
       const audioTracks = [];
@@ -26,19 +26,16 @@ export default function MixerView({
       setTracks(audioTracks);
    }, [setTracks]);
 
-   const onFXClick = (track, value) => {
-      setShowFX(value); // TODO
-   };
-
    return h`
       <div
-         className="flex flex-col gap-5 ${className}"
+         className="flex flex-col gap-5 w-full"
       >
          <div
             className="flex flex-row"
          >
             ${tracks.map(track => h`
                <div
+                  key=${track}
                   className="flex flex-col gap-5 items-center"
                   style=${{
                      width: 120   
@@ -47,11 +44,12 @@ export default function MixerView({
                   <${TrackLabel}
                      track=${track}
                   />
-                  <${FXButton}
+                  <${PluginsButton}
                      track=${track}
-                     onClick=${onFXClick}
+                     value=${track == pluginsViewTrack}
+                     onClick=${setPluginsViewTrack}
                   />
-                  ${showFX ? null : h`
+                  ${pluginsViewTrack ? null : h`
                      <${TrackStrip}
                         track=${track}
                      />
@@ -59,12 +57,10 @@ export default function MixerView({
                </div>
             `)}
          </div>
-         ${! showFX ? null : h`
-            <div
-               className="w-full text-center"
-            >
-               TODO: FX
-            </div>
+         ${! pluginsViewTrack ? null : h`
+            <${PluginsView}
+               track=${pluginsViewTrack}
+            />
          `}
       </div>
    `;

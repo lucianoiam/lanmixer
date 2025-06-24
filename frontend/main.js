@@ -33,9 +33,7 @@ function MainView() {
             <!--<$ {NavigationView}
                className="w-36"
             />-->
-            <${MixerView}
-               className=""
-            />
+            <${MixerView} />
          </div>
          <${OfflineView}
             isOnline=${isOnline}
