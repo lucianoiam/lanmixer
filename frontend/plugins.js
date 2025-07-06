@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, useEffect, useState } from '/lib/preact+htm.js';
+import { h } from '/lib/preact+htm.js';
+import { useEffectIfCacheEmpty, useStateWithCache } from '/lib/cache.js';
 
 const { host, TrackType } = dawscript;
 
@@ -9,11 +10,12 @@ const { host, TrackType } = dawscript;
 export default function PluginsView({
    track
 }) {
-   const [plugins, setPlugins] = useState([]);
+   const stateKey = `${track}_plugins`;
+   const [plugins, setPlugins] = useStateWithCache(stateKey, []);
 
-   useEffect(async () => {
+   useEffectIfCacheEmpty(stateKey, async () => {
       setPlugins(await host.getTrackPlugins(track));
-   }, [track, setPlugins,]);
+   }, [track]);
 
    return h`
       <div

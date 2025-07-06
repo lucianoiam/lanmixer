@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, createElement, useEffect, useState }
-   from './preact+htm.js';
+import { h, createElement, useEffect } from './preact+htm.js';
+import { useEffectIfCacheEmpty, useStateWithCache } from './cache.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '/vendor/guinda/guinda.react.module.js';
 
@@ -15,11 +15,12 @@ const MAX_VOLUME = 6.0
 export function TrackLabel({
    track
 }) {
-   const [name, setName] = useState('');
+   const stateKey = `${track}_label`;
+   const [name, setName] = useStateWithCache(stateKey, '');
 
-   useEffect(async () => {
+   useEffectIfCacheEmpty(stateKey, async () => {
       setName(await host.getTrackName(track));
-   }, [track, setName]);
+   }, [track]);
 
    return h`
       <label>
@@ -48,19 +49,26 @@ export function TrackStrip({
 export function VolumeFader({
    track
 }) {
-   const [value, setValue] = useState(MIN_VOLUME);
+   const stateKey = `${track}_volume`;
+   const [value, setValue] = useStateWithCache(stateKey, MIN_VOLUME);
 
-   const onInput = (e) => host.setTrackVolume(track, e.target.value);
+   const onInput = (e) => {
+      const value = e.target.value;
+      setValue(value);
+      host.setTrackVolume(track, value);
+   }
+
+   useEffectIfCacheEmpty(stateKey, async () => {
+      setValue(await host.getTrackVolume(track));
+   });
 
    useEffect(async () => {
-      setValue(await host.getTrackVolume(track));
-
       host.addTrackVolumeListener(track, setValue);
 
       return () => {
          host.removeTrackVolumeListener(track, setValue);
       };
-   }, [track, setValue]);
+   }, [track]);
 
    return createElement(
       FaderComponent, {
@@ -79,23 +87,30 @@ export function VolumeFader({
 export function MuteButton({
    track
 }) {
-   const [value, setValue] = useState(false);
+   const stateKey = `${track}_mute`;
+   const [value, setValue] = useStateWithCache(stateKey, false);
 
-   const onInput = (e) => host.setTrackMute(track, e.target.value);
+   const onInput = (e) => {
+      const value = e.target.value;
+      setValue(value);
+      host.setTrackMute(track, e.target.value);
+   }
+
+   useEffectIfCacheEmpty(stateKey, async () => {
+      setValue(await host.isTrackMute(track));
+   });
 
    useEffect(async () => {
-      setValue(await host.isTrackMute(track));
-
       host.addTrackMuteListener(track, setValue);
 
       return () => {
          host.removeTrackMuteListener(track, setValue);
       };
-   }, [track, setValue]);
+   }, [track]);
 
    return createElement(
       ButtonComponent, {
-         value,
+         value, // FIXME - renders as false on init, even when hardcoding value: true
          onInput,
          mode: 'latch',
          style: {
@@ -131,21 +146,32 @@ export function PluginsButton({
 export function ParameterKnob({
    param
 }) {
-   const [value, setValue] = useState(0);
-   const [range, setRange] = useState([ 0, 1.0 ]);
+   const valueStateKey = `${param}_value`;
+   const [value, setValue] = useStateWithCache(valueStateKey, 0);
+   const rangeStateKey = `${param}_range`;
+   const [range, setRange] = useStateWithCache(rangeStateKey, [ 0, 1.0 ]);
 
-   const onInput = (e) => host.setParameterValue(param, e.target.value);
+   const onInput = (e) => {
+      const value = e.target.value;
+      setValue(value);
+      host.setParameterValue(param, value);
+   }
+
+   useEffectIfCacheEmpty(valueStateKey, async () => {
+      setValue(await host.getParameterValue(param));
+   });
+
+   useEffectIfCacheEmpty(rangeStateKey, async () => {
+      setRange(await host.getParameterRange(param));
+   }, [param]);
 
    useEffect(async () => {
-      setRange(await host.getParameterRange(param));
-      setValue(await host.getParameterValue(param));
-
       host.addParameterValueListener(param, setValue);
 
       return () => {
          host.removeParameterValueListener(param, setValue);
       };
-   }, [param, setValue]);
+   }, [param]);
 
    return createElement(
       KnobComponent, {

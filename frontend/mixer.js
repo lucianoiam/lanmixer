@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, useEffect, useState } from '/lib/preact+htm.js';
+import { h, useState } from '/lib/preact+htm.js';
+import { useEffectIfCacheEmpty, useStateWithCache } from '/lib/cache.js';
 import { PluginsButton, TrackLabel, TrackStrip } from '/lib/widget.js';
 import PluginsView from './plugins.js';
 
@@ -9,10 +10,11 @@ const { host, TrackType } = dawscript;
 
 
 export default function MixerView() {
-   const [tracks, setTracks] = useState([]);
+   const stateKey = 'tracks';
+   const [tracks, setTracks] = useStateWithCache(stateKey, []);
    const [pluginsViewTrack, setPluginsViewTrack] = useState(null);
 
-   useEffect(async () => {
+   useEffectIfCacheEmpty(stateKey, async () => {
       const audioTracks = [];
 
       for (const track of await host.getTracks()) {
@@ -24,7 +26,7 @@ export default function MixerView() {
       }
 
       setTracks(audioTracks);
-   }, [setTracks]);
+   });
 
    return h`
       <div
