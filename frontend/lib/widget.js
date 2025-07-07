@@ -72,8 +72,9 @@ export function VolumeFader({
 
    return createElement(
       FaderComponent, {
-         value,
          onInput,
+         value,
+         defaultValue: value,
          min: MIN_VOLUME,
          max: MAX_VOLUME,
          style: {
@@ -110,8 +111,9 @@ export function MuteButton({
 
    return createElement(
       ButtonComponent, {
-         value, // FIXME - renders as false on init, even when hardcoding value: true
          onInput,
+         value,
+         defaultValue: value,
          mode: 'latch',
          style: {
             width: 37,
@@ -131,8 +133,9 @@ export function PluginsButton({
 
    return createElement(
       ButtonComponent, {
-         value,
          onInput,
+         value,
+         defaultValue: value,
          mode: 'latch',
          style: {
             width: 37,
@@ -175,8 +178,9 @@ export function ParameterKnob({
 
    return createElement(
       KnobComponent, {
-         value,
          onInput,
+         value,
+         defaultValue: value,
          min: range[0],
          max: range[1]
       }
