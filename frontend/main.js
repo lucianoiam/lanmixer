@@ -3,6 +3,7 @@
 
 import { h, createElement, render, useEffect, useState }
    from '/lib/preact+htm.js';
+import { enableDebugMessages as cacheEnableDebugMessages} from '/lib/cache.js';
 import { ButtonComponent } from '/vendor/guinda/guinda.react.module.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
@@ -43,5 +44,8 @@ function MainView() {
    `;
 }
 
+
+cacheEnableDebugMessages();
+dawscript.enableDebugMessages();
 
 render(createElement(MainView), document.body);

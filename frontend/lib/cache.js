@@ -3,6 +3,16 @@
 
 import { useState, useEffect, useRef } from '/lib/preact+htm.js';
 
+let _debug = false;
+
+function debug(message) {
+   if (_debug) console.debug(`[cache]     ${message}`);
+}
+
+export function enableDebugMessages() {
+   _debug = true;
+}
+
 export function useEffectIfCacheEmpty(key, effect, deps = []) {
    useEffect(() => {
       const hashedKey = djb2_hash(key);
@@ -18,11 +28,14 @@ export function useStateWithCache(key, initialValue) {
 
    const [state, setState] = useState(() => {
       const storedValue = sessionStorage.getItem(hashedKey);
-      if (storedValue === null) return initialValue;
+      if (storedValue === null) {
+         debug(`m ${hashedKey} ${key}`);
+         return initialValue;
+      }
+
+      debug(`H ${hashedKey} ${key} = ${storedValue}`);
 
       const type = typeof initialValue;
-
-      console.debug(`[cache] R ${key} [${hashedKey}] = ${storedValue}`);
 
       if (type === 'number') {
          const parsed = Number(storedValue);
@@ -54,10 +67,10 @@ export function useStateWithCache(key, initialValue) {
       }
 
       if (state === null) {
-         console.debug(`[cache] - ${key}`);
+         debug(`- ${hashedKey} ${key}`);
          sessionStorage.removeItem(hashedKey);
       } else {
-         console.debug(`[cache] + ${key} [${hashedKey}] = ${state}`);
+         debug(`+ ${hashedKey} ${key} = ${state}`);
          const type = typeof initialValue;
 
          if (
