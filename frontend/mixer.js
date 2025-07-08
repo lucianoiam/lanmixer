@@ -9,7 +9,9 @@ import PluginsView from './plugins.js';
 const { host, TrackType } = dawscript;
 
 
-export default function MixerView() {
+export default function MixerView(
+   isOnline
+) {
    const stateKey = 'tracks';
    const [tracks, setTracks] = useStateWithCache(stateKey, []);
    const [pluginsViewTrack, setPluginsViewTrack] = useState(null);
@@ -26,7 +28,7 @@ export default function MixerView() {
       }
 
       setTracks(audioTracks);
-   });
+   }, [isOnline]);
 
    return h`
       <div

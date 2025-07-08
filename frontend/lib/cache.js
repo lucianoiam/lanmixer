@@ -13,6 +13,11 @@ export function enableDebugMessages() {
    _debug = true;
 }
 
+export function clearCache() {
+   debug('clear');
+   sessionStorage.clear();
+}
+
 export function useEffectIfCacheEmpty(key, effect, deps = []) {
    useEffect(() => {
       const hashedKey = djb2_hash(key);

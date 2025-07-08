@@ -3,7 +3,8 @@
 
 import { h, createElement, render, useEffect, useState }
    from '/lib/preact+htm.js';
-import { enableDebugMessages as cacheEnableDebugMessages} from '/lib/cache.js';
+import { clearCache, enableDebugMessages as cacheEnableDebugMessages}
+   from '/lib/cache.js';
 import { ButtonComponent } from '/vendor/guinda/guinda.react.module.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
@@ -16,6 +17,11 @@ function MainView() {
    useEffect(() => {
       dawscript.connect((status) => {
          setOnline(status);
+
+         if (! status) {
+            clearCache();
+         }
+
          return true;
       });
    }, [setOnline]);
@@ -34,7 +40,9 @@ function MainView() {
             <!--<$ {NavigationView}
                className="w-36"
             />-->
-            <${MixerView} />
+            <${MixerView}
+               isOnline=${isOnline}
+            />
          </div>
          <${OfflineView}
             isOnline=${isOnline}
