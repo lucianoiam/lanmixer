@@ -3,23 +3,38 @@
 
 import { h, createElement, render, useEffect, useState }
    from '/lib/preact+htm.js';
-import { clearCache, enableDebugMessages as cacheEnableDebugMessages}
-   from '/lib/cache.js';
+import { clearStateCache, enableCacheDebugMessages, useHostState }
+   from '/lib/state.js';
 import { ButtonComponent } from '/vendor/guinda/guinda.react.module.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
 import OfflineView from '/lib/offline.js';
 
+const { host, TrackType } = dawscript;
+
 
 function MainView() {
    const [isOnline, setOnline] = useState(false);
+   const [tracks, setTracks] = useHostState([], 'tracks', async () => {
+      const audioTracks = [];
+
+      for (const track of await host.getTracks()) {
+         const type = await host.getTrackType(track);
+
+         if (type == TrackType.AUDIO) {
+            audioTracks.push(track);
+         }
+      }
+
+      return audioTracks;
+   });
 
    useEffect(() => {
       dawscript.connect((status) => {
          setOnline(status);
 
          if (! status) {
-            clearCache();
+            clearStateCache();
          }
 
          return true;
@@ -37,11 +52,13 @@ function MainView() {
          <div
             className="absolute inset-0 flex flex-row"
          >
-            <!--<$ {NavigationView}
+            <${NavigationView}
                className="w-36"
-            />-->
+               tracks=${tracks}
+            />
             <${MixerView}
                isOnline=${isOnline}
+               tracks=${tracks}
             />
          </div>
          <${OfflineView}
@@ -53,7 +70,7 @@ function MainView() {
 }
 
 
-cacheEnableDebugMessages();
+enableCacheDebugMessages();
 dawscript.enableDebugMessages();
 
 render(createElement(MainView), document.body);

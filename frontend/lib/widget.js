@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { h, createElement, useEffect } from './preact+htm.js';
-import { useEffectIfCacheEmpty, useStateWithCache } from './cache.js';
+import { useHostState } from './state.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '/vendor/guinda/guinda.react.module.js';
 
@@ -15,15 +15,15 @@ const MAX_VOLUME = 6.0
 export function TrackLabel({
    track
 }) {
-   const stateKey = `${track}_label`;
-   const [name, setName] = useStateWithCache(stateKey, '');
-
-   useEffectIfCacheEmpty(stateKey, async () => {
-      setName(await host.getTrackName(track));
-   }, [track]);
+   const [name, setName] = useHostState('', `${track}_label`,
+      () => host.getTrackName(track));
 
    return h`
-      <label>
+      <label
+         style=${{
+            height: '1em'
+         }}
+      >
          ${name}
       </label>
    `;
@@ -49,18 +49,14 @@ export function TrackStrip({
 export function VolumeFader({
    track
 }) {
-   const stateKey = `${track}_volume`;
-   const [value, setValue] = useStateWithCache(stateKey, MIN_VOLUME);
+   const [value, setValue] = useHostState(MIN_VOLUME, `${track}_volume`,
+      () => host.getTrackVolume(track));
 
    const onInput = (e) => {
       const value = e.target.value;
       setValue(value);
       host.setTrackVolume(track, value);
-   }
-
-   useEffectIfCacheEmpty(stateKey, async () => {
-      setValue(await host.getTrackVolume(track));
-   });
+   };
 
    useEffect(async () => {
       host.addTrackVolumeListener(track, setValue);
@@ -89,17 +85,14 @@ export function MuteButton({
    track
 }) {
    const stateKey = `${track}_mute`;
-   const [value, setValue] = useStateWithCache(stateKey, false);
+   const [value, setValue] = useHostState(false, stateKey,
+      () => host.isTrackMute(track));
 
    const onInput = (e) => {
       const value = e.target.value;
       setValue(value);
       host.setTrackMute(track, e.target.value);
-   }
-
-   useEffectIfCacheEmpty(stateKey, async () => {
-      setValue(await host.isTrackMute(track));
-   });
+   };
 
    useEffect(async () => {
       host.addTrackMuteListener(track, setValue);
@@ -149,24 +142,16 @@ export function PluginsButton({
 export function ParameterKnob({
    param
 }) {
-   const valueStateKey = `${param}_value`;
-   const [value, setValue] = useStateWithCache(valueStateKey, 0);
-   const rangeStateKey = `${param}_range`;
-   const [range, setRange] = useStateWithCache(rangeStateKey, [ 0, 1.0 ]);
+   const [value, setValue] = useHostState(0, `${param}_value`,
+      () => host.getParameterValue(param));
+   const [range, setRange] = useHostState([ 0, 1.0 ], `${param}_range`,
+      () => host.getParameterRange(param));
 
    const onInput = (e) => {
       const value = e.target.value;
       setValue(value);
       host.setParameterValue(param, value);
-   }
-
-   useEffectIfCacheEmpty(valueStateKey, async () => {
-      setValue(await host.getParameterValue(param));
-   });
-
-   useEffectIfCacheEmpty(rangeStateKey, async () => {
-      setRange(await host.getParameterRange(param));
-   }, [param]);
+   };
 
    useEffect(async () => {
       host.addParameterValueListener(param, setValue);

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { h } from '/lib/preact+htm.js';
-import { useEffectIfCacheEmpty, useStateWithCache } from '/lib/cache.js';
+import { useHostState } from '/lib/state.js';
 
 const { host, TrackType } = dawscript;
 
@@ -10,12 +10,8 @@ const { host, TrackType } = dawscript;
 export default function PluginsView({
    track
 }) {
-   const stateKey = `${track}_plugins`;
-   const [plugins, setPlugins] = useStateWithCache(stateKey, []);
-
-   useEffectIfCacheEmpty(stateKey, async () => {
-      setPlugins(await host.getTrackPlugins(track));
-   }, [track]);
+   const [plugins, setPlugins] = useHostState([], `${track}_plugins`,
+         () => host.getTrackPlugins(track));
 
    return h`
       <div
