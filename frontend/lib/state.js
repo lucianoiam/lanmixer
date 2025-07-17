@@ -5,8 +5,10 @@ import { useState, useEffect, useRef } from '/lib/preact+htm.js';
 
 let _cache_dbg = false;
 
-export function useHostState(initial, key, hostCall) {
-   const cacheKey = djb2_hash(key);
+export function useHostState(initial, hostCall, target = '') {
+   const cacheKey = djb2_hash(hostCall.toString() + target);
+   const readableKey = cacheKey
+      + (hostCall.name ? ` { ${hostCall.name}(${target}) }` : '');
 
    let miss = false;
 
@@ -14,12 +16,12 @@ export function useHostState(initial, key, hostCall) {
       const stored = cacheRead(cacheKey, typeof initial);
 
       if (stored !== null) {
-         cache_dbg(`H ${cacheKey} ${key} = ${stored}`);
+         cache_dbg(`H ${readableKey} = ${stored}`);
          return stored;
       }
 
       miss = true;
-      cache_dbg(`m ${cacheKey} ${key}`);
+      cache_dbg(`m ${readableKey}`);
 
       return initial;
    });
@@ -30,9 +32,9 @@ export function useHostState(initial, key, hostCall) {
       }
 
       if (state === null) {
-         cache_dbg(`- ${cacheKey} ${key}`);
+         cache_dbg(`- ${readableKey}`);
       } else {
-         cache_dbg(`+ ${cacheKey} ${key} = ${state}`);
+         cache_dbg(`+ ${readableKey} = ${state}`);
       }
    }, [cacheKey, state]);
 
@@ -43,7 +45,7 @@ export function useHostState(initial, key, hostCall) {
          (async () => {
             try {
                if (mounted) {
-                  setState(await hostCall());
+                  setState(await hostCall(target));
                }
             } catch (error) {
                cache_dbg(error);

@@ -15,7 +15,7 @@ const { host, TrackType } = dawscript;
 
 function MainView() {
    const [isOnline, setOnline] = useState(false);
-   const [tracks, setTracks] = useHostState([], 'tracks', async () => {
+   const [tracks, setTracks] = useHostState([], async (_) => {
       const audioTracks = [];
 
       for (const track of await host.getTracks()) {

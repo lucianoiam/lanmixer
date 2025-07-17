@@ -10,8 +10,7 @@ const { host, TrackType } = dawscript;
 export default function PluginsView({
    track
 }) {
-   const [plugins, setPlugins] = useHostState([], `${track}_plugins`,
-         () => host.getTrackPlugins(track));
+   const [plugins, setPlugins] = useHostState([], host.getTrackPlugins, track);
 
    return h`
       <div

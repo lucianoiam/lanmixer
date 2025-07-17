@@ -15,8 +15,7 @@ const MAX_VOLUME = 6.0
 export function TrackLabel({
    track
 }) {
-   const [name, setName] = useHostState('', `${track}_label`,
-      () => host.getTrackName(track));
+   const [name, setName] = useHostState('', host.getTrackName, track);
 
    return h`
       <label
@@ -49,8 +48,8 @@ export function TrackStrip({
 export function VolumeFader({
    track
 }) {
-   const [value, setValue] = useHostState(MIN_VOLUME, `${track}_volume`,
-      () => host.getTrackVolume(track));
+   const [value, setValue] = useHostState(MIN_VOLUME, host.getTrackVolume,
+      track);
 
    const onInput = (e) => {
       const value = e.target.value;
@@ -84,9 +83,7 @@ export function VolumeFader({
 export function MuteButton({
    track
 }) {
-   const stateKey = `${track}_mute`;
-   const [value, setValue] = useHostState(false, stateKey,
-      () => host.isTrackMute(track));
+   const [value, setValue] = useHostState(false, host.isTrackMute, track);
 
    const onInput = (e) => {
       const value = e.target.value;
@@ -142,10 +139,9 @@ export function PluginsButton({
 export function ParameterKnob({
    param
 }) {
-   const [value, setValue] = useHostState(0, `${param}_value`,
-      () => host.getParameterValue(param));
-   const [range, setRange] = useHostState([ 0, 1.0 ], `${param}_range`,
-      () => host.getParameterRange(param));
+   const [value, setValue] = useHostState(0, host.getParameterValue, param);
+   const [range, setRange] = useHostState([ 0, 1.0 ], host.getParameterRange,
+      param);
 
    const onInput = (e) => {
       const value = e.target.value;
