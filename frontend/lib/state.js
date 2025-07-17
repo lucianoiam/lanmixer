@@ -5,65 +5,70 @@ import { useState, useEffect, useRef } from '/lib/preact+htm.js';
 
 let _cache_dbg = false;
 
-export function useHostState(initial, hostCall, target = '') {
-   const cacheKey = djb2_hash(hostCall.toString() + target);
-   const readableKey = cacheKey
-      + (hostCall.name ? ` { ${hostCall.name}(${target}) }` : '');
+export function useHostState(initial, hostCalls, target) {
+   const hasSetter = Array.isArray(hostCalls) && hostCalls.length == 2;
+   const getHostState = hasSetter ? hostCalls[0] : hostCalls;
+   const setHostState = hasSetter ? hostCalls[1] : null;
+   const cacheKey = djb2_hash(getHostState.toString() + target);
+   const debugKey = cacheKey
+      + (getHostState.name ? ` { ${getHostState.name}(${target}) }` : '');
 
-   let miss = false;
+   let cacheMiss = false;
 
    const [state, setState] = useState(() => {
       const stored = cacheRead(cacheKey, typeof initial);
 
       if (stored !== null) {
-         cache_dbg(`H ${readableKey} = ${stored}`);
+         cache_dbg(`H ${debugKey} = ${stored}`);
          return stored;
       }
 
-      miss = true;
-      cache_dbg(`m ${readableKey}`);
+      cache_dbg(`m ${debugKey}`);
+      cacheMiss = true;
 
       return initial;
    });
 
    useEffect(() => {
-      if (! cacheWrite(cacheKey, state)) {
-         return;
-      }
-
-      if (state === null) {
-         cache_dbg(`- ${readableKey}`);
-      } else {
-         cache_dbg(`+ ${readableKey} = ${state}`);
-      }
-   }, [cacheKey, state]);
-
-   useEffect(() => {
       let mounted = true;
 
-      if (hostCall && miss) {
+      if (cacheMiss) {
          (async () => {
-            try {
-               if (mounted) {
-                  setState(await hostCall(target));
-               }
-            } catch (error) {
-               cache_dbg(error);
+            if (mounted) {
+               setState(await getHostState(target));
             }
          })();
+      }
+
+      if (! compare(cacheRead(cacheKey, typeof state), state)) {
+         if (state === null) {
+            cache_dbg(`- ${debugKey}`);
+         } else {
+            cache_dbg(`+ ${debugKey} = ${state}`);
+         }
+
+         cacheWrite(cacheKey, state);
+
+         if (setHostState) {
+            (async () => {
+               if (mounted) {
+                  await setHostState(target, state);
+               }
+            })();
+         }
       }
 
       return () => {
          mounted = false;
       };
-   }, []);
+   }, [state, setState, setHostState, getHostState, cacheKey]);
 
    return [state, setState];
 }
 
 export function clearStateCache() {
-   sessionStorage.clear();
    cache_dbg('clear');
+   sessionStorage.clear();
 }
 
 export function enableCacheDebugMessages() {
@@ -102,26 +107,18 @@ function cacheRead(key, type) {
 }
 
 function cacheWrite(key, value) {
-   if (compare(cacheRead(key, typeof value), value)) {
-      return false;
-   }
-
    if (value === null) {
       sessionStorage.removeItem(key);
-      return true;
+      return;
    }
 
    if (typeof value === 'object') {
       try {
          sessionStorage.setItem(key, JSON.stringify(value));
-      } catch {
-         return false;
-      }
+      } catch {}
    } else {
       sessionStorage.setItem(key, String(value));
    }
-
-   return true;
 }
 
 function djb2_hash(str) {

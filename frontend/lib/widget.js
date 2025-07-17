@@ -48,13 +48,12 @@ export function TrackStrip({
 export function VolumeFader({
    track
 }) {
-   const [value, setValue] = useHostState(MIN_VOLUME, host.getTrackVolume,
-      track);
+   const [value, setValue] = useHostState(MIN_VOLUME,
+      [host.getTrackVolume, host.setTrackVolume], track);
 
    const onInput = (e) => {
       const value = e.target.value;
       setValue(value);
-      host.setTrackVolume(track, value);
    };
 
    useEffect(async () => {
@@ -83,12 +82,12 @@ export function VolumeFader({
 export function MuteButton({
    track
 }) {
-   const [value, setValue] = useHostState(false, host.isTrackMute, track);
+   const [value, setValue] = useHostState(false,
+      [host.isTrackMute, host.setTrackMute], track);
 
    const onInput = (e) => {
       const value = e.target.value;
       setValue(value);
-      host.setTrackMute(track, e.target.value);
    };
 
    useEffect(async () => {
@@ -139,14 +138,14 @@ export function PluginsButton({
 export function ParameterKnob({
    param
 }) {
-   const [value, setValue] = useHostState(0, host.getParameterValue, param);
+   const [value, setValue] = useHostState(0,
+      [host.getParameterValue, host.setParameterValue], param);
    const [range, setRange] = useHostState([ 0, 1.0 ], host.getParameterRange,
       param);
 
    const onInput = (e) => {
       const value = e.target.value;
       setValue(value);
-      host.setParameterValue(param, value);
    };
 
    useEffect(async () => {
