@@ -3,7 +3,8 @@
 
 import { h, createElement, render, useEffect, useState }
    from '/lib/preact+htm.js';
-import { clearStateCache, enableCacheDebugMessages, useHostState }
+import { clearStateCache, enableCacheDebugMessages, useHostState,
+         useHostReadCountEffect }
    from '/lib/state.js';
 import { ButtonComponent } from '/vendor/guinda/guinda.react.module.js';
 import MixerView from './mixer.js';
@@ -15,6 +16,8 @@ const { host, TrackType } = dawscript;
 
 function MainView() {
    const [isOnline, setOnline] = useState(false);
+   const [isReady, setReady] = useState(false);
+
    const [tracks, setTracks] = useHostState([], async () => {
       const audioTracks = [];
 
@@ -41,6 +44,11 @@ function MainView() {
       });
    }, [setOnline]);
 
+   // Wait for approx. tracks_len × [name, vol, mute] states
+   useHostReadCountEffect((count) => {
+      setReady((tracks.length > 0) && (count >= 3 * tracks.length));
+   }, [tracks, setReady]);
+
    return h`
       <div
          className="relative size-screen"
@@ -50,7 +58,7 @@ function MainView() {
          }}
       >
          <div
-            className="absolute inset-0 flex flex-row"
+            className="absolute inset-0 flex flex-row ${isReady ? '': 'hidden'}"
          >
             <${NavigationView}
                className="w-36"

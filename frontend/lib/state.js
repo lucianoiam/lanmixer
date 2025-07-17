@@ -3,7 +3,9 @@
 
 import { useState, useEffect, useRef } from '/lib/preact+htm.js';
 
-let _cache_dbg = false;
+let _hostReadCount = 0;
+let _hostReadCountCB = [];
+let _cacheDebugMessages = false;
 
 export function useHostState(initial, hostCalls, target) {
    const hasSetter = Array.isArray(hostCalls) && hostCalls.length == 2;
@@ -36,9 +38,18 @@ export function useHostState(initial, hostCalls, target) {
          (async () => {
             if (mounted) {
                setState(await getHostState(target));
+               incHostReadCount();
             }
          })();
       }
+
+      return () => {
+         mounted = false;
+      };
+   }, [setState, getHostState]);
+
+   useEffect(() => {
+      let mounted = true;
 
       if (! compare(cacheRead(cacheKey, typeof state), state)) {
          if (state === null) {
@@ -61,9 +72,19 @@ export function useHostState(initial, hostCalls, target) {
       return () => {
          mounted = false;
       };
-   }, [state, setState, setHostState, getHostState, cacheKey]);
+   }, [state, setHostState, cacheKey]);
 
    return [state, setState];
+}
+
+export function useHostReadCountEffect(callback, deps) {
+   useEffect(() => {
+      _hostReadCountCB.push(callback);
+
+      return () => {
+         _hostReadCountCB = _hostReadCountCB.filter(cb => cb !== callback);
+      };
+   }, deps);
 }
 
 export function clearStateCache() {
@@ -72,7 +93,12 @@ export function clearStateCache() {
 }
 
 export function enableCacheDebugMessages() {
-   _cache_dbg = true;
+   _cacheDebugMessages = true;
+}
+
+function incHostReadCount() {
+   _hostReadCount++;
+   _hostReadCountCB.forEach(cb => cb(_hostReadCount));
 }
 
 function cacheRead(key, type) {
@@ -121,14 +147,6 @@ function cacheWrite(key, value) {
    }
 }
 
-function djb2_hash(str) {
-   let hash = 5381;
-   for (let i = 0; i < str.length; i++) {
-      hash = (hash * 33) ^ str.charCodeAt(i);
-   }
-   return (hash >>> 0).toString(36);
-}
-
 function compare(a, b) {
    if (a === b) return true;
 
@@ -159,8 +177,16 @@ function compare(a, b) {
    return a === b;
 }
 
+function djb2_hash(str) {
+   let hash = 5381;
+   for (let i = 0; i < str.length; i++) {
+      hash = (hash * 33) ^ str.charCodeAt(i);
+   }
+   return (hash >>> 0).toString(36);
+}
+
 function cache_dbg(message) {
-   if (_cache_dbg) {
+   if (_cacheDebugMessages) {
       console.debug(`[cache]     ${message}`);
    }
 }
