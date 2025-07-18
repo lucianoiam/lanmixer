@@ -5,26 +5,24 @@ import { useEffect, useRef } from '/lib/preact+htm.js';
 import { hasCachedState, useCachedState } from '/lib/cache.js';
 
 
-let _hostInitStateCount = 0;
-let _hostInitStateCountCB = [];
+let _hostStateReadCount = 0;
+let _hostStateReadCountCB = [];
 
-export function useHostInitStateCountEffect(callback, deps) {
+export function useHostStateReadCountEffect(callback, deps) {
    useEffect(() => {
-      _hostInitStateCountCB.push(callback);
+      _hostStateReadCountCB.push(callback);
 
       return () => {
-         _hostInitStateCountCB = _hostInitStateCountCB.filter(cb => cb !== callback);
+         _hostStateReadCountCB = _hostStateReadCountCB.filter((cb) => {
+            return cb !== callback;
+         });
       };
    }, [callback, ...deps]);
 }
 
-export function useHostCall(initial, func, target) {
-   return useHostCallRO(initial, func, target)[0];
-}
-
 export function useHostState(initial, getFunc, setFunc, addListenerFunc,
       removeListenerFunc, target) {
-   const [state, setState, setLocalState] = useHostCallRW(initial, getFunc,
+   const [state, setState, setStateLocalOnly] = useHostCallRW(initial, getFunc,
       setFunc, target);
 
    useEffect(() => {
@@ -32,17 +30,21 @@ export function useHostState(initial, getFunc, setFunc, addListenerFunc,
 
       (async () => {
          if (mounted) {
-            await addListenerFunc(target, setLocalState);
+            await addListenerFunc(target, setStateLocalOnly);
          }
       })();
 
       return () => {
          let mounted = false;
-         removeListenerFunc(target, setLocalState);
+         removeListenerFunc(target, setStateLocalOnly);
       };
    }, []);
 
    return [state, setState];
+}
+
+export function useHostCall(initial, func, target) {
+   return useHostCallRO(initial, func, target)[0];
 }
 
 function useHostCallRO(initial, getFunc, target) {
@@ -55,8 +57,8 @@ function useHostCallRO(initial, getFunc, target) {
          if (mounted) {
             setState(await getFunc(target));
 
-            _hostInitStateCount++;
-            _hostInitStateCountCB.forEach(cb => cb(_hostInitStateCount));
+            _hostStateReadCount++;
+            _hostStateReadCountCB.forEach(cb => cb(_hostStateReadCount));
          }
       })();
 
@@ -70,9 +72,9 @@ function useHostCallRO(initial, getFunc, target) {
 
 function useHostCallRW(initial, getFunc, setFunc, target) {
    const [state, setState] = useHostCallRO(initial, getFunc, target);
-   const skipNextCall = useRef(true);
+   const skipNextCall = useRef(true); // skip first
 
-   const setLocalState = (value) => {
+   const setStateLocalOnly = (value) => {
       skipNextCall.current = true;
       setState(value);
    };
@@ -96,5 +98,5 @@ function useHostCallRW(initial, getFunc, setFunc, target) {
       };
    }, [setFunc, state]);
 
-   return [state, setState, setLocalState];
+   return [state, setState, setStateLocalOnly];
 }

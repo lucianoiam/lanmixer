@@ -4,7 +4,7 @@
 import { h, createElement, render, useEffect, useState }
    from '/lib/preact+htm.js';
 import { clearStateCache, enableStateCacheDebugMessages } from '/lib/cache.js';
-import { useHostCall, useHostInitStateCountEffect } from '/lib/state.js';
+import { useHostCall, useHostStateReadCountEffect } from '/lib/state.js';
 import { ButtonComponent } from '/vendor/guinda/guinda.react.module.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
@@ -43,8 +43,8 @@ function MainView() {
       });
    }, [setOnline]);
 
-   // Wait for approx. tracks_len × [type, name, vol, mute] states
-   useHostInitStateCountEffect((count) => {
+   // UI is ready when reading at least tracks_len × [type+name+vol+mute] states
+   useHostStateReadCountEffect((count) => {
       setReady((tracks.length > 0) && (count >= 4 * tracks.length));
    }, [tracks, setReady]);
 
