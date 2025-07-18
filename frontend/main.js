@@ -3,9 +3,8 @@
 
 import { h, createElement, render, useEffect, useState }
    from '/lib/preact+htm.js';
-import { clearStateCache, enableCacheDebugMessages, useHostState,
-         useHostReadCountEffect }
-   from '/lib/state.js';
+import { clearStateCache, enableStateCacheDebugMessages } from '/lib/cache.js';
+import { useHostState, useHostReadCountEffect } from '/lib/state.js';
 import { ButtonComponent } from '/vendor/guinda/guinda.react.module.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
@@ -78,7 +77,7 @@ function MainView() {
 }
 
 
-enableCacheDebugMessages();
+enableStateCacheDebugMessages();
 dawscript.enableDebugMessages();
 
 render(createElement(MainView), document.body);
