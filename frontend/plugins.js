@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { h } from '/lib/preact+htm.js';
-import { useHostState } from '/lib/state.js';
+import { useHostCall } from '/lib/state.js';
 
 const { host, TrackType } = dawscript;
 
@@ -10,7 +10,7 @@ const { host, TrackType } = dawscript;
 export default function PluginsView({
    track
 }) {
-   const [plugins, setPlugins] = useHostState([], host.getTrackPlugins, track);
+   const plugins = useHostCall([], host.getTrackPlugins, track);
 
    return h`
       <div

@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from '/lib/preact+htm.js';
 
+
 let _debugMessages = false;
 
 export function enableStateCacheDebugMessages() {
@@ -14,16 +15,12 @@ export function clearStateCache() {
    sessionStorage.clear();
 }
 
-export function buildStateCacheKey(call, target) {
-   return djb2_hash(call.toString() + target);
-}
-
-export function stateCacheHasKey(key) {
-   return key in sessionStorage;
+export function hasCachedState(call, target) {
+   return buildKey(call, target) in sessionStorage;
 }
 
 export function useCachedState(initial, call, target) {
-   const key = buildStateCacheKey(call, target);
+   const key = buildKey(call, target);
    const debugKey = key + (call.name ? ` { ${call.name}(${target}) }` : '');
 
    const [state, setState] = useState(() => {
@@ -51,6 +48,10 @@ export function useCachedState(initial, call, target) {
    }, [key, state]);
 
    return [state, setState];
+}
+
+function buildKey(call, target) {
+   return djb2_hash(call.toString() + target);
 }
 
 function read(key, type) {

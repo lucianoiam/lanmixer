@@ -2,21 +2,23 @@
 // SPDX-License-Identifier: MIT
 
 import { useEffect, useRef } from '/lib/preact+htm.js';
-import { buildStateCacheKey, stateCacheHasKey, useCachedState }
-   from '/lib/cache.js';
+import { hasCachedState, useCachedState } from '/lib/cache.js';
+
 
 let _hostReadCount = 0;
 let _hostReadCountCB = [];
 
-export function useHostState(initial, hostCalls, target) {
-   const hasSetter = Array.isArray(hostCalls) && hostCalls.length == 2;
-   const getHostState = hasSetter ? hostCalls[0] : hostCalls;
-   const setHostState = hasSetter ? hostCalls[1] : null;
-   const cacheKey = buildStateCacheKey(getHostState, target);
-   const cacheMiss = ! stateCacheHasKey(cacheKey);
+export function useHostCall(initial, call, target) {
+   return useHostCallRO(initial, call, target)[0];
+}
 
-   const [state, setState] = useCachedState(initial, getHostState, target);
-   const hasInitialRender = useRef(false);
+export function useHostState(initial, calls, target) {
+   return useHostCallRW(initial, calls[0], calls[1], target);
+}
+
+function useHostCallRO(initial, getter, target) {
+   const [state, setState] = useCachedState(initial, getter, target);
+   const cacheMiss = ! hasCachedState(getter, target);
 
    useEffect(() => {
       let mounted = true;
@@ -24,7 +26,7 @@ export function useHostState(initial, hostCalls, target) {
       if (cacheMiss) {
          (async () => {
             if (mounted) {
-               setState(await getHostState(target));
+               setState(await getter(target));
 
                _hostReadCount++;
                _hostReadCountCB.forEach(cb => cb(_hostReadCount));
@@ -35,16 +37,23 @@ export function useHostState(initial, hostCalls, target) {
       return () => {
          mounted = false;
       };
-   }, [setState, getHostState]);
+   }, [getter, setState]);
+
+   return [state, setState];
+}
+
+function useHostCallRW(initial, getter, setter, target) {
+   const [state, setState] = useHostCallRO(initial, getter, target);
+   const hasInitialRender = useRef(false);
 
    useEffect(() => {
       let mounted = true;
 
-      if (setHostState) {
+      if (setter) {
          (async () => {
             if (mounted) {
                if (hasInitialRender.current) {
-                  await setHostState(target, state);
+                  await setter(target, state);
                }
 
                hasInitialRender.current = true;
@@ -55,7 +64,7 @@ export function useHostState(initial, hostCalls, target) {
       return () => {
          mounted = false;
       };
-   }, [state, setState, setHostState]);
+   }, [setter, state]);
 
    return [state, setState];
 }

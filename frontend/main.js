@@ -4,7 +4,7 @@
 import { h, createElement, render, useEffect, useState }
    from '/lib/preact+htm.js';
 import { clearStateCache, enableStateCacheDebugMessages } from '/lib/cache.js';
-import { useHostState, useHostReadCountEffect } from '/lib/state.js';
+import { useHostCall, useHostReadCountEffect } from '/lib/state.js';
 import { ButtonComponent } from '/vendor/guinda/guinda.react.module.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
@@ -17,7 +17,7 @@ function MainView() {
    const [isOnline, setOnline] = useState(false);
    const [isReady, setReady] = useState(false);
 
-   const [tracks, setTracks] = useHostState([], async () => {
+   const tracks = useHostCall([], async () => {
       const audioTracks = [];
 
       for (const track of await host.getTracks()) {

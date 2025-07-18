@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { h, createElement, useEffect } from './preact+htm.js';
-import { useHostState } from './state.js';
+import { useHostCall, useHostState } from './state.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '/vendor/guinda/guinda.react.module.js';
 
@@ -15,7 +15,7 @@ const MAX_VOLUME = 6.0
 export function TrackLabel({
    track
 }) {
-   const [name, setName] = useHostState('', host.getTrackName, track);
+   const name = useHostCall('', host.getTrackName, track);
 
    return h`
       <label
@@ -140,8 +140,7 @@ export function ParameterKnob({
 }) {
    const [value, setValue] = useHostState(0,
       [host.getParameterValue, host.setParameterValue], param);
-   const [range, setRange] = useHostState([ 0, 1.0 ], host.getParameterRange,
-      param);
+   const range = useHostCall([ 0, 1.0 ], host.getParameterRange, param);
 
    const onInput = (e) => {
       const value = e.target.value;
