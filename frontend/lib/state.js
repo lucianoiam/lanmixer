@@ -5,15 +5,15 @@ import { useEffect, useRef } from '/lib/preact+htm.js';
 import { hasCachedState, useCachedState } from '/lib/cache.js';
 
 
-let _hostReadCount = 0;
-let _hostReadCountCB = [];
+let _hostInitStateCount = 0;
+let _hostInitStateCountCB = [];
 
-export function useHostReadCountEffect(callback, deps) {
+export function useHostInitStateCountEffect(callback, deps) {
    useEffect(() => {
-      _hostReadCountCB.push(callback);
+      _hostInitStateCountCB.push(callback);
 
       return () => {
-         _hostReadCountCB = _hostReadCountCB.filter(cb => cb !== callback);
+         _hostInitStateCountCB = _hostInitStateCountCB.filter(cb => cb !== callback);
       };
    }, [callback, ...deps]);
 }
@@ -23,7 +23,7 @@ export function useHostCall(initial, func, target) {
 }
 
 export function useHostState(initial, getFunc, setFunc, addListenerFunc,
-   removeListenerFunc, target) {
+      removeListenerFunc, target) {
    const [state, setState, setLocalState] = useHostCallRW(initial, getFunc,
       setFunc, target);
 
@@ -55,8 +55,8 @@ function useHostCallRO(initial, getFunc, target) {
          if (mounted) {
             setState(await getFunc(target));
 
-            _hostReadCount++;
-            _hostReadCountCB.forEach(cb => cb(_hostReadCount));
+            _hostInitStateCount++;
+            _hostInitStateCountCB.forEach(cb => cb(_hostInitStateCount));
          }
       })();
 
