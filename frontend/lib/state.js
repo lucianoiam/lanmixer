@@ -37,36 +37,33 @@ export function useHostState(initial, getFunc, setFunc, addListenerFunc,
       })();
 
       return () => {
-         mounted = false;
-         //removeListenerFunc(target, setLocalState);
+         let mounted = false;
+         removeListenerFunc(target, setLocalState);
       };
-   }, [target, setState, addListenerFunc, removeListenerFunc]);
+   }, []);
 
    return [state, setState];
 }
 
 function useHostCallRO(initial, getFunc, target) {
    const [state, setState] = useCachedState(initial, getFunc, target);
-   const cacheMiss = ! hasCachedState(getFunc, target);
 
    useEffect(() => {
       let mounted = true;
 
-      if (cacheMiss) {
-         (async () => {
-            if (mounted) {
-               setState(await getFunc(target));
+      (async () => {
+         if (mounted) {
+            setState(await getFunc(target));
 
-               _hostReadCount++;
-               _hostReadCountCB.forEach(cb => cb(_hostReadCount));
-            }
-         })();
-      }
+            _hostReadCount++;
+            _hostReadCountCB.forEach(cb => cb(_hostReadCount));
+         }
+      })();
 
       return () => {
          mounted = false;
       };
-   }, [getFunc, setState]);
+   }, []);
 
    return [state, setState];
 }

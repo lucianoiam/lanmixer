@@ -35,19 +35,23 @@ export function useCachedState(initial, call, target) {
       return stored ?? initial;
    });
 
-   useEffect(() => {
-      if (! compare(read(key, typeof state), state)) {
-         if (state === null) {
-            dbg(`- ${debugKey}`);
-         } else {
-            dbg(`+ ${debugKey} = ${state}`);
-         }
+   const setStateAndWriteIfNeeded = (v) => {
+      setState(v);
 
-         write(key, state);
+      if (compare(read(key, typeof v), v)) {
+         return;
       }
-   }, [key, state]);
 
-   return [state, setState];
+      if (v === null) {
+         dbg(`- ${debugKey}`);
+      } else {
+         dbg(`+ ${debugKey} = ${v}`);
+      }
+
+      write(key, v);
+   };
+
+   return [state, setStateAndWriteIfNeeded];
 }
 
 function buildKey(call, target) {
