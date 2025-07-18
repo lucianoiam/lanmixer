@@ -49,20 +49,14 @@ export function VolumeFader({
    track
 }) {
    const [value, setValue] = useHostState(MIN_VOLUME,
-      [host.getTrackVolume, host.setTrackVolume], track);
+      host.getTrackVolume, host.setTrackVolume,
+      host.addTrackVolumeListener, host.removeTrackVolumeListener,
+      track);
 
    const onInput = (e) => {
       const value = e.target.value;
       setValue(value);
    };
-
-   useEffect(async () => {
-      host.addTrackVolumeListener(track, setValue);
-
-      return () => {
-         host.removeTrackVolumeListener(track, setValue);
-      };
-   }, [track]);
 
    return createElement(
       FaderComponent, {
@@ -83,20 +77,14 @@ export function MuteButton({
    track
 }) {
    const [value, setValue] = useHostState(false,
-      [host.isTrackMute, host.setTrackMute], track);
+      host.isTrackMute, host.setTrackMute,
+      host.addTrackMuteListener, host.removeTrackMuteListener,
+      track);
 
    const onInput = (e) => {
       const value = e.target.value;
       setValue(value);
    };
-
-   useEffect(async () => {
-      host.addTrackMuteListener(track, setValue);
-
-      return () => {
-         host.removeTrackMuteListener(track, setValue);
-      };
-   }, [track]);
 
    return createElement(
       ButtonComponent, {
@@ -139,21 +127,15 @@ export function ParameterKnob({
    param
 }) {
    const [value, setValue] = useHostState(0,
-      [host.getParameterValue, host.setParameterValue], param);
+      host.getParameterValue, host.setParameterValue,
+      host.addParameterValueListener, host.removeParameterValueListener,
+      param);
    const range = useHostCall([ 0, 1.0 ], host.getParameterRange, param);
 
    const onInput = (e) => {
       const value = e.target.value;
       setValue(value);
    };
-
-   useEffect(async () => {
-      host.addParameterValueListener(param, setValue);
-
-      return () => {
-         host.removeParameterValueListener(param, setValue);
-      };
-   }, [param]);
 
    return createElement(
       KnobComponent, {
