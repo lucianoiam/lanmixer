@@ -1,52 +1,19 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, createElement, render, useEffect, useState }
-   from '/lib/preact+htm.js';
-import { clearStateCache, enableStateCacheDebugMessages } from '/lib/cache.js';
-import { useHostCall, useHostStateReadCountEffect } from '/lib/state.js';
-import { ButtonComponent } from '/vendor/guinda/guinda.react.module.js';
+import { h, createElement, render } from '/lib/preact+htm.js';
+import { enableStateCacheDebugMessages } from '/lib/cache.js';
+import { useAudioTracks, useHostConnect, useInitStateIsReady }
+   from '/lib/state.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
 import OfflineView from '/lib/offline.js';
 
-const { host, TrackType } = dawscript;
-
 
 function MainView() {
-   const [isOnline, setOnline] = useState(false);
-   const [isReady, setReady] = useState(false);
-
-   const tracks = useHostCall([], async () => {
-      const audioTracks = [];
-
-      for (const track of await host.getTracks()) {
-         const type = await host.getTrackType(track);
-
-         if (type == TrackType.AUDIO) {
-            audioTracks.push(track);
-         }
-      }
-
-      return audioTracks;
-   });
-
-   useEffect(() => {
-      dawscript.connect((status) => {
-         setOnline(status);
-
-         if (! status) {
-            clearStateCache();
-         }
-
-         return true;
-      });
-   }, [setOnline]);
-
-   // UI is ready when reading at least tracks_len × [type+name+vol+mute] states
-   useHostStateReadCountEffect((count) => {
-      setReady((tracks.length > 0) && (count >= 4 * tracks.length));
-   }, [tracks, setReady]);
+   const isOnline = useHostConnect();
+   const isReady = useInitStateIsReady();
+   const tracks = useAudioTracks();
 
    return h`
       <div
@@ -67,6 +34,11 @@ function MainView() {
                isOnline=${isOnline}
                tracks=${tracks}
             />
+         </div>
+         <div
+            className="absolute inset-0 flex items-center justify-center ${isReady ? 'hidden': ''}"
+         >
+            <div>Loading...</div>
          </div>
          <${OfflineView}
             isOnline=${isOnline}

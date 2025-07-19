@@ -1,23 +1,79 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { useEffect, useRef } from '/lib/preact+htm.js';
-import { hasCachedState, useCachedState } from '/lib/cache.js';
+import { useEffect, useRef, useState } from '/lib/preact+htm.js';
+import { clearStateCache, useCachedState } from '/lib/cache.js';
+
+const { host, TrackType } = dawscript
 
 
-let _hostStateReadCount = 0;
-let _hostStateReadCountCB = [];
+export function useHostConnect() {
+   const [isOnline, setOnline] = useState(false);
 
-export function useHostStateReadCountEffect(callback, deps) {
    useEffect(() => {
-      _hostStateReadCountCB.push(callback);
+      dawscript.connect((status) => {
+         setOnline(status);
 
-      return () => {
-         _hostStateReadCountCB = _hostStateReadCountCB.filter((cb) => {
-            return cb !== callback;
-         });
-      };
-   }, [callback, ...deps]);
+         if (! status) {
+            clearStateCache();
+         }
+
+         return true;
+      });
+   }, [setOnline]);
+
+   return isOnline;
+}
+
+export function useInitStateIsReady(callCountPollMs = 10, readyWaitMs = 100) {
+   const [isReady, setReady] = useState(false);
+   const [callCount, setCallCount] = useState(dawscript.getCallCount());
+   const shouldCountCalls = useRef(true);
+   const readyWaitTimer = useRef(null);
+
+   const stopCount = () => shouldCountCalls.current = false;
+
+   const runCount = () => {
+      setCallCount(dawscript.getCallCount());
+
+      if (shouldCountCalls.current) {
+         setTimeout(runCount, callCountPollMs);
+      }
+   };
+
+   useEffect(() => {
+      runCount();
+      return stop;
+   }, []);
+   
+   useEffect(() => {
+      clearTimeout(readyWaitTimer.current);
+
+      readyWaitTimer.current = setTimeout(() => {
+         stopCount();
+         setReady(true);
+      }, readyWaitMs);
+   }, [callCount]);
+
+   return isReady;
+}
+
+export function useAudioTracks() {
+   const audioTracks = useHostCall([], async () => {
+      const tracks = [];
+
+      for (const track of await host.getTracks()) {
+         const type = await host.getTrackType(track);
+
+         if (type == TrackType.AUDIO) {
+            tracks.push(track);
+         }
+      }
+
+      return tracks;
+   });
+
+   return audioTracks;
 }
 
 export function useHostState(initial, getFunc, setFunc, addListenerFunc,
@@ -56,9 +112,6 @@ function useHostCallRO(initial, getFunc, target) {
       (async () => {
          if (mounted) {
             setState(await getFunc(target));
-
-            _hostStateReadCount++;
-            _hostStateReadCountCB.forEach(cb => cb(_hostStateReadCount));
          }
       })();
 

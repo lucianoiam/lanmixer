@@ -15,10 +15,6 @@ export function clearStateCache() {
    sessionStorage.clear();
 }
 
-export function hasCachedState(call, target) {
-   return buildKey(call, target) in sessionStorage;
-}
-
 export function useCachedState(initial, call, target) {
    const key = buildKey(call, target);
    const debugKey = key + (call.name ? ` { ${call.name}(${target}) }` : '');
