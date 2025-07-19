@@ -1,8 +1,10 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { useEffect, useState } from '/lib/preact+htm.js';
+import { useAsyncEffect, useState } from '/lib/preact+htm.js';
 
+
+// TODO: call serializer
 
 let _debugMessages = false;
 
@@ -45,19 +47,11 @@ export function useCachedCall(initial, call, target) {
    const cachedValue = getCacheValue(call, target, returnType);
    const [value, setValue] = useState(cachedValue ?? initial);
 
-   let mounted = true;
-
-   useEffect(() => {
-      (async () => {
-         if (mounted && cachedValue === null) {
-            setValue(await cachedCall(call, target, returnType));
-         }
-      })();
-
-      return () => {
-         mounted = false;
-      };
-   }, [call, target, returnType, cachedValue]);
+   useAsyncEffect(async () => {
+      if (! hasCacheKey(call, target)) {
+         setValue(await cachedCall(call, target, returnType));
+      }
+   });
 
    return value;
 }
@@ -119,7 +113,11 @@ function hashKey(key) {
 }
 
 function debugKey(key) {
-   return key.call.name ? `   { ${key.call.name}(${key.target}) }` : '';
+   if (! key.call.name) {
+      return '';
+   }
+
+   return `   { ${key.call.name}(${key.target ?? ''}) }`;
 }
 
 function djb2_hash(str) {

@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { useCallback, useEffect, useRef, useState } from '/lib/preact+htm.js';
+import { useAsyncEffect, useCallback, useEffect, useRef, useState }
+   from '/lib/preact+htm.js';
 import { getCacheValue, setCacheValue, clearCache, cachedCall, useCachedCall }
    from '/lib/cache.js';
 
@@ -38,57 +39,30 @@ export function useHostState(initial, getFunc, setFunc, addListenerFunc,
       skipNextSetFuncCall.current = true;
       setCacheValue(getFunc, target, newState);
       setState(newState);
-   }, [getFunc, target]);
+   }, []);
 
-   // Listeners are disconnected on unmount. Always refresh on mount so changes
-   // from other clients during the unmounted state are picked up.
-   useEffect(() => {
-      let mounted = true;
+   // Always refresh on mount so changes from other clients during the unmounted
+   // state are picked up, as listeners are disconnected on unmount.
+   useAsyncEffect(async () => {
+      setStateLocalOnly(await getFunc(target));
+   }, []);
 
-      (async () => {
-         if (mounted) {
-            setStateLocalOnly(await getFunc(target));
-         }
-      })();
+   useAsyncEffect(async () => {
+      if (skipNextSetFuncCall.current) {
+         skipNextSetFuncCall.current = false;
+      } else {
+         setCacheValue(getFunc, target, state);
+         await setFunc(target, state);
+      }
+   }, [state]);
 
-      return () => {
-         mounted = false;
-      };
-   }, [getFunc, setStateLocalOnly, target]);
-
-   useEffect(() => {
-      let mounted = true;
-
-      (async () => {
-         if (mounted) {
-            if (skipNextSetFuncCall.current) {
-               skipNextSetFuncCall.current = false;
-            } else {
-               setCacheValue(getFunc, target, state);
-               await setFunc(target, state);
-            }
-         }
-      })();
+   useAsyncEffect(async () => {
+      await addListenerFunc(target, setStateLocalOnly);
 
       return () => {
-         mounted = false;
-      };
-   }, [getFunc, setFunc, state, target]);
-
-   useEffect(() => {
-      let mounted = true;
-
-      (async () => {
-         if (mounted) {
-            await addListenerFunc(target, setStateLocalOnly);
-         }
-      })();
-
-      return () => {
-         mounted = false;
          removeListenerFunc(target, setStateLocalOnly);
       };
-   }, [addListenerFunc, removeListenerFunc, setStateLocalOnly, target]);
+   }, []);
 
    return [state, setState];
 }
@@ -97,26 +71,16 @@ export function useInitStateIsReady() {
    const [isReady, setReady] = useState(false);
    const tracks = useAudioTracks();
 
-   let mounted = true;
+   useAsyncEffect(async () => {
+      for (const track of tracks) {
+         await cachedCall(host.getTrackName, track);
+         await cachedCall(host.getTrackVolume, track);
+         await cachedCall(host.isTrackMute, track);
+      }
 
-   useEffect(() => {
-      (async () => {
-         if (mounted) {
-            for (const track of tracks) {
-               await cachedCall(host.getTrackName, track);
-               await cachedCall(host.getTrackVolume, track);
-               await cachedCall(host.isTrackMute, track);
-            }
-
-            if (tracks.length > 0) {
-               setReady(true);
-            }
-         }
-      })();
-
-      return () => {
-         mounted = false;
-      };
+      if (tracks.length > 0) {
+         setReady(true);
+      }
    }, [tracks]);
 
    return isReady;
@@ -133,6 +97,9 @@ export function useAudioTracks() {
             tracks.push(track);
          }
       }
+
+      // FIXME - dawscript bug: IDs are not stable on Bitwig and Live
+      console.info(tracks);
 
       return tracks;
    });
