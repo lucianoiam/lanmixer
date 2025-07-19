@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { h, createElement, render } from '/lib/preact+htm.js';
-import { enableStateCacheDebugMessages } from '/lib/cache.js';
+import { enableCacheDebugMessages } from '/lib/cache.js';
 import { useAudioTracks, useHostConnect, useInitStateIsReady }
    from '/lib/state.js';
 import MixerView from './mixer.js';
@@ -49,7 +49,7 @@ function MainView() {
 }
 
 
-enableStateCacheDebugMessages();
+enableCacheDebugMessages();
 dawscript.enableDebugMessages();
 
 render(createElement(MainView), document.body);

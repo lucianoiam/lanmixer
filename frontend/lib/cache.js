@@ -6,125 +6,120 @@ import { useEffect, useState } from '/lib/preact+htm.js';
 
 let _debugMessages = false;
 
-export function enableStateCacheDebugMessages() {
+export function enableCacheDebugMessages() {
    _debugMessages = true;
 }
 
-export function clearStateCache() {
+export function clearCache() {
    dbg('clear');
    sessionStorage.clear();
 }
 
-export function useCachedState(initial, call, target) {
-   const key = buildKey(call, target);
-   const debugKey = key + (call.name ? ` { ${call.name}(${target}) }` : '');
-
-   const [state, setState] = useState(() => {
-      const stored = read(key, typeof initial);
-
-      if (stored === null) {
-         dbg(`m ${debugKey}`);
-      } else {
-         dbg(`H ${debugKey} = ${stored}`);
-      }
-
-      return stored ?? initial;
-   });
-
-   const setStateAndWriteIfNeeded = (v) => {
-      setState(v);
-
-      if (compare(read(key, typeof v), v)) {
-         return;
-      }
-
-      if (v === null) {
-         dbg(`- ${debugKey}`);
-      } else {
-         dbg(`+ ${debugKey} = ${v}`);
-      }
-
-      write(key, v);
-   };
-
-   return [state, setStateAndWriteIfNeeded];
+export function hasCacheKey(call, target) {
+   return contains({ call, target });
 }
 
-function buildKey(call, target) {
-   return djb2_hash(call.toString() + target);
+export function getCacheValue(call, target, returnType = 'string') {
+   return read({ call, target }, returnType);
+}
+
+export function setCacheValue(call, target, value) {
+   write({ call, target }, value);
+}
+
+export async function cachedCall(call, target, returnType = 'string') {
+   const key = { call, target };
+
+   if (contains(key)) {
+      return read(key, returnType);
+   }
+
+   const value = await call(target)
+   write(key, value);
+
+   return value;
+}
+
+export function useCachedCall(initial, call, target) {
+   const returnType = typeof initial;
+   const cachedValue = getCacheValue(call, target, returnType);
+   const [value, setValue] = useState(cachedValue ?? initial);
+
+   let mounted = true;
+
+   useEffect(() => {
+      (async () => {
+         if (mounted && cachedValue === null) {
+            setValue(await cachedCall(call, target, returnType));
+         }
+      })();
+
+      return () => {
+         mounted = false;
+      };
+   }, [call, target, returnType, cachedValue]);
+
+   return value;
+}
+
+function contains(key) {
+   return hashKey(key) in sessionStorage;
 }
 
 function read(key, type) {
-   const value = sessionStorage.getItem(key);
+   const hkey = hashKey(key);
+   const dkey = debugKey(key);
+   const rawValue = sessionStorage.getItem(hkey);
 
-   if (value === null) {
-      return null;
-   }
+   let value = null;
 
    if (type === 'string') {
-      return value;
-   }
+      value = rawValue;
 
-   if (type === 'boolean') {
-      return value === 'true';
-   }
+   } else if (type === 'boolean') {
+      value = rawValue === 'true';
 
-   if (type === 'number') {
-      return Number(value);
-   }
+   } else if (type === 'number') {
+      value = Number(rawValue);
 
-   if (type === 'object') {
-      const parsed = JSON.parse(value);
+   } else if (type === 'object') {
+      const parsed = JSON.parse(rawValue);
       if (typeof parsed === type) {
-         return parsed;
+         value = parsed;
       }
    }
 
-   return null;
+   if (value === null) {
+      dbg(`○ ${hkey} ${dkey}`);
+   } else {
+      dbg(`● ${hkey} = ${rawValue} ${dkey}`);
+   }
+
+   return value;
 }
 
 function write(key, value) {
-   if (value === null) {
-      sessionStorage.removeItem(key);
-      return;
+   const hkey = hashKey(key);
+   const dkey = debugKey(key);
+   const rawValue = typeof value === 'object'
+      ? JSON.stringify(value)
+      : String(value);
+
+   if (hkey in sessionStorage) {
+      dbg(`⨁ ${hkey} = ${rawValue} ${dkey}`);
+   } else {
+      dbg(`+ ${hkey} = ${rawValue} ${dkey}`);
    }
 
-   if (typeof value === 'object') {
-      sessionStorage.setItem(key, JSON.stringify(value));
-      return;
-   }
-
-   sessionStorage.setItem(key, String(value));
+   sessionStorage.setItem(hkey, rawValue);
 }
 
-function compare(a, b) {
-   if (a === b) return true;
+function hashKey(key) {
+   return djb2_hash(key.call.toString() + key.target);
+}
 
-   if (a == null || b == null) return false;
-
-   if (typeof a !== typeof b) return false;
-
-   if (a instanceof Date && b instanceof Date) {
-      return a.getTime() === b.getTime();
-   }
-
-   if (Array.isArray(a) && Array.isArray(b)) {
-      if (a.length !== b.length) return false;
-      return a.every((item, index) => compare(item, b[index]));
-   }
-
-   if (typeof a === 'object' && typeof b === 'object') {
-      const keysA = Object.keys(a);
-      const keysB = Object.keys(b);
-
-      if (keysA.length !== keysB.length) return false;
-
-      return keysA.every(key => 
-         keysB.includes(key) && compare(a[key], b[key])
-      );
-   }
-
-   return a === b;
+function debugKey(key) {
+   return key.call.name ? `   { ${key.call.name}(${key.target}) }` : '';
 }
 
 function djb2_hash(str) {
