@@ -2,15 +2,14 @@
 // SPDX-License-Identifier: MIT
 
 import { h, useState } from '/lib/preact+htm.js';
+import { useAudioTracks } from '/lib/state.js';
 import { PluginsButton, TrackLabel, TrackStrip } from '/lib/widget.js';
 import PluginsView from './plugins.js';
 
 
-export default function MixerView({
-   isOnline,
-   tracks
-}) {
+export default function MixerView() {
    const [pluginsViewTrack, setPluginsViewTrack] = useState(null);
+   const tracks = useAudioTracks();
 
    return h`
       <div

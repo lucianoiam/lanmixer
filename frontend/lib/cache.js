@@ -1,11 +1,6 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { useAsyncEffect, useState } from '/lib/preact+htm.js';
-
-
-// TODO: call serializer
-
 let _debugMessages = false;
 
 export function enableCacheDebugMessages() {
@@ -19,6 +14,10 @@ export function clearCache() {
 
 export function hasCacheKey(call, target) {
    return contains({ call, target });
+}
+
+export function removeCacheKey(call, target) {
+   remove({ call, target })
 }
 
 export function getCacheValue(call, target, returnType = 'string') {
@@ -42,22 +41,16 @@ export async function cachedCall(call, target, returnType = 'string') {
    return value;
 }
 
-export function useCachedCall(initial, call, target) {
-   const returnType = typeof initial;
-   const cachedValue = getCacheValue(call, target, returnType);
-   const [value, setValue] = useState(cachedValue ?? initial);
-
-   useAsyncEffect(async () => {
-      if (! hasCacheKey(call, target)) {
-         setValue(await cachedCall(call, target, returnType));
-      }
-   });
-
-   return value;
-}
-
 function contains(key) {
    return hashKey(key) in sessionStorage;
+}
+
+function remove(key) {
+   const hkey = hashKey(key);
+   const dkey = debugKey(key);
+
+   dbg(`- ${hkey} ${dkey}`);
+   sessionStorage.removeItem(hkey);
 }
 
 function read(key, type) {
@@ -67,26 +60,26 @@ function read(key, type) {
 
    let value = null;
 
-   if (type === 'string') {
-      value = rawValue;
-
-   } else if (type === 'boolean') {
-      value = rawValue === 'true';
-
-   } else if (type === 'number') {
-      value = Number(rawValue);
-
-   } else if (type === 'object') {
-      const parsed = JSON.parse(rawValue);
-      if (typeof parsed === type) {
-         value = parsed;
-      }
-   }
-
-   if (value === null) {
+   if (rawValue === null) {
       dbg(`○ ${hkey} ${dkey}`);
    } else {
       dbg(`● ${hkey} = ${rawValue} ${dkey}`);
+
+      if (type === 'string') {
+         value = rawValue;
+
+      } else if (type === 'boolean') {
+         value = rawValue === 'true';
+
+      } else if (type === 'number') {
+         value = Number(rawValue);
+
+      } else if (type === 'object') {
+         const parsed = JSON.parse(rawValue);
+         if (typeof parsed === type) {
+            value = parsed;
+         }
+      }
    }
 
    return value;

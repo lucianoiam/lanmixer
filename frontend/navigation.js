@@ -2,13 +2,15 @@
 // SPDX-License-Identifier: MIT
 
 import { h } from '/lib/preact+htm.js';
+import { useAudioTracks } from '/lib/state.js';
 import { TrackLabel } from '/lib/widget.js';
 
 
 export default function NavigationView({
-   className,
-   tracks
+   className
 }) {
+   const tracks = useAudioTracks();
+
    return h`
       <div
          className="${className}"

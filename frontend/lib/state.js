@@ -3,13 +3,12 @@
 
 import { useAsyncEffect, useCallback, useEffect, useRef, useState }
    from '/lib/preact+htm.js';
-import { getCacheValue, setCacheValue, clearCache, cachedCall, useCachedCall }
+import { hasCacheKey, removeCacheKey, getCacheValue, setCacheValue, cachedCall,
+         clearCache }
    from '/lib/cache.js';
 
 const { host, TrackType } = dawscript
 
-
-export const useHostCall = useCachedCall;
 
 export function useHostConnect() {
    const [isOnline, setOnline] = useState(false);
@@ -29,11 +28,28 @@ export function useHostConnect() {
    return isOnline;
 }
 
+// Performs RO calls
+export function useHostCall(initial, call, target) {
+   const returnType = typeof initial;
+
+   const [value, setValue] =
+      useState(getCacheValue(call, target, returnType) ?? initial);
+
+   useAsyncEffect(async () => {
+      if (! hasCacheKey(call, target)) {
+         setValue(await cachedCall(call, target, returnType));
+      }
+   }, []);
+
+   return value;
+}
+
+// Maps state to R/W calls with listener support
 export function useHostState(initial, getFunc, setFunc, addListenerFunc,
       removeListenerFunc, target) {
-   const initialCachedState = getCacheValue(getFunc, target, typeof initial);
-   const [state, setState] = useState(initialCachedState ?? initial);
-   const skipNextSetFuncCall = useRef(true); // do not send initialCachedState
+   const [state, setState] =
+      useState(getCacheValue(getFunc, target, typeof initial) ?? initial);
+   const skipNextSetFuncCall = useRef(true); // do not send initial state
 
    const setStateLocalOnly = useCallback((newState) => {
       skipNextSetFuncCall.current = true;
@@ -41,10 +57,10 @@ export function useHostState(initial, getFunc, setFunc, addListenerFunc,
       setState(newState);
    }, []);
 
-   // Always refresh on mount so changes from other clients during the unmounted
-   // state are picked up, as listeners are disconnected on unmount.
    useAsyncEffect(async () => {
-      setStateLocalOnly(await getFunc(target));
+      if (! hasCacheKey(getFunc, target)) {
+         setStateLocalOnly(await getFunc(target));
+      }
    }, []);
 
    useAsyncEffect(async () => {
@@ -61,33 +77,15 @@ export function useHostState(initial, getFunc, setFunc, addListenerFunc,
 
       return () => {
          removeListenerFunc(target, setStateLocalOnly);
+         removeCacheKey(getFunc, target); // force call on next mount
       };
    }, []);
 
    return [state, setState];
 }
 
-export function useInitStateIsReady() {
-   const [isReady, setReady] = useState(false);
-   const tracks = useAudioTracks();
-
-   useAsyncEffect(async () => {
-      for (const track of tracks) {
-         await cachedCall(host.getTrackName, track);
-         await cachedCall(host.getTrackVolume, track);
-         await cachedCall(host.isTrackMute, track);
-      }
-
-      if (tracks.length > 0) {
-         setReady(true);
-      }
-   }, [tracks]);
-
-   return isReady;
-}
-
 export function useAudioTracks() {
-   const audioTracks = useHostCall([], async () => {
+   return useHostCall([], async () => {
       const tracks = [];
 
       for (const track of await cachedCall(host.getTracks)) {
@@ -98,11 +96,25 @@ export function useAudioTracks() {
          }
       }
 
-      // FIXME - dawscript bug: IDs are not stable on Bitwig and Live
-      console.info(tracks);
-
       return tracks;
    });
+}
 
-   return audioTracks;
+export function useMixerStateIsReady() {
+   const [isReady, setReady] = useState(false);
+   const tracks = useAudioTracks();
+
+   useAsyncEffect(async () => {
+      if (tracks.length > 0) {
+         for (const track of tracks) {
+            await cachedCall(host.getTrackName, track);
+            await cachedCall(host.getTrackVolume, track);
+            await cachedCall(host.isTrackMute, track);
+         }
+
+         setReady(true);
+      }
+   }, [tracks]);
+
+   return isReady;
 }
