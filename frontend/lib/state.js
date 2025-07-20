@@ -2,14 +2,19 @@
 // SPDX-License-Identifier: MIT
 
 import { useAsyncEffect, useCallback, useEffect, useRef, useState }
-   from '/lib/preact+htm.js';
-import { hasCacheKey, removeCacheKey, getCacheValue, setCacheValue, cachedCall,
-         clearCache }
+   from '/lib/react.js';
+import { buildCacheKey, hasCacheKey, clearCache, cachedCall, useCachedState } 
    from '/lib/cache.js';
 
 const { host, TrackType } = dawscript
+const dirtyState = new Set();
+
+let userReload = false;
+
+window.addEventListener('beforeunload', () => userReload = true);
 
 
+// FIXME: allow to call from multiple places, rename to useHostIsOnline.
 export function useHostConnect() {
    const [isOnline, setOnline] = useState(false);
 
@@ -17,7 +22,8 @@ export function useHostConnect() {
       dawscript.connect((status) => {
          setOnline(status);
 
-         if (! status) {
+         userReload = false; // FIXME
+         if (! status && ! userReload) {
             clearCache();
          }
 
@@ -28,58 +34,38 @@ export function useHostConnect() {
    return isOnline;
 }
 
-// Performs RO calls
-export function useHostCall(initial, call, target) {
-   const returnType = typeof initial;
-
-   const [value, setValue] =
-      useState(getCacheValue(call, target, returnType) ?? initial);
-
-   useAsyncEffect(async () => {
-      if (! hasCacheKey(call, target)) {
-         setValue(await cachedCall(call, target, returnType));
-      }
-   }, []);
-
-   return value;
+export function useHostCall(init, call, target) {
+   return useHostCallROWithCache(init, call, target)[0];
 }
 
-// Maps state to R/W calls with listener support
-export function useHostState(initial, getFunc, setFunc, addListenerFunc,
-      removeListenerFunc, target) {
-   const [state, setState] =
-      useState(getCacheValue(getFunc, target, typeof initial) ?? initial);
-   const skipNextSetFuncCall = useRef(true); // do not send initial state
+export function useHostState(init, getFunc, setFunc, addLstFunc, removeLstFunc,
+      target) {
+   const [state, setState] = useHostCallROWithCache(init, getFunc, target);
+   const skipNextSetFuncCall = useRef(true); // do not send init state
 
-   const setStateLocalOnly = useCallback((newState) => {
+   const listener = useCallback((newState) => {
       skipNextSetFuncCall.current = true;
-      setCacheValue(getFunc, target, newState);
       setState(newState);
    }, []);
 
    useAsyncEffect(async () => {
-      if (! hasCacheKey(getFunc, target)) {
-         setStateLocalOnly(await getFunc(target));
-      }
+      await addLstFunc(target, listener);
+
+      return () => {
+         removeLstFunc(target, listener);
+         const key = buildCacheKey(getFunc, target);
+         dirtyState.add(key.hash); // force call on next mount
+      };
    }, []);
 
    useAsyncEffect(async () => {
       if (skipNextSetFuncCall.current) {
          skipNextSetFuncCall.current = false;
-      } else {
-         setCacheValue(getFunc, target, state);
-         await setFunc(target, state);
+         return;
       }
+
+      await setFunc(target, state);
    }, [state]);
-
-   useAsyncEffect(async () => {
-      await addListenerFunc(target, setStateLocalOnly);
-
-      return () => {
-         removeListenerFunc(target, setStateLocalOnly);
-         removeCacheKey(getFunc, target); // force call on next mount
-      };
-   }, []);
 
    return [state, setState];
 }
@@ -117,4 +103,19 @@ export function useMixerStateIsReady() {
    }, [tracks]);
 
    return isReady;
+}
+
+function useHostCallROWithCache(init, call, target) {
+   const key = buildCacheKey(call, target); 
+   const [state, setState] = useCachedState(init, key);
+
+   useAsyncEffect(async () => {
+      if (! hasCacheKey(key) || dirtyState.has(key.hash)) {
+         dirtyState.delete(key.hash);
+         const result = await call(target);
+         setState(result);
+      }
+   }, []);
+
+   return [state, setState];
 }

@@ -6,12 +6,33 @@ export * from '/vendor/hooks.module.js';
 
 import htm from '/vendor/htm.module.js';
 import { createElement } from '/vendor/preact.module.js';
-import { useEffect } from '/vendor/hooks.module.js';
+import { useEffect, useRef } from '/vendor/hooks.module.js';
 
 export const h = htm.bind(createElement);
 
-export function useAsyncEffect(asyncFn, deps) {
+export function useUpdateEffect(callback, deps) {
+   const isFirstRender = useRef(true);
+
    useEffect(() => {
+      if (isFirstRender.current) {
+         isFirstRender.current = false;
+         return;
+      }
+
+      callback();
+   }, deps);
+}
+
+export function useAsyncEffect(asyncFn, deps) {
+   useAsyncEffectWithHook(asyncFn, deps, useEffect);
+}
+
+export function useUpdateAsyncEffect(asyncFn, deps) {
+   useAsyncEffectWithHook(asyncFn, deps, useUpdateEffect);
+}
+
+function useAsyncEffectWithHook(asyncFn, deps, effectHook) {
+   effectHook(() => {
       let isMounted = true;
       let cleanupFn = null;
 

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, createElement, render } from '/lib/preact+htm.js';
+import { h, createElement, render } from '/lib/react.js';
 import { enableCacheDebugMessages } from '/lib/cache.js';
 import { useHostConnect, useMixerStateIsReady } from '/lib/state.js';
 import MixerView from './mixer.js';

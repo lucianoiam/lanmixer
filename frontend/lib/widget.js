@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, createElement, useEffect } from './preact+htm.js';
+import { h, createElement, useEffect } from './react.js';
 import { useHostCall, useHostState } from './state.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '/vendor/guinda/guinda.react.module.js';

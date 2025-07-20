@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, useEffect, useState, useRef } from './preact+htm.js';
+import { h, useEffect, useState, useRef } from './react.js';
 
 
 export default function OfflineView({

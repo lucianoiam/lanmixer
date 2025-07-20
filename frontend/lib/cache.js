@@ -1,6 +1,9 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
+import { useEffect, useRef, useState } from '/lib/react.js';
+
+
 let _debugMessages = false;
 
 export function enableCacheDebugMessages() {
@@ -12,58 +15,57 @@ export function clearCache() {
    sessionStorage.clear();
 }
 
-export function hasCacheKey(call, target) {
-   return contains({ call, target });
+export function buildCacheKey(call, target) {
+   return {
+      call,
+      target,
+      hash: djb2_hash(call.toString() + (target ?? '').toString())
+   };
 }
 
-export function removeCacheKey(call, target) {
-   remove({ call, target })
+export function hasCacheKey(key) {
+   return key.hash in sessionStorage;
 }
 
-export function getCacheValue(call, target, returnType = 'string') {
-   return read({ call, target }, returnType);
-}
+export async function cachedCall(call, target) {
+   const ckey = buildCacheKey(call, target);
 
-export function setCacheValue(call, target, value) {
-   write({ call, target }, value);
-}
-
-export async function cachedCall(call, target, returnType = 'string') {
-   const key = { call, target };
-
-   if (contains(key)) {
-      return read(key, returnType);
+   if (hasCacheKey(ckey)) {
+      return read(ckey);
    }
 
    const value = await call(target)
-   write(key, value);
+   write(ckey, value);
 
    return value;
 }
 
-function contains(key) {
-   return hashKey(key) in sessionStorage;
+export function useCachedState(init, key) {
+   const isFirstRender = useRef(true);
+   const cachedState = isFirstRender.current ? read(key, typeof init) : null;
+   const [value, setValue] = useState(cachedState ?? init);
+
+   useEffect(() => {
+      if (isFirstRender.current) {
+         isFirstRender.current = false;
+         return;
+      }
+
+      write(key, value);  
+   }, [value]);
+
+   return [value, setValue];
 }
 
-function remove(key) {
-   const hkey = hashKey(key);
-   const dkey = debugKey(key);
-
-   dbg(`- ${hkey} ${dkey}`);
-   sessionStorage.removeItem(hkey);
-}
-
-function read(key, type) {
-   const hkey = hashKey(key);
-   const dkey = debugKey(key);
-   const rawValue = sessionStorage.getItem(hkey);
+function read(key, type = 'string') {
+   const rawValue = sessionStorage.getItem(key.hash);
 
    let value = null;
 
    if (rawValue === null) {
-      dbg(`○ ${hkey} ${dkey}`);
+      dbg(`○ ${key.hash} ${formatKey(key)}`);
    } else {
-      dbg(`● ${hkey} = ${rawValue} ${dkey}`);
+      dbg(`● ${key.hash} = ${rawValue} ${formatKey(key)}`);
 
       if (type === 'string') {
          value = rawValue;
@@ -86,31 +88,25 @@ function read(key, type) {
 }
 
 function write(key, value) {
-   const hkey = hashKey(key);
-   const dkey = debugKey(key);
    const rawValue = typeof value === 'object'
       ? JSON.stringify(value)
       : String(value);
 
-   if (hkey in sessionStorage) {
-      dbg(`⨁ ${hkey} = ${rawValue} ${dkey}`);
+   if (key.hash in sessionStorage) {
+      dbg(`⨁ ${key.hash} = ${rawValue} ${formatKey(key)}`);
    } else {
-      dbg(`+ ${hkey} = ${rawValue} ${dkey}`);
+      dbg(`+ ${key.hash} = ${rawValue} ${formatKey(key)}`);
    }
 
-   sessionStorage.setItem(hkey, rawValue);
+   sessionStorage.setItem(key.hash, rawValue);
 }
 
-function hashKey(key) {
-   return djb2_hash(key.call.toString() + key.target);
-}
-
-function debugKey(key) {
+function formatKey(key) {
    if (! key.call.name) {
       return '';
    }
 
-   return `   { ${key.call.name}(${key.target ?? ''}) }`;
+   return `, ${key.call.name}( ${key.target ?? ''} )`;
 }
 
 function djb2_hash(str) {

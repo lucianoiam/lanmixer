@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h } from '/lib/preact+htm.js';
+import { h } from '/lib/react.js';
 import { useHostCall } from '/lib/state.js';
 
 const { host, TrackType } = dawscript;

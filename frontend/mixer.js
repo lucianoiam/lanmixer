@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, useState } from '/lib/preact+htm.js';
+import { h, useState } from '/lib/react.js';
 import { useAudioTracks } from '/lib/state.js';
 import { PluginsButton, TrackLabel, TrackStrip } from '/lib/widget.js';
 import PluginsView from './plugins.js';
