@@ -1,17 +1,16 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, createElement, render } from '/lib/react.js';
-import { enableCacheDebugMessages } from '/lib/cache.js';
-import { useHostConnect, useMixerStateIsReady } from '/lib/state.js';
+import { h, createElement as elem, render } from '/lib/react.js';
+import { ConnectionProvider, useConnected, useMixerReady } from '/lib/state.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
 import OfflineView from '/lib/offline.js';
 
 
 function MainView() {
-   const isOnline = useHostConnect();
-   const isReady = useMixerStateIsReady();
+   const isConnected = useConnected();
+   const isMixerReady = useMixerReady();
 
    return h`
       <div
@@ -21,7 +20,7 @@ function MainView() {
             minHeight: 384
          }}
       >
-         ${isReady ? h`
+         ${isMixerReady ? h`
             <div
                className="absolute inset-0 flex flex-row"
             >
@@ -38,7 +37,7 @@ function MainView() {
             </div>
          `}
          <${OfflineView}
-            isOnline=${isOnline}
+            isConnected=${isConnected}
             className="absolute inset-0"
          />
       </div>
@@ -46,7 +45,4 @@ function MainView() {
 }
 
 
-enableCacheDebugMessages();
-dawscript.enableDebugMessages();
-
-render(createElement(MainView), document.body);
+render(elem(ConnectionProvider, null, elem(MainView, null)), document.body);

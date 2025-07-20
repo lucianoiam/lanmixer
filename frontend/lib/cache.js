@@ -3,8 +3,8 @@
 
 import { useEffect, useRef, useState } from '/lib/react.js';
 
-
 let _debugMessages = false;
+
 
 export function enableCacheDebugMessages() {
    _debugMessages = true;
@@ -27,11 +27,11 @@ export function hasCacheKey(key) {
    return key.hash in sessionStorage;
 }
 
-export async function cachedCall(call, target) {
+export async function cachedCall(call, target, type = 'string') {
    const ckey = buildCacheKey(call, target);
 
    if (hasCacheKey(ckey)) {
-      return read(ckey);
+      return read(ckey, type);
    }
 
    const value = await call(target)
@@ -40,7 +40,7 @@ export async function cachedCall(call, target) {
    return value;
 }
 
-export function useCachedState(init, key) {
+export function useCachedState(init, key, deps = []) {
    const isFirstRender = useRef(true);
    const cachedState = isFirstRender.current ? read(key, typeof init) : null;
    const [value, setValue] = useState(cachedState ?? init);
@@ -52,7 +52,7 @@ export function useCachedState(init, key) {
       }
 
       write(key, value);  
-   }, [value]);
+   }, [value, ...deps]);
 
    return [value, setValue];
 }
@@ -106,7 +106,9 @@ function formatKey(key) {
       return '';
    }
 
-   return `, ${key.call.name}( ${key.target ?? ''} )`;
+   const args = key.target ? `( ${key.target} }` : '()';
+
+   return `, ${key.call.name}${args}`;
 }
 
 function djb2_hash(str) {

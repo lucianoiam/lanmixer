@@ -5,7 +5,7 @@ import { h, useEffect, useState, useRef } from './react.js';
 
 
 export default function OfflineView({
-   isOnline,
+   isConnected,
    className
 }) {
    const [isVisible, setVisible] = useState(false);
@@ -14,7 +14,7 @@ export default function OfflineView({
    useEffect(() => {
       clearTimeout(timer.current);
 
-      if (isOnline) {
+      if (isConnected) {
          setVisible(false);
       } else {
          timer.current = setTimeout(() => {
@@ -23,7 +23,7 @@ export default function OfflineView({
       }
 
       return () => clearTimeout(timer.current);
-   }, [isOnline]);
+   }, [isConnected]);
 
    className += isVisible ? ' block' : ' hidden';
 
