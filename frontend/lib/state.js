@@ -113,6 +113,15 @@ function useHostCallROWithCache(init, call, target) {
       if (! hasCacheKey(key) || dirtyState.has(key.hash)) {
          dirtyState.delete(key.hash);
          const result = await call(target);
+
+         // Workaround for the asymmetry between the volume getter and setter
+         // values in dB caused by the conversion curves.
+         // dawscript bug: set_track_volume(vol); get_track_volume() == ~vol
+         if ((call.name == 'getTrackVolume')
+               && (Math.abs(state - result) < 2/*dB*/)) {
+            return;
+         }
+
          setState(result);
       }
    }, []);
