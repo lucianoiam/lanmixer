@@ -15,29 +15,25 @@ export function clearCache() {
    sessionStorage.clear();
 }
 
-export function buildCacheKey(call, target) {
-   return {
-      call,
-      target,
-      hash: djb2_hash(call.toString() + (target ?? '').toString())
-   };
-}
-
-export function hasCacheKey(key) {
-   return key.hash in sessionStorage;
-}
-
-export async function cachedCall(call, target, type = 'string') {
-   const ckey = buildCacheKey(call, target);
+export async function callWithCache(fn, arg, type = 'string') {
+   const ckey = buildCacheKey(fn, arg);
 
    if (hasCacheKey(ckey)) {
       return read(ckey, type);
    }
 
-   const value = await call(target)
+   const value = await fn(arg)
    write(ckey, value);
 
    return value;
+}
+
+export function buildCacheKey(fn, arg) {
+   return { fn, arg, hash: djb2_hash(fn.toString() + (arg ?? '').toString()) };
+}
+
+export function hasCacheKey(key) {
+   return key.hash in sessionStorage;
 }
 
 export function useCachedState(init, key, deps = []) {
@@ -102,13 +98,13 @@ function write(key, value) {
 }
 
 function formatKey(key) {
-   if (! key.call.name) {
+   if (! key.fn.name) {
       return '';
    }
 
-   const args = key.target ? `( ${key.target} }` : '()';
+   const args = key.arg ? `( ${key.arg} }` : '()';
 
-   return `, ${key.call.name}${args}`;
+   return `, ${key.fn.name}${args}`;
 }
 
 function djb2_hash(str) {

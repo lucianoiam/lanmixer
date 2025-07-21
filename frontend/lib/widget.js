@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { h, createElement, useEffect } from './react.js';
-import { useHostCall, useHostState } from './state.js';
+import { useImmutableState, useMutableState } from './state.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '/vendor/guinda/guinda.react.module.js';
 
@@ -15,7 +15,7 @@ const MAX_VOLUME = 6.0
 export function TrackLabel({
    track
 }) {
-   const name = useHostCall('', host.getTrackName, track);
+   const name = useImmutableState('', track, host.getTrackName);
 
    return h`
       <label
@@ -48,10 +48,9 @@ export function TrackStrip({
 export function VolumeFader({
    track
 }) {
-   const [value, setValue] = useHostState(MIN_VOLUME,
+   const [value, setValue] = useMutableState(MIN_VOLUME, track,
       host.getTrackVolume, host.setTrackVolume,
-      host.addTrackVolumeListener, host.removeTrackVolumeListener,
-      track);
+      host.addTrackVolumeListener, host.removeTrackVolumeListener);
 
    const onInput = (e) => {
       const value = e.target.value;
@@ -76,10 +75,9 @@ export function VolumeFader({
 export function MuteButton({
    track
 }) {
-   const [value, setValue] = useHostState(false,
+   const [value, setValue] = useMutableState(false, track,
       host.isTrackMute, host.setTrackMute,
-      host.addTrackMuteListener, host.removeTrackMuteListener,
-      track);
+      host.addTrackMuteListener, host.removeTrackMuteListener);
 
    const onInput = (e) => {
       const value = e.target.value;
@@ -126,11 +124,10 @@ export function PluginsButton({
 export function ParameterKnob({
    param
 }) {
-   const [value, setValue] = useHostState(0,
+   const [value, setValue] = useMutableState(0, param,
       host.getParameterValue, host.setParameterValue,
-      host.addParameterValueListener, host.removeParameterValueListener,
-      param);
-   const range = useHostCall([ 0, 1.0 ], host.getParameterRange, param);
+      host.addParameterValueListener, host.removeParameterValueListener);
+   const range = useImmutableState([ 0, 1.0 ], param, host.getParameterRange);
 
    const onInput = (e) => {
       const value = e.target.value;

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { h } from '/lib/react.js';
-import { useHostCall } from '/lib/state.js';
+import { useImmutableState } from '/lib/state.js';
 
 const { host, TrackType } = dawscript;
 
@@ -10,7 +10,7 @@ const { host, TrackType } = dawscript;
 export default function PluginsView({
    track
 }) {
-   const plugins = useHostCall([], host.getTrackPlugins, track);
+   const plugins = useImmutableState([], track, host.getTrackPlugins);
 
    return h`
       <div

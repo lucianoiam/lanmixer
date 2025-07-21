@@ -4,17 +4,13 @@
 import { useAsyncEffect, useCallback, useEffect, useRef, useState, useContext,
          createContext, createElement as elem }
    from '/lib/react.js';
-import { enableCacheDebugMessages, buildCacheKey, hasCacheKey, clearCache,
-         cachedCall, useCachedState } 
+import { buildCacheKey, hasCacheKey, clearCache, callWithCache, useCachedState } 
    from '/lib/cache.js';
 
-const { host, TrackType } = dawscript
+const { host, TrackType } = dawscript;
 
-const dirtyState = new Set();
+const g = { dirtyState: new Set() };
 const DawscriptContext = createContext();
-
-enableCacheDebugMessages();
-dawscript.enableDebugMessages();
 
 
 export function ConnectionProvider({ children }) {
@@ -65,9 +61,9 @@ export function useMixerReady() {
    useAsyncEffect(async () => {
       if (tracks.length > 0) {
          for (const track of tracks) {
-            await cachedCall(host.getTrackName, track);
-            await cachedCall(host.getTrackVolume, track);
-            await cachedCall(host.isTrackMute, track);
+            await callWithCache(host.getTrackName, track);
+            await callWithCache(host.getTrackVolume, track);
+            await callWithCache(host.isTrackMute, track);
          }
 
          setReady(true);
@@ -80,11 +76,11 @@ export function useMixerReady() {
 export function useAudioTracks() {
    const { sessionId } = useContext(DawscriptContext);
 
-   return useHostCall([], async () => {
+   return useImmutableState([], null, async () => {
       const tracks = [];
 
-      for (const track of await cachedCall(host.getTracks, null, 'object')) {
-         const type = await cachedCall(host.getTrackType, track);
+      for (const track of await callWithCache(host.getTracks, null, 'object')) {
+         const type = await callWithCache(host.getTrackType, track);
 
          if (type == TrackType.AUDIO) {
             tracks.push(track);
@@ -95,55 +91,55 @@ export function useAudioTracks() {
    }, [sessionId]);
 }
 
-export function useHostCall(init, call, target, deps) {
-   return useHostCallROWithCache(init, call, target, deps)[0];
+export function useImmutableState(init, target, getFn, deps) {
+   return useGetFnCall(init, getFn, target, deps)[0];
 }
 
-export function useHostState(init, getFunc, setFunc, addLstFunc, removeLstFunc,
-      target, deps) {
-   const [state, setState] = useHostCallROWithCache(init, getFunc, target, deps);
-   const skipNextSetFuncCall = useRef(true); // do not send init state
+export function useMutableState(init, target, getFn, setFn, addListenerFn,
+      removeListenerFn, deps) {
+   const [state, setState] = useGetFnCall(init, getFn, target, deps);
+   const skipNextSetFnCall = useRef(true); // do not send init state
 
    const listener = useCallback((newState) => {
-      skipNextSetFuncCall.current = true;
+      skipNextSetFnCall.current = true;
       setState(newState);
    }, []);
 
    useAsyncEffect(async () => {
-      await addLstFunc(target, listener);
+      await addListenerFn(target, listener);
 
       return () => {
-         removeLstFunc(target, listener);
-         const key = buildCacheKey(getFunc, target);
-         dirtyState.add(key.hash); // force call on next mount
+         removeListenerFn(target, listener);
+         const key = buildCacheKey(getFn, target);
+         g.dirtyState.add(key.hash); // force getFn call on next mount
       };
    }, []);
 
    useAsyncEffect(async () => {
-      if (skipNextSetFuncCall.current) {
-         skipNextSetFuncCall.current = false;
+      if (skipNextSetFnCall.current) {
+         skipNextSetFnCall.current = false;
          return;
       }
 
-      await setFunc(target, state);
+      await setFn(target, state);
    }, [state]);
 
    return [state, setState];
 }
 
-function useHostCallROWithCache(init, call, target, deps) {
-   const key = buildCacheKey(call, target); 
+function useGetFnCall(init, fn, arg, deps) {
+   const key = buildCacheKey(fn, arg); 
    const [state, setState] = useCachedState(init, key);
 
    useAsyncEffect(async () => {
-      if (! hasCacheKey(key) || dirtyState.has(key.hash)) {
-         dirtyState.delete(key.hash);
-         const result = await call(target);
+      if (! hasCacheKey(key) || g.dirtyState.has(key.hash)) {
+         g.dirtyState.delete(key.hash);
+         const result = await fn(arg);
 
          // Workaround for the asymmetry between the volume getter and setter
          // values in dB caused by the conversion curves.
          // dawscript bug: set_track_volume(vol); get_track_volume() == ~vol
-         if ((call.name == 'getTrackVolume')
+         if ((fn.name == 'getTrackVolume')
                && (Math.abs(state - result) < 2/*dB*/)) {
             return;
          }
