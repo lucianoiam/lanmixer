@@ -137,17 +137,7 @@ function useCachedFnCall(init, fn, arg) {
       }
 
       try {
-         const result = await fn(arg);
-
-         // FIXME - dawscript bug: workaround for the asymmetry between the
-         // volume getter and setter values caused by the conversion curves.
-         // set_track_volume( vol_db ); get_track_volume() == vol_db ± err
-         if ((fn.name == 'getTrackVolume')
-               && (Math.abs(state - result) < 2/*dB*/)) {
-            return;
-         }
-
-         setState(result);
+         setState(await fn(arg));
       } catch (err) {
          dbg_err(err);
       }
