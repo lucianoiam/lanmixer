@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { h } from '/lib/react.js';
-import { useImmutableState } from '/lib/state.js';
+import { useImmutableState } from '/lib/host.js';
 
 const { host, TrackType } = dawscript;
 

@@ -36,6 +36,11 @@ export function hasCacheKey(key) {
    return key.hash in sessionStorage;
 }
 
+export function removeCacheKey(key) {
+   dbg(`- ${key.hash} ${formatKey(key)}`);
+   return sessionStorage.removeItem(key.hash);
+}
+
 export function useCachedState(init, key, deps = []) {
    const isFirstRender = useRef(true);
    const cachedState = isFirstRender.current ? read(key, typeof init) : null;

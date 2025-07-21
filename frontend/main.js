@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { h, createElement as elem, render } from '/lib/react.js';
-import { ConnectionProvider, useConnected, useMixerReady } from '/lib/state.js';
+import { ConnectionProvider, useMixerReady } from '/lib/host.js';
 import { enableCacheDebugMessages } from '/lib/cache.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
@@ -10,7 +10,6 @@ import OfflineView from '/lib/offline.js';
 
 
 function MainView() {
-   const isConnected = useConnected();
    const isMixerReady = useMixerReady();
 
    return h`
@@ -38,7 +37,6 @@ function MainView() {
             </div>
          `}
          <${OfflineView}
-            isConnected=${isConnected}
             className="absolute inset-0"
          />
       </div>

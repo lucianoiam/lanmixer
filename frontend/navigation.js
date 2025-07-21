@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { h } from '/lib/react.js';
-import { useAudioTracks } from '/lib/state.js';
+import { useAudioTracks } from '/lib/host.js';
 import { TrackLabel } from '/lib/widget.js';
 
 

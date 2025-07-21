@@ -2,13 +2,14 @@
 // SPDX-License-Identifier: MIT
 
 import { h, useEffect, useState, useRef } from './react.js';
+import { useConnected } from '/lib/host.js';
 
 
 export default function OfflineView({
-   isConnected,
    className
 }) {
    const [isVisible, setVisible] = useState(false);
+   const isConnected = useConnected();
    const timer = useRef(null);
 
    useEffect(() => {
