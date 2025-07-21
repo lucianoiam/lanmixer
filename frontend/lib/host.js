@@ -4,8 +4,7 @@
 import { useAsyncEffect, useCallback, useEffect, useRef, useState, useContext,
          createContext, createElement as elem }
    from '/lib/react.js';
-import { buildCacheKey, hasCacheKey, removeCacheKey, clearCache, callWithCache,
-         useCachedState } 
+import { buildCacheKey, hasCacheKey, clearCache, callWithCache, useCachedState } 
    from '/lib/cache.js';
 
 const { host, TrackType } = dawscript;
@@ -13,33 +12,22 @@ const { host, TrackType } = dawscript;
 const ConnectionContext = createContext();
 const g = { dirtyState: new Set() };
 
+// Always check track handles and types on startup
+invalidateAudioTracks();
+
 
 export function ConnectionProvider({ children }) {
    const [state, setState] = useState({ isOnline: false, sessionId: 0 });
 
    useEffect(() => {
       let sessionId = 0;
-      let isUserReload = false;
-
-      // Refresh track list (handles and types) on  ⌘R, F5, etc.
-      window.addEventListener('beforeunload', () => {
-         removeCacheKey(buildCacheKey(hostGetTracksOfTypeAudio));
-         isUserReload = true;
-      });
 
       dawscript.connect((isOnline) => {
          if (isOnline) {
             sessionId++;
 
-            // Keep cached state, except track list as commented above.
-            // Do not try to reconnect.
-            if (isUserReload) {
-               return false;
-            }
-
-            // Full refresh after automatic reconnection
-            if (sessionId > 1) {
-               clearCache();
+            if (sessionId > 1) { // automatic reconnection?
+               clearCache(); // full refresh
             }
          }
 
@@ -65,10 +53,10 @@ export function useConnected() {
 export function useMixerReady() {
    const [isReady, setReady] = useState(false);
    const { sessionId } = useContext(ConnectionContext);
-   const tracks = useAudioTracks();
 
    useAsyncEffect(async () => {
       try {
+         const tracks = await getAudioTracks();
          if (tracks.length > 0) {
             for (const track of tracks) {
                await callWithCache(host.getTrackName, track);
@@ -81,23 +69,23 @@ export function useMixerReady() {
       } catch (err) {
          dbg_err(err);
       }
-   }, [sessionId, tracks]);
+   }, [sessionId]);
 
    return isReady;
 }
 
 export function useAudioTracks() {
    const { sessionId } = useContext(ConnectionContext);
-   return useGetFnCall([], hostGetTracksOfTypeAudio, null, [sessionId])[0];
+   return useCachedFnCall([], getAudioTracks, null, [sessionId])[0];
 }
 
-export function useImmutableState(init, target, getFn, deps) {
-   return useGetFnCall(init, getFn, target, deps)[0];
+export function useImmutableState(init, target, getFn) {
+   return useCachedFnCall(init, getFn, target)[0];
 }
 
 export function useMutableState(init, target, getFn, setFn, addListenerFn,
-      removeListenerFn, deps) {
-   const [state, setState] = useGetFnCall(init, getFn, target, deps);
+      removeListenerFn) {
+   const [state, setState] = useCachedFnCall(init, getFn, target);
    const skipNextSetFnCall = useRef(true); // do not send init state
 
    const listener = useCallback((newState) => {
@@ -135,16 +123,18 @@ export function useMutableState(init, target, getFn, setFn, addListenerFn,
    return [state, setState];
 }
 
-function useGetFnCall(init, fn, arg, deps) {
+function useCachedFnCall(init, fn, arg) {
    const key = buildCacheKey(fn, arg); 
    const [state, setState] = useCachedState(init, key);
 
    useAsyncEffect(async () => {
-      if (hasCacheKey(key) && ! g.dirtyState.has(key.hash)) {
-         return;
+      if (hasCacheKey(key)) {
+         if (! g.dirtyState.has(key.hash)) {
+            return;
+         }
+         
+         g.dirtyState.delete(key.hash);
       }
-
-      g.dirtyState.delete(key.hash);
 
       try {
          const result = await fn(arg);
@@ -161,12 +151,16 @@ function useGetFnCall(init, fn, arg, deps) {
       } catch (err) {
          dbg_err(err);
       }
-   }, deps);
+   });
 
    return [state, setState];
 }
 
-async function hostGetTracksOfTypeAudio() {
+function invalidateAudioTracks() {
+   g.dirtyState.add(buildCacheKey(getAudioTracks).hash);
+}
+
+async function getAudioTracks() {
    const tracks = [];
 
    for (const track of await host.getTracks()) {
@@ -176,6 +170,10 @@ async function hostGetTracksOfTypeAudio() {
    }
 
    return tracks;
+}
+
+function dbg(message) {
+   console.debug(`[state]     ${message}`);
 }
 
 function dbg_err(message) {

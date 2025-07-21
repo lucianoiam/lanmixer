@@ -5,9 +5,7 @@ import { h, useEffect, useState, useRef } from './react.js';
 import { useConnected } from '/lib/host.js';
 
 
-export default function OfflineView({
-   className
-}) {
+export default function OfflineView({ className }) {
    const [isVisible, setVisible] = useState(false);
    const isConnected = useConnected();
    const timer = useRef(null);

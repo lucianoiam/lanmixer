@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 import { h, createElement as elem, render } from '/lib/react.js';
-import { ConnectionProvider, useMixerReady } from '/lib/host.js';
+import { ConnectionProvider, useAudioTracks, useMixerReady }
+   from '/lib/host.js';
 import { enableCacheDebugMessages } from '/lib/cache.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
@@ -10,6 +11,7 @@ import OfflineView from '/lib/offline.js';
 
 
 function MainView() {
+   const audioTracks = useAudioTracks();
    const isMixerReady = useMixerReady();
 
    return h`
@@ -26,8 +28,11 @@ function MainView() {
             >
                <${NavigationView}
                   className="w-36"
+                  tracks=${audioTracks}
                />
-               <${MixerView} />
+               <${MixerView}
+                  tracks=${audioTracks}
+               />
             </div>
          ` : h`
             <div

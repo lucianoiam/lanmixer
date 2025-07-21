@@ -2,14 +2,12 @@
 // SPDX-License-Identifier: MIT
 
 import { h, useState } from '/lib/react.js';
-import { useAudioTracks } from '/lib/host.js';
 import { PluginsButton, TrackLabel, TrackStrip } from '/lib/widget.js';
 import PluginsView from './plugins.js';
 
 
-export default function MixerView() {
+export default function MixerView({ tracks }) {
    const [pluginsViewTrack, setPluginsViewTrack] = useState(null);
-   const tracks = useAudioTracks();
 
    return h`
       <div

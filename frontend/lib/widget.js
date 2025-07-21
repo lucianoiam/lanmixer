@@ -12,9 +12,7 @@ const MIN_VOLUME = -64.0;
 const MAX_VOLUME = 6.0
 
 
-export function TrackLabel({
-   track
-}) {
+export function TrackLabel({ track }) {
    const name = useImmutableState('', track, host.getTrackName);
 
    return h`
@@ -28,9 +26,7 @@ export function TrackLabel({
    `;
 }
 
-export function TrackStrip({
-   track
-}) {
+export function TrackStrip({ track }) {
    return h`
       <div
          className="flex flex-col items-center gap-5"
@@ -45,9 +41,7 @@ export function TrackStrip({
    `;
 }
 
-export function VolumeFader({
-   track
-}) {
+export function VolumeFader({ track }) {
    const [value, setValue] = useMutableState(MIN_VOLUME, track,
       host.getTrackVolume, host.setTrackVolume,
       host.addTrackVolumeListener, host.removeTrackVolumeListener);
@@ -72,9 +66,7 @@ export function VolumeFader({
    );
 }
 
-export function MuteButton({
-   track
-}) {
+export function MuteButton({ track }) {
    const [value, setValue] = useMutableState(false, track,
       host.isTrackMute, host.setTrackMute,
       host.addTrackMuteListener, host.removeTrackMuteListener);
@@ -99,11 +91,7 @@ export function MuteButton({
    );
 }
 
-export function PluginsButton({
-   track,
-   value,
-   onClick
-}) {
+export function PluginsButton({ track, value, onClick }) {
    const onInput = (ev) => onClick(ev.currentTarget.value ? track : null);
 
    return createElement(
@@ -121,13 +109,12 @@ export function PluginsButton({
    );
 }
 
-export function ParameterKnob({
-   param
-}) {
+export function ParameterKnob({ param }) {
+   const range = useImmutableState([ 0, 1.0 ], param, host.getParameterRange);
+
    const [value, setValue] = useMutableState(0, param,
       host.getParameterValue, host.setParameterValue,
       host.addParameterValueListener, host.removeParameterValueListener);
-   const range = useImmutableState([ 0, 1.0 ], param, host.getParameterRange);
 
    const onInput = (e) => {
       const value = e.target.value;

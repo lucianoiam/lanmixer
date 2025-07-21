@@ -7,9 +7,7 @@ import { useImmutableState } from '/lib/host.js';
 const { host, TrackType } = dawscript;
 
 
-export default function PluginsView({
-   track
-}) {
+export default function PluginsView({ track }) {
    const plugins = useImmutableState([], track, host.getTrackPlugins);
 
    return h`
