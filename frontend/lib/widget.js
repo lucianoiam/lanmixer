@@ -8,9 +8,6 @@ import { KnobComponent, FaderComponent, ButtonComponent }
 
 const { host } = dawscript;
 
-const MIN_VOLUME = -64.0;
-const MAX_VOLUME = 6.0
-
 
 export function TrackLabel({ track }) {
    const name = useImmutableState('', track, host.getTrackName);
@@ -42,7 +39,7 @@ export function TrackStrip({ track }) {
 }
 
 export function VolumeFader({ track }) {
-   const [value, setValue] = useMutableState(MIN_VOLUME, track,
+   const [value, setValue] = useMutableState(0, track,
       host.getTrackVolume, host.setTrackVolume,
       host.addTrackVolumeListener, host.removeTrackVolumeListener);
 
@@ -56,8 +53,6 @@ export function VolumeFader({ track }) {
          onInput,
          value,
          defaultValue: value,
-         min: MIN_VOLUME,
-         max: MAX_VOLUME,
          style: {
             width: 37,
             height: 200

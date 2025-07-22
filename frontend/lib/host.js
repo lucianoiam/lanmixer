@@ -9,11 +9,14 @@ import { buildCacheKey, hasCacheKey, clearCache, callWithCache, useCachedState }
 
 const { host, TrackType } = dawscript;
 
+// TODO: move global state to the ConnectionProvider state
+//       remove ugly global 'g'
+//       rename ConnectionProvider to SessionProvider
+//       rename ConnectionContext to SesssionContext
 const ConnectionContext = createContext();
 const g = { dirtyState: new Set() };
 
-// Always check track handles and types on startup
-invalidateAudioTracks();
+invalidateCachedGlobalState();
 
 
 export function ConnectionProvider({ children }) {
@@ -56,6 +59,7 @@ export function useMixerReady() {
 
    useAsyncEffect(async () => {
       try {
+         await callWithCache(host.getFaderLabelPositions);
          const tracks = await getAudioTracks();
          if (tracks.length > 0) {
             for (const track of tracks) {
@@ -146,8 +150,9 @@ function useCachedFnCall(init, fn, arg) {
    return [state, setState];
 }
 
-function invalidateAudioTracks() {
+function invalidateCachedGlobalState() {
    g.dirtyState.add(buildCacheKey(getAudioTracks).hash);
+   g.dirtyState.add(buildCacheKey(host.getFaderLabelPositions).hash);
 }
 
 async function getAudioTracks() {
