@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { h, createElement as elem, render } from '/lib/react.js';
-import { ConnectionProvider, useAudioTracks, useMixerReady }
-   from '/lib/host.js';
+import { SessionProvider, useSession } from '/lib/host.js';
 import { enableCacheDebugMessages } from '/lib/cache.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
@@ -11,8 +10,7 @@ import OfflineView from '/lib/offline.js';
 
 
 function MainView() {
-   const audioTracks = useAudioTracks();
-   const isMixerReady = useMixerReady();
+   const { audioTracks, isTrackDetailsReady } = useSession();
 
    return h`
       <div
@@ -22,7 +20,7 @@ function MainView() {
             minHeight: 384
          }}
       >
-         ${isMixerReady ? h`
+         ${isTrackDetailsReady ? h`
             <div
                className="absolute inset-0 flex flex-row"
             >
@@ -52,4 +50,4 @@ function MainView() {
 enableCacheDebugMessages();
 dawscript.enableDebugMessages();
 
-render(elem(ConnectionProvider, null, elem(MainView, null)), document.body);
+render(elem(SessionProvider, null, elem(MainView, null)), document.body);

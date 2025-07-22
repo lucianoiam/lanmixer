@@ -2,18 +2,18 @@
 // SPDX-License-Identifier: MIT
 
 import { h, useEffect, useState, useRef } from './react.js';
-import { useConnected } from '/lib/host.js';
+import { useSession } from '/lib/host.js';
 
 
 export default function OfflineView({ className }) {
    const [isVisible, setVisible] = useState(false);
-   const isConnected = useConnected();
+   const { isOnline } = useSession();
    const timer = useRef(null);
 
    useEffect(() => {
       clearTimeout(timer.current);
 
-      if (isConnected) {
+      if (isOnline) {
          setVisible(false);
       } else {
          timer.current = setTimeout(() => {
@@ -22,7 +22,7 @@ export default function OfflineView({ className }) {
       }
 
       return () => clearTimeout(timer.current);
-   }, [isConnected]);
+   }, [isOnline]);
 
    className += isVisible ? ' block' : ' hidden';
 

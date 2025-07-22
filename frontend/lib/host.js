@@ -9,78 +9,55 @@ import { buildCacheKey, hasCacheKey, clearCache, callWithCache, useCachedState }
 
 const { host, TrackType } = dawscript;
 
-// TODO: move global state to the ConnectionProvider state
-//       remove ugly global 'g'
-//       rename ConnectionProvider to SessionProvider
-//       rename ConnectionContext to SesssionContext
-const ConnectionContext = createContext();
-const g = { dirtyState: new Set() };
-
-invalidateCachedGlobalState();
+const SessionContext = createContext();
 
 
-export function ConnectionProvider({ children }) {
-   const [state, setState] = useState({ isOnline: false, sessionId: 0 });
+export function SessionProvider({ children }) {
+   const [state, setState] = useState({
+      id: 0,
+      isOnline: false,
+      isTrackDetailsReady: false,
+      dirtyState: new Set(),
+      audioTracks: [],
+      faderLabels: []
+   });
 
    useEffect(() => {
-      let sessionId = 0;
+      let id = 0;
 
       dawscript.connect((isOnline) => {
          if (isOnline) {
-            sessionId++;
+            id++;
 
-            if (sessionId > 1) { // automatic reconnection?
+            if (id > 1) { // auto reconnection?
                clearCache(); // full refresh
             }
+
+            (async () => {
+               const audioTracks = await getAudioTracks();
+               const faderLabels = await host.getFaderLabels();
+
+               setState((prev) => ({ ...prev, audioTracks, faderLabels }));
+
+               for (const track of audioTracks) {
+                  await precacheTrackDetails(track);
+               }
+
+               setState((prev) => ({ ...prev, isTrackDetailsReady: true }));
+            })();
          }
 
-         setState({ isOnline, sessionId });
+         setState((prev) => ({ ...prev, id, isOnline }));
 
          return true;
       });
    }, []);
 
-   return elem(ConnectionContext.Provider, { value: state }, children);
+   return elem(SessionContext.Provider, { value: state }, children);
 }
 
-export function useConnected() {
-   const dsState = useContext(ConnectionContext);
-
-   if (dsState === undefined) {
-      throw new Error('useConnected must be used within a ConnectionProvider');
-   }
-
-   return dsState.isOnline;
-}
-
-export function useMixerReady() {
-   const [isReady, setReady] = useState(false);
-   const { sessionId } = useContext(ConnectionContext);
-
-   useAsyncEffect(async () => {
-      try {
-         await callWithCache(host.getFaderLabelPositions);
-         const tracks = await getAudioTracks();
-         if (tracks.length > 0) {
-            for (const track of tracks) {
-               await callWithCache(host.getTrackName, track);
-               await callWithCache(host.getTrackVolume, track);
-               await callWithCache(host.isTrackMute, track);
-            }
-
-            setReady(true);
-         }
-      } catch (err) {
-         dbg_err(err);
-      }
-   }, [sessionId]);
-
-   return isReady;
-}
-
-export function useAudioTracks() {
-   const { sessionId } = useContext(ConnectionContext);
-   return useCachedFnCall([], getAudioTracks, null, [sessionId])[0];
+export function useSession() {
+   return useContext(SessionContext);
 }
 
 export function useImmutableState(init, target, getFn) {
@@ -90,6 +67,7 @@ export function useImmutableState(init, target, getFn) {
 export function useMutableState(init, target, getFn, setFn, addListenerFn,
       removeListenerFn) {
    const [state, setState] = useCachedFnCall(init, getFn, target);
+   const { dirtyState } = useSession();
    const skipNextSetFnCall = useRef(true); // do not send init state
 
    const listener = useCallback((newState) => {
@@ -107,7 +85,7 @@ export function useMutableState(init, target, getFn, setFn, addListenerFn,
       return () => {
          removeListenerFn(target, listener).catch(dbg_err);
          const key = buildCacheKey(getFn, target);
-         g.dirtyState.add(key.hash); // force getFn call on next mount
+         dirtyState.add(key.hash); // force getFn call on next mount
       };
    }, []);
 
@@ -130,14 +108,15 @@ export function useMutableState(init, target, getFn, setFn, addListenerFn,
 function useCachedFnCall(init, fn, arg) {
    const key = buildCacheKey(fn, arg); 
    const [state, setState] = useCachedState(init, key);
+   const { dirtyState } = useSession();
 
    useAsyncEffect(async () => {
       if (hasCacheKey(key)) {
-         if (! g.dirtyState.has(key.hash)) {
+         if (! dirtyState.has(key.hash)) {
             return;
          }
          
-         g.dirtyState.delete(key.hash);
+         dirtyState.delete(key.hash);
       }
 
       try {
@@ -150,11 +129,6 @@ function useCachedFnCall(init, fn, arg) {
    return [state, setState];
 }
 
-function invalidateCachedGlobalState() {
-   g.dirtyState.add(buildCacheKey(getAudioTracks).hash);
-   g.dirtyState.add(buildCacheKey(host.getFaderLabelPositions).hash);
-}
-
 async function getAudioTracks() {
    const tracks = [];
 
@@ -165,6 +139,12 @@ async function getAudioTracks() {
    }
 
    return tracks;
+}
+
+async function precacheTrackDetails(track) {
+   await callWithCache(host.getTrackName, track);
+   await callWithCache(host.getTrackVolume, track);
+   await callWithCache(host.isTrackMute, track);
 }
 
 function dbg(message) {
