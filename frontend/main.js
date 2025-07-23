@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, createElement as elem, render } from '/lib/react.js';
+import { h, createElement, render } from '/lib/react.js';
 import { SessionProvider, useSession } from '/lib/host.js';
 import { enableCacheDebugMessages } from '/lib/cache.js';
 import MixerView from './mixer.js';
@@ -10,7 +10,7 @@ import OfflineView from '/lib/offline.js';
 
 
 function MainView() {
-   const { audioTracks, isTrackDetailsReady } = useSession();
+   const { audioTracks, isMixerReady } = useSession();
 
    return h`
       <div
@@ -20,7 +20,7 @@ function MainView() {
             minHeight: 384
          }}
       >
-         ${isTrackDetailsReady ? h`
+         ${isMixerReady ? h`
             <div
                className="absolute inset-0 flex flex-row"
             >
@@ -50,4 +50,5 @@ function MainView() {
 enableCacheDebugMessages();
 dawscript.enableDebugMessages();
 
-render(elem(SessionProvider, null, elem(MainView, null)), document.body);
+const mainView = createElement(MainView, null);
+render(createElement(SessionProvider, null, mainView), document.body);

@@ -43,10 +43,7 @@ export function VolumeFader({ track }) {
       host.getTrackVolume, host.setTrackVolume,
       host.addTrackVolumeListener, host.removeTrackVolumeListener);
 
-   const onInput = (e) => {
-      const value = e.target.value;
-      setValue(value);
-   };
+   const onInput = (e) => setValue(e.target.value);
 
    return createElement(
       FaderComponent, {
@@ -66,11 +63,8 @@ export function MuteButton({ track }) {
       host.isTrackMute, host.setTrackMute,
       host.addTrackMuteListener, host.removeTrackMuteListener);
 
-   const onInput = (e) => {
-      const value = e.target.value;
-      setValue(value);
-   };
-
+   const onInput = (e) => setValue(e.target.value);
+   
    return createElement(
       ButtonComponent, {
          onInput,
@@ -111,10 +105,7 @@ export function ParameterKnob({ param }) {
       host.getParameterValue, host.setParameterValue,
       host.addParameterValueListener, host.removeParameterValueListener);
 
-   const onInput = (e) => {
-      const value = e.target.value;
-      setValue(value);
-   };
+   const onInput = (e) => setValue(e.target.value);
 
    return createElement(
       KnobComponent, {

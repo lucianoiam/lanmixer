@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { useAsyncEffect, useCallback, useEffect, useRef, useState, useContext,
-         createContext, createElement as elem }
+         createContext, createElement }
    from '/lib/react.js';
 import { buildCacheKey, hasCacheKey, clearCache, callWithCache, useCachedState } 
    from '/lib/cache.js';
@@ -16,10 +16,10 @@ export function SessionProvider({ children }) {
    const [state, setState] = useState({
       id: 0,
       isOnline: false,
-      isTrackDetailsReady: false,
-      dirtyState: new Set(),
+      isMixerReady: false,
       audioTracks: [],
-      faderLabels: []
+      faderLabels: [],
+      dirtyState: new Set()
    });
 
    useEffect(() => {
@@ -34,16 +34,11 @@ export function SessionProvider({ children }) {
             }
 
             (async () => {
-               const audioTracks = await getAudioTracks();
-               const faderLabels = await host.getFaderLabels();
-
+               const { audioTracks, faderLabels } = await getMixerLayout(); 
                setState((prev) => ({ ...prev, audioTracks, faderLabels }));
 
-               for (const track of audioTracks) {
-                  await precacheTrackDetails(track);
-               }
-
-               setState((prev) => ({ ...prev, isTrackDetailsReady: true }));
+               await precacheTracks(audioTracks);
+               setState((prev) => ({ ...prev, isMixerReady: true }));
             })();
          }
 
@@ -53,7 +48,7 @@ export function SessionProvider({ children }) {
       });
    }, []);
 
-   return elem(SessionContext.Provider, { value: state }, children);
+   return createElement(SessionContext.Provider, { value: state }, children);
 }
 
 export function useSession() {
@@ -129,22 +124,29 @@ function useCachedFnCall(init, fn, arg) {
    return [state, setState];
 }
 
-async function getAudioTracks() {
-   const tracks = [];
+async function getMixerLayout() {
+   const tracks = await host.getTracks();
+   const audioTracks = (await Promise.all(
+      tracks.map(async (track) => ({
+         track,
+         type: await host.getTrackType(track),
+      }))
+   ))
+      .filter(({ type }) => type === TrackType.AUDIO)
+      .map(({ track }) => track);
 
-   for (const track of await host.getTracks()) {
-      if (await host.getTrackType(track) == TrackType.AUDIO) {
-         tracks.push(track);
-      }
-   }
-
-   return tracks;
+   const faderLabels = await host.getFaderLabels();
+   return { audioTracks, faderLabels };
 }
 
-async function precacheTrackDetails(track) {
-   await callWithCache(host.getTrackName, track);
-   await callWithCache(host.getTrackVolume, track);
-   await callWithCache(host.isTrackMute, track);
+async function precacheTracks(tracks) {
+   await Promise.all(tracks.map(async (track) => {
+      await Promise.all([
+         callWithCache(host.getTrackName, track),
+         callWithCache(host.getTrackVolume, track),
+         callWithCache(host.isTrackMute, track)
+      ]);
+   }));
 }
 
 function dbg(message) {
