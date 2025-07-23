@@ -13,13 +13,13 @@ export function TrackLabel({ track }) {
    const name = useImmutableState('', track, host.getTrackName);
 
    return h`
-      <label
+      <span
          style=${{
             height: '1em'
          }}
       >
          ${name}
-      </label>
+      </span>
    `;
 }
 
@@ -65,24 +65,6 @@ export function MuteButton({ track }) {
 
    const onInput = (e) => setValue(e.target.value);
    
-   return createElement(
-      ButtonComponent, {
-         onInput,
-         value,
-         defaultValue: value,
-         mode: 'latch',
-         style: {
-            width: 37,
-            height: 37,
-            backgroundColor: '#404040'
-         }
-      }
-   );
-}
-
-export function PluginsButton({ track, value, onClick }) {
-   const onInput = (ev) => onClick(ev.currentTarget.value ? track : null);
-
    return createElement(
       ButtonComponent, {
          onInput,
