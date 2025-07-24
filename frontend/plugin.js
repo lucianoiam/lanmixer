@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, useEffect, useState } from '/lib/react.js';
+import { h, useAsyncEffect, useEffect, useState } from '/lib/react.js';
 import { useImmutableState } from '/lib/host.js';
+import { preCache } from '/lib/cache.js';
 import { ParameterKnob } from '/lib/widget.js';
 
 const { host } = dawscript;
@@ -45,15 +46,15 @@ export function PluginView({ plugin, onReady }) {
 }
 
 function ParameterView({ param, onReady }) {
-   const name = useImmutableState('', param, host.getParameterName);
-   const range = useImmutableState([], param, host.getParameterRange);
-   const value = useImmutableState(Infinity, param, host.getParameterValue);
+   useAsyncEffect(async () => {
+      await preCache([
+         [host.getParameterName, param],
+         [host.getParameterRange, param],
+         [host.getParameterValue, param]
+      ]);
 
-   useEffect(() => {
-      if ((name.length > 0) && (range.length == 2) && (value != Infinity)) {
-         onReady();
-      }
-   }, [name, range, value]);
+      onReady();
+   }, [param]);
 
    return h`
       <div>

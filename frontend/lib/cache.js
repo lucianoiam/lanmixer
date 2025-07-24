@@ -15,6 +15,10 @@ export function clearCache() {
    sessionStorage.clear();
 }
 
+export async function preCache(fn_arg_type_array) {
+   await Promise.all(fn_arg_type_array.map(fnat => callWithCache(...fnat)));
+}
+
 export async function callWithCache(fn, arg, type = 'string') {
    const ckey = buildCacheKey(fn, arg);
 

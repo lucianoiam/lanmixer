@@ -4,7 +4,7 @@
 import { useAsyncEffect, useCallback, useEffect, useRef, useState, useContext,
          createContext, createElement }
    from '/lib/react.js';
-import { buildCacheKey, hasCacheKey, clearCache, callWithCache, useCachedState } 
+import { buildCacheKey, hasCacheKey, clearCache, preCache, useCachedState } 
    from '/lib/cache.js';
 
 const { host, TrackType } = dawscript;
@@ -37,7 +37,11 @@ export function SessionProvider({ children }) {
                const { audioTracks, faderLabels } = await getMixerLayout(); 
                setState((prev) => ({ ...prev, audioTracks, faderLabels }));
 
-               await precacheTracks(audioTracks);
+               await Promise.all(audioTracks.map(track => preCache([
+                 [host.getTrackName, track],
+                 [host.getTrackVolume, track],
+                 [host.isTrackMute, track]
+               ])));
                setState((prev) => ({ ...prev, isMixerReady: true }));
             })();
          }
@@ -123,16 +127,6 @@ async function getMixerLayout() {
 
    const faderLabels = await host.getFaderLabels();
    return { audioTracks, faderLabels };
-}
-
-async function precacheTracks(tracks) {
-   await Promise.all(tracks.map(async (track) => {
-      await Promise.all([
-         callWithCache(host.getTrackName, track),
-         callWithCache(host.getTrackVolume, track),
-         callWithCache(host.isTrackMute, track)
-      ]);
-   }));
 }
 
 function dbg(message) {
