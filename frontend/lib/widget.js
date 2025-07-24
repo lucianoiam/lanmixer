@@ -97,7 +97,7 @@ export function ParameterKnob({ param }) {
    });
 
    const onInput = (e) => setValue(e.target.value);
-
+   
    return createElement(
       KnobComponent, {
          onInput,

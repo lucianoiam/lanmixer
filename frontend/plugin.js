@@ -12,25 +12,35 @@ const { host } = dawscript;
 export function PluginView({ plugin }) {
    const name = useImmutableState('', plugin, host.getPluginName);
    const params = useImmutableState([], plugin, host.getPluginParameters);
+   const hostName = useImmutableState('', plugin, host.name);
+   const skipPrecache = hostName == 'bitwig';
+   const isParamsNonEmpty = params.length > 0;
 
-   const [isReady, setReady] = useState(params.every(param =>
-      hasCachedCallResult(host.getParameterName, param) &&
-      hasCachedCallResult(host.getParameterRange, param) &&
-      hasCachedCallResult(host.getParameterValue, param)
-   ));
+   const [isReady, setReady] = useState(
+      skipPrecache || (
+      isParamsNonEmpty &&
+         params.every(param =>
+            hasCachedCallResult(host.getParameterName, param) &&
+            hasCachedCallResult(host.getParameterRange, param) &&
+            hasCachedCallResult(host.getParameterValue, param)
+         )
+      )
+   );
 
    useAsyncEffect(async () => {
-      if (params.length > 0) {
-         await Promise.all(params.map(param =>
-            precacheCallResult([
-               [host.getParameterName, param],
-               [host.getParameterRange, param],
-               [host.getParameterValue, param]
-            ])
-         ));
+      if (hostName && isParamsNonEmpty) {
+         if (! skipPrecache) {
+            await Promise.all(params.map(param =>
+               precacheCallResult([
+                  [host.getParameterName, param],
+                  [host.getParameterRange, param],
+                  [host.getParameterValue, param]
+               ])
+            ));
+         }
          setReady(true);
       }
-   }, [params]);
+   }, [hostName, isParamsNonEmpty]);
 
    return H`
       <div
