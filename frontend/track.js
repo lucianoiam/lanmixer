@@ -20,7 +20,7 @@ export default function TrackView({ track }) {
             track=${track}
          />
          <ul
-            className="flex flex-row gap-30"
+            className="flex flex-row gap-24"
          >
             ${plugins.map(plugin => H`
                <li

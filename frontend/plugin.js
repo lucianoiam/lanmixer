@@ -3,7 +3,7 @@
 
 import { H, useAsyncEffect, useState } from './lib/react.js';
 import { useImmutableState } from './lib/host.js';
-import { preCache } from './lib/cache.js';
+import { precacheCallResult, hasCachedCallResult } from './lib/cache.js';
 import { ParameterKnob } from './lib/widget.js';
 
 const { host } = dawscript;
@@ -12,10 +12,25 @@ const { host } = dawscript;
 export function PluginView({ plugin }) {
    const name = useImmutableState('', plugin, host.getPluginName);
    const params = useImmutableState([], plugin, host.getPluginParameters);
-   const [count, setCount] = useState(0);
 
-   const onParamReady = () => setCount((p) => p + (p < params.length ? 1 : 0));
-   const isReady = (name.length > 0) && (count > 0) && (count == params.length);
+   const [isReady, setReady] = useState(params.every(param =>
+      hasCachedCallResult(host.getParameterName, param) &&
+      hasCachedCallResult(host.getParameterRange, param) &&
+      hasCachedCallResult(host.getParameterValue, param)
+   ));
+
+   useAsyncEffect(async () => {
+      if (params.length > 0) {
+         await Promise.all(params.map(param =>
+            precacheCallResult([
+               [host.getParameterName, param],
+               [host.getParameterRange, param],
+               [host.getParameterValue, param]
+            ])
+         ));
+         setReady(true);
+      }
+   }, [params]);
 
    return H`
       <div
@@ -42,7 +57,6 @@ export function PluginView({ plugin }) {
                >
                   <${ParameterView}
                      param=${param}
-                     onReady=${onParamReady}
                   />
                </li>
             `)}
@@ -51,18 +65,8 @@ export function PluginView({ plugin }) {
    `;
 }
 
-function ParameterView({ param, onReady }) {
+function ParameterView({ param }) {
    const name = useImmutableState('', param, host.getParameterName);
-
-   useAsyncEffect(async () => {
-      await preCache([
-         [host.getParameterName, param],
-         [host.getParameterRange, param],
-         [host.getParameterValue, param]
-      ]);
-
-      onReady();
-   }, [param]);
 
    return H`
       <div

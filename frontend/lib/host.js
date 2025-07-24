@@ -4,7 +4,8 @@
 import { useAsyncEffect, useCallback, useEffect, useState, useContext,
          createContext, createElement }
    from './react.js';
-import { buildCacheKey, hasCacheKey, clearCache, preCache, useCachedState } 
+import { makeCacheKey, hasCacheKey, clearCache, precacheCallResult,
+         useCachedState } 
    from './cache.js';
 
 const { host, TrackType } = dawscript;
@@ -54,39 +55,39 @@ export function useSession() {
    return useContext(SessionContext);
 }
 
-export function useImmutableState(init, target, getFn) {
-   return useCachedFnCall(init, getFn, target)[0];
+export function useImmutableState(init, target, fn) {
+   return useCachedFnCall(init, fn, target)[0];
 }
 
-export function useMutableState(init, target, getFn, setFn, addListenerFn,
-      removeListenerFn) {
-   const [state, setState] = useCachedFnCall(init, getFn, target);
+// fn: { get, set, addListener, removeListener }
+export function useMutableState(init, target, fn) {
+   const [state, setState] = useCachedFnCall(init, fn.get, target);
    const { dirtyState } = useSession();
 
    const setStateAndCallSetFn = useCallback(async (newState) => {
       setState(newState);
-      await setFn(target, newState);
-   }, [target, setFn]);
+      await fn.set(target, newState);
+   }, [target, fn.get]);
 
    useAsyncEffect(async () => {
       try {
-         await addListenerFn(target, setState);
+         await fn.addListener(target, setState);
       } catch (err) {
          dbg_err(err);
       }
 
       return () => {
-         removeListenerFn(target, setState).catch(dbg_err);
-         const key = buildCacheKey(getFn, target);
+         fn.removeListener(target, setState).catch(dbg_err);
+         const key = makeCacheKey(fn.get, target);
          dirtyState.add(key.hash); // force getFn call on next mount
       };
-   }, [target, getFn, addListenerFn, removeListenerFn]);
+   }, [target, fn.get]);
 
    return [state, setStateAndCallSetFn];
 }
 
 function useCachedFnCall(init, fn, arg) {
-   const key = buildCacheKey(fn, arg); 
+   const key = makeCacheKey(fn, arg); 
    const [state, setState] = useCachedState(init, key);
    const { dirtyState } = useSession();
 
@@ -104,7 +105,7 @@ function useCachedFnCall(init, fn, arg) {
       } catch (err) {
          dbg_err(err);
       }
-   }, [fn, arg]);
+   }, [key.hash]);
 
    return [state, setState];
 }
@@ -125,7 +126,7 @@ async function getMixerLayout() {
 }
 
 async function precacheTracks(tracks) {
-   await Promise.all(tracks.map(track => preCache([
+   await Promise.all(tracks.map(track => precacheCallResult([
       [host.getTrackName, track],
       [host.getTrackVolume, track],
       [host.isTrackMute, track]

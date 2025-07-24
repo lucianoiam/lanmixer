@@ -16,12 +16,16 @@ export function clearCache() {
    sessionStorage.clear();
 }
 
-export async function preCache(fn_arg_type_array) {
-   await Promise.all(fn_arg_type_array.map(fn_a_t => callWithCache(...fn_a_t)));
+export async function hasCachedCallResult(fn, arg) {
+   return hasCacheKey(makeCacheKey(fn, arg));
 }
 
-export async function callWithCache(fn, arg, type = 'string') {
-   const ckey = buildCacheKey(fn, arg);
+export async function precacheCallResult(fn_arg_type_array) {
+   await Promise.all(fn_arg_type_array.map(fi => callAndCacheResult(...fi)));
+}
+
+export async function callAndCacheResult(fn, arg, type = 'string') {
+   const ckey = makeCacheKey(fn, arg);
 
    if (hasCacheKey(ckey)) {
       return read(ckey, type);
@@ -33,7 +37,7 @@ export async function callWithCache(fn, arg, type = 'string') {
    return value;
 }
 
-export function buildCacheKey(fn, arg) {
+export function makeCacheKey(fn, arg) {
    return { fn, arg, hash: djb2_hash(fn.toString() + (arg ?? '').toString()) };
 }
 

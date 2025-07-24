@@ -39,9 +39,12 @@ export function TrackStrip({ track }) {
 }
 
 export function VolumeFader({ track }) {
-   const [value, setValue] = useMutableState(0, track,
-      host.getTrackVolume, host.setTrackVolume,
-      host.addTrackVolumeListener, host.removeTrackVolumeListener);
+   const [value, setValue] = useMutableState(0, track, {
+      get: host.getTrackVolume,
+      set: host.setTrackVolume,
+      addListener: host.addTrackVolumeListener,
+      removeListener: host.removeTrackVolumeListener
+   });
 
    const onInput = (e) => setValue(e.target.value);
 
@@ -59,9 +62,12 @@ export function VolumeFader({ track }) {
 }
 
 export function MuteButton({ track }) {
-   const [value, setValue] = useMutableState(false, track,
-      host.isTrackMute, host.setTrackMute,
-      host.addTrackMuteListener, host.removeTrackMuteListener);
+   const [value, setValue] = useMutableState(false, track, {
+      get: host.isTrackMute,
+      set: host.setTrackMute,
+      addListener: host.addTrackMuteListener,
+      removeListener: host.removeTrackMuteListener
+   });
 
    const onInput = (e) => setValue(e.target.value);
    
@@ -83,9 +89,12 @@ export function MuteButton({ track }) {
 export function ParameterKnob({ param }) {
    const range = useImmutableState([ 0, 1.0 ], param, host.getParameterRange);
 
-   const [value, setValue] = useMutableState(0, param,
-      host.getParameterValue, host.setParameterValue,
-      host.addParameterValueListener, host.removeParameterValueListener);
+   const [value, setValue] = useMutableState(0, param, {
+      get: host.getParameterValue,
+      set: host.setParameterValue,
+      addListener: host.addParameterValueListener,
+      removeListener: host.removeParameterValueListener
+   });
 
    const onInput = (e) => setValue(e.target.value);
 
