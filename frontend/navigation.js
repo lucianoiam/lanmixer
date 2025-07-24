@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, useEffect, useRef } from '/lib/react.js';
-import { TrackLabel } from '/lib/widget.js';
+import { H, useEffect, useRef } from './lib/react.js';
+import { TrackLabel } from './lib/widget.js';
 
 const { host } = dawscript;
 
@@ -13,7 +13,7 @@ export default function NavigationView({
    onChange,
    className
 }) {
-   return h`
+   return H`
       <ul
          className=${className}
       >
@@ -27,7 +27,7 @@ export default function NavigationView({
                MIXER
             </${NavigationButton}>
          </li>
-         ${tracks.map(track => h`
+         ${tracks.map(track => H`
             <li
                key=${track}
             >
@@ -51,7 +51,7 @@ function NavigationButton({ track, isSelected, onClick, children }) {
       }
    }, [isSelected]);
 
-   return h`
+   return H`
       <g-button
          ref=${ref}
          className="w-full h-10"
@@ -60,7 +60,7 @@ function NavigationButton({ track, isSelected, onClick, children }) {
          onClick=${() => onClick(track)}
          onTouchStart=${() => onClick(track)}
       >
-         ${track ?h`
+         ${track ?H`
             <${TrackLabel}
                track=${track}
             />

@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { useCallback, useEffect, useMemo, useRef, useState } from '/lib/react.js';
+import { useCallback, useEffect, useMemo, useRef, useState }
+   from './react.js';
 
 let _debugMessages = false;
 
@@ -16,7 +17,7 @@ export function clearCache() {
 }
 
 export async function preCache(fn_arg_type_array) {
-   await Promise.all(fn_arg_type_array.map(fnat => callWithCache(...fnat)));
+   await Promise.all(fn_arg_type_array.map(fn_a_t => callWithCache(...fn_a_t)));
 }
 
 export async function callWithCache(fn, arg, type = 'string') {

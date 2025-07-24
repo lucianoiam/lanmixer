@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, useState } from '/lib/react.js';
-import { useImmutableState } from '/lib/host.js';
+import { H } from './lib/react.js';
+import { useImmutableState } from './lib/host.js';
 import { PluginView } from '/plugin.js';
-import { TrackStrip } from '/lib/widget.js';
+import { TrackStrip } from './lib/widget.js';
 
 const { host } = dawscript;
 
@@ -12,7 +12,7 @@ const { host } = dawscript;
 export default function TrackView({ track }) {
    const plugins = useImmutableState([], track, host.getTrackPlugins);
 
-   return h`
+   return H`
       <div
          className="flex flex-row gap-10"
       >
@@ -22,7 +22,7 @@ export default function TrackView({ track }) {
          <ul
             className="flex flex-row gap-30"
          >
-            ${plugins.map(plugin => h`
+            ${plugins.map(plugin => H`
                <li
                   key=${plugin}
                >

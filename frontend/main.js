@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, createElement, render, useState } from '/lib/react.js';
-import { SessionProvider, useSession } from '/lib/host.js';
-import { enableCacheDebugMessages } from '/lib/cache.js';
+import { H, createElement, render, useState } from './lib/react.js';
+import { SessionProvider, useSession } from './lib/host.js';
+import { enableCacheDebugMessages } from './lib/cache.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
-import OfflineView from '/lib/offline.js';
+import OfflineView from './lib/offline.js';
 import TrackView from './track.js';
 
 
@@ -14,7 +14,7 @@ function MainView() {
    const [selectedTrack, setSelectedTrack] = useState(null);
    const { audioTracks, isMixerReady } = useSession();
 
-   return h`
+   return H`
       <div
          className="relative size-screen"
          style=${{
@@ -22,7 +22,7 @@ function MainView() {
             minHeight: 384
          }}
       >
-         ${isMixerReady ?h`
+         ${isMixerReady ?H`
             <div
                className="absolute inset-0 flex flex-row"
             >
@@ -35,18 +35,18 @@ function MainView() {
                <div
                   className="p-5"
                >
-                  ${selectedTrack ?h`
+                  ${selectedTrack ?H`
                      <${TrackView}
                         track=${selectedTrack}
                      />
-                  `:h`
+                  `:H`
                      <${MixerView}
                         tracks=${audioTracks}
                      />
                   `}
                </div>
             </div>
-         `:h`
+         `:H`
             <div
                className="absolute inset-0 flex items-center justify-center"
             >

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, createElement, useEffect } from './react.js';
+import { H, createElement } from './react.js';
 import { useImmutableState, useMutableState } from './host.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '/vendor/guinda/guinda.react.module.js';
@@ -12,7 +12,7 @@ const { host } = dawscript;
 export function TrackLabel({ track }) {
    const name = useImmutableState('', track, host.getTrackName);
 
-   return h`
+   return H`
       <span
          style=${{
             height: '1em'
@@ -24,7 +24,7 @@ export function TrackLabel({ track }) {
 }
 
 export function TrackStrip({ track }) {
-   return h`
+   return H`
       <div
          className="flex flex-col items-center gap-5"
       >

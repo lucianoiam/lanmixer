@@ -1,10 +1,10 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { h, useAsyncEffect, useEffect, useState } from '/lib/react.js';
-import { useImmutableState } from '/lib/host.js';
-import { preCache } from '/lib/cache.js';
-import { ParameterKnob } from '/lib/widget.js';
+import { H, useAsyncEffect, useState } from './lib/react.js';
+import { useImmutableState } from './lib/host.js';
+import { preCache } from './lib/cache.js';
+import { ParameterKnob } from './lib/widget.js';
 
 const { host } = dawscript;
 
@@ -17,15 +17,15 @@ export function PluginView({ plugin }) {
    const onParamReady = () => setCount((p) => p + (p < params.length ? 1 : 0));
    const isReady = (name.length > 0) && (count > 0) && (count == params.length);
 
-   return h`
+   return H`
       <div
          className="flex flex-col"
       >
-         ${name && isReady ? h`
+         ${name && isReady ? H`
             <span>
                ${name}
             </span>
-         `:h`
+         `:H`
             <span>
                Loading...
             </span>
@@ -36,7 +36,7 @@ export function PluginView({ plugin }) {
                visibility: isReady ? '' : 'hidden'   
             }}
          >
-            ${params.map(param => h`
+            ${params.map(param => H`
                <li
                   key=${param}
                >
@@ -64,7 +64,7 @@ function ParameterView({ param, onReady }) {
       onReady();
    }, [param]);
 
-   return h`
+   return H`
       <div
          className="flex flex-col gap-5 w-20"
       >

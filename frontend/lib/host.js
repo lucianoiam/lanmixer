@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { useAsyncEffect, useCallback, useEffect, useRef, useState, useContext,
+import { useAsyncEffect, useCallback, useEffect, useState, useContext,
          createContext, createElement }
-   from '/lib/react.js';
+   from './react.js';
 import { buildCacheKey, hasCacheKey, clearCache, preCache, useCachedState } 
-   from '/lib/cache.js';
+   from './cache.js';
 
 const { host, TrackType } = dawscript;
 
