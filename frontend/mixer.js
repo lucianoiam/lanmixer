@@ -7,11 +7,11 @@ import { TrackLabel, TrackStrip } from '/lib/widget.js';
 
 export default function MixerView({ tracks }) {
    return h`
-      <div
+      <ul
          className="flex flex-row"
       >
          ${tracks.map(track => h`
-            <div
+            <li
                key=${track}
                className="flex flex-col gap-5 items-center"
                style=${{
@@ -24,8 +24,8 @@ export default function MixerView({ tracks }) {
                <${TrackStrip}
                   track=${track}
                />
-            </div>
+            </li>
          `)}
-      </div>
+      </ul>
    `;
 }

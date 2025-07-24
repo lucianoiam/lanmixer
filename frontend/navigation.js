@@ -7,6 +7,41 @@ import { TrackLabel } from '/lib/widget.js';
 const { host } = dawscript;
 
 
+export default function NavigationView({
+   tracks,
+   selectedTrack,
+   onChange,
+   className
+}) {
+   return h`
+      <ul
+         className=${className}
+      >
+         <li
+            key="mixer"
+         >
+            <${NavigationButton}
+               isSelected=${selectedTrack == null}
+               onClick=${onChange}
+            >
+               MIXER
+            </${NavigationButton}>
+         </li>
+         ${tracks.map(track => h`
+            <li
+               key=${track}
+            >
+               <${NavigationButton}
+                  track=${track}
+                  isSelected=${selectedTrack == track}
+                  onClick=${onChange}
+               />
+            </li>
+         `)}
+      </ul>
+   `;
+}
+
 function NavigationButton({ track, isSelected, onClick, children }) {
   const ref = useRef();
 
@@ -23,6 +58,7 @@ function NavigationButton({ track, isSelected, onClick, children }) {
          mode="none"
          defaultValue="${isSelected}"
          onClick=${() => onClick(track)}
+         onTouchStart=${() => onClick(track)}
       >
          ${track ?h`
             <${TrackLabel}
@@ -32,36 +68,5 @@ function NavigationButton({ track, isSelected, onClick, children }) {
             children
          }
       </g-button>
-   `;
-}
-
-export default function NavigationView({
-   tracks,
-   selectedTrack,
-   onChange,
-   className
-}) {
-   return h`
-      <ul
-         className=${className}
-      >
-         <li>
-            <${NavigationButton}
-               isSelected=${selectedTrack == null}
-               onClick=${() => onChange(null)}
-            >
-               MIXER
-            </${NavigationButton}>
-         </li>
-         ${tracks.map(track => h`
-            <li>
-               <${NavigationButton}
-                  track=${track}
-                  isSelected=${selectedTrack == track}
-                  onClick=${onChange}
-               />
-            </li>
-         `)}
-      </ul>
    `;
 }

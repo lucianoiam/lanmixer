@@ -7,7 +7,7 @@ import { enableCacheDebugMessages } from '/lib/cache.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
 import OfflineView from '/lib/offline.js';
-import PluginsView from './plugins.js';
+import TrackView from './track.js';
 
 
 function MainView() {
@@ -33,7 +33,7 @@ function MainView() {
                   onChange=${setSelectedTrack}
                />
                ${selectedTrack ?h`
-                  <${PluginsView}
+                  <${TrackView}
                      track=${selectedTrack}
                   />
                `:h`
@@ -57,8 +57,8 @@ function MainView() {
 }
 
 
-enableCacheDebugMessages();
-dawscript.enableDebugMessages();
+//enableCacheDebugMessages();
+//dawscript.enableDebugMessages();
 
 const mainView = createElement(MainView);
 render(createElement(SessionProvider, null, mainView), document.body);
