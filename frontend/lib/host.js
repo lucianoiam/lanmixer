@@ -63,41 +63,27 @@ export function useMutableState(init, target, getFn, setFn, addListenerFn,
       removeListenerFn) {
    const [state, setState] = useCachedFnCall(init, getFn, target);
    const { dirtyState } = useSession();
-   const skipNextSetFnCall = useRef(true); // do not send init state
 
-   const listener = useCallback((newState) => {
-      skipNextSetFnCall.current = true;
+   const setStateAndCallSetFn = useCallback(async (newState) => {
       setState(newState);
-   }, []);
+      await setFn(target, newState);
+   }, [target, setFn]);
 
    useAsyncEffect(async () => {
       try {
-         await addListenerFn(target, listener);
+         await addListenerFn(target, setState);
       } catch (err) {
          dbg_err(err);
       }
 
       return () => {
-         removeListenerFn(target, listener).catch(dbg_err);
+         removeListenerFn(target, setState).catch(dbg_err);
          const key = buildCacheKey(getFn, target);
          dirtyState.add(key.hash); // force getFn call on next mount
       };
-   }, []);
+   }, [target, getFn, addListenerFn, removeListenerFn]);
 
-   useAsyncEffect(async () => {
-      if (skipNextSetFnCall.current) {
-         skipNextSetFnCall.current = false;
-         return;
-      }
-
-      try {
-         await setFn(target, state);
-      } catch (err) {
-         dbg_err(err);
-      }
-   }, [state]);
-
-   return [state, setState];
+   return [state, setStateAndCallSetFn];
 }
 
 function useCachedFnCall(init, fn, arg) {
@@ -119,7 +105,7 @@ function useCachedFnCall(init, fn, arg) {
       } catch (err) {
          dbg_err(err);
       }
-   });
+   }, [fn, arg]);
 
    return [state, setState];
 }

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { useEffect, useRef, useState } from '/lib/react.js';
+import { useCallback, useEffect, useMemo, useRef, useState } from '/lib/react.js';
 
 let _debugMessages = false;
 
@@ -36,21 +36,29 @@ export function hasCacheKey(key) {
    return key.hash in sessionStorage;
 }
 
-export function useCachedState(init, key, deps = []) {
-   const isFirstRender = useRef(true);
-   const cachedState = isFirstRender.current ? read(key, typeof init) : null;
-   const [value, setValue] = useState(cachedState ?? init);
+export function useCachedState(init, key) {
+   const initialValue = useMemo(() => {
+      return typeof init === 'function' ? init() : init;
+   }, [init]);
 
+   const loadValue = () => read(key, typeof initialValue) ?? initialValue;
+
+   const [value, setValue] = useState(loadValue);
+   const prevKeyRef = useRef(key);
+   
    useEffect(() => {
-      if (isFirstRender.current) {
-         isFirstRender.current = false;
-         return;
+      if (prevKeyRef.current !== key) {
+         prevKeyRef.current = key;
+         setValue(loadValue());
       }
+   }, [key.hash]);
 
-      write(key, value);  
-   }, [value, ...deps]);
+   const setValueAndWrite = useCallback((newValue) => {
+      setValue(newValue);
+      write(key, newValue);
+   }, [key.hash]);
 
-   return [value, setValue];
+   return [value, setValueAndWrite];
 }
 
 function read(key, type = 'string') {
