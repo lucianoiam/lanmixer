@@ -36,12 +36,7 @@ export function SessionProvider({ children }) {
             (async () => {
                const { audioTracks, faderLabels } = await getMixerLayout(); 
                setState((prev) => ({ ...prev, audioTracks, faderLabels }));
-
-               await Promise.all(audioTracks.map(track => preCache([
-                 [host.getTrackName, track],
-                 [host.getTrackVolume, track],
-                 [host.isTrackMute, track]
-               ])));
+               await precacheTracks(audioTracks);
                setState((prev) => ({ ...prev, isMixerReady: true }));
             })();
          }
@@ -127,6 +122,14 @@ async function getMixerLayout() {
 
    const faderLabels = await host.getFaderLabels();
    return { audioTracks, faderLabels };
+}
+
+async function precacheTracks(tracks) {
+   await Promise.all(tracks.map(track => preCache([
+      [host.getTrackName, track],
+      [host.getTrackVolume, track],
+      [host.isTrackMute, track]
+   ])));
 }
 
 function dbg(message) {

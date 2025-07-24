@@ -27,20 +27,24 @@ function MainView() {
                className="absolute inset-0 flex flex-row"
             >
                <${NavigationView}
-                  className="w-36"
+                  className="w-36 flex-shrink-0"
                   tracks=${audioTracks}
                   selectedTrack=${selectedTrack}
                   onChange=${setSelectedTrack}
                />
-               ${selectedTrack ?h`
-                  <${TrackView}
-                     track=${selectedTrack}
-                  />
-               `:h`
-                  <${MixerView}
-                     tracks=${audioTracks}
-                  />
-               `}
+               <div
+                  className="p-5"
+               >
+                  ${selectedTrack ?h`
+                     <${TrackView}
+                        track=${selectedTrack}
+                     />
+                  `:h`
+                     <${MixerView}
+                        tracks=${audioTracks}
+                     />
+                  `}
+               </div>
             </div>
          `:h`
             <div
@@ -57,8 +61,8 @@ function MainView() {
 }
 
 
-//enableCacheDebugMessages();
-//dawscript.enableDebugMessages();
+enableCacheDebugMessages();
+dawscript.enableDebugMessages();
 
 const mainView = createElement(MainView);
 render(createElement(SessionProvider, null, mainView), document.body);

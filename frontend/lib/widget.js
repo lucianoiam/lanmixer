@@ -97,8 +97,8 @@ export function ParameterKnob({ param }) {
          min: range[0],
          max: range[1],
          style: {
-            width: 37,
-            height: 37
+            width: 48,
+            height: 48
          }
       }
    );

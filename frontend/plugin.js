@@ -9,34 +9,40 @@ import { ParameterKnob } from '/lib/widget.js';
 const { host } = dawscript;
 
 
-export function PluginView({ plugin, onReady }) {
+export function PluginView({ plugin }) {
    const name = useImmutableState('', plugin, host.getPluginName);
    const params = useImmutableState([], plugin, host.getPluginParameters);
-
    const [count, setCount] = useState(0);
-   const onChildReady = () => setCount((p) => p + (p < params.length ? 1 : 0));
 
-   useEffect(() => {
-      if ((count > 0) && (count == params.length)) {
-         onReady();
-      }
-   }, [count]);
+   const onParamReady = () => setCount((p) => p + (p < params.length ? 1 : 0));
+   const isReady = (name.length > 0) && (count > 0) && (count == params.length);
 
    return h`
       <div
          className="flex flex-col"
       >
-         <span>
-            ${name}
-         </span>
-         <ul>
+         ${name && isReady ? h`
+            <span>
+               ${name}
+            </span>
+         `:h`
+            <span>
+               Loading...
+            </span>
+         `}
+         <ul
+            className="flex flex-row flex-wrap gap-5"
+            style=${{
+               visibility: isReady ? '' : 'hidden'   
+            }}
+         >
             ${params.map(param => h`
                <li
                   key=${param}
                >
                   <${ParameterView}
                      param=${param}
-                     onReady=${onChildReady}
+                     onReady=${onParamReady}
                   />
                </li>
             `)}
@@ -46,6 +52,8 @@ export function PluginView({ plugin, onReady }) {
 }
 
 function ParameterView({ param, onReady }) {
+   const name = useImmutableState('', param, host.getParameterName);
+
    useAsyncEffect(async () => {
       await preCache([
          [host.getParameterName, param],
@@ -57,10 +65,14 @@ function ParameterView({ param, onReady }) {
    }, [param]);
 
    return h`
-      <div>
-         <span>
+      <div
+         className="flex flex-col gap-5 w-20"
+      >
+         <h1
+            className="text-xl font-bold"
+         >
             ${name}
-         </span>
+         </h1>
          <${ParameterKnob}
             param=${param}
          />

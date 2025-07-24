@@ -12,22 +12,15 @@ const { host } = dawscript;
 export default function TrackView({ track }) {
    const plugins = useImmutableState([], track, host.getTrackPlugins);
 
-   const [count, setCount] = useState(0);
-   const onChildReady = () => setCount((p) => p + (p < plugins.length ? 1 : 0));
-   const isReady = (count > 0) && (count == plugins.length);
-
    return h`
       <div
-         className="flex flex-row flex-wrap"
+         className="flex flex-row gap-10"
       >
          <${TrackStrip}
             track=${track}
          />
          <ul
-            className="flex flex-row"
-            style=${{
-               visibility: true ? '' : 'hidden'   
-            }}
+            className="flex flex-row gap-30"
          >
             ${plugins.map(plugin => h`
                <li
@@ -35,7 +28,6 @@ export default function TrackView({ track }) {
                >
                   <${PluginView}
                      plugin=${plugin}
-                     onReady=${onChildReady}
                   />
                </li>
             `)}
