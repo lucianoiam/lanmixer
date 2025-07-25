@@ -18,8 +18,3 @@ html {
 .text-default {
    color: rgba(var(--color-text-default), 1);
 }
-
-.size-screen {
-   height: 100dvh;
-   width: 100dvw;
-}

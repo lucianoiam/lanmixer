@@ -22,6 +22,7 @@ export function useSession() {
    return useContext(SessionContext);
 }
 
+// TODO: prompt user to reload when an exception occurs
 // Call getter once and cache result
 export function useImmutableState(init, target, fn) {
    const key = makeCacheKey(fn, target); 
@@ -42,6 +43,7 @@ export function useImmutableState(init, target, fn) {
    return state;
 }
 
+// TODO: prompt user to reload when an exception occurs
 // Call getter and add/remove listener on every remount
 // fn: { get, set, addListener, removeListener }
 export function useMutableState(init, target, fn) {
@@ -88,25 +90,32 @@ function useSessionState() {
       let id = 0;
 
       dawscript.connect((isOnline) => {
-         if (isOnline) {
-            id++;
+         if (! isOnline) {
+            setState((prev) => ({ ...prev, isOnline }));
+            return true;
+         }
 
-            if (id > 1) { // auto reconnection?
-               clearCache(); // full refresh
-            }
+         id++;
+         setState((prev) => ({ ...prev, id, isOnline }));
+            
+         if (id > 1) { // auto reconnection?
+            clearCache(); // full refresh
+            const prevMixer = state.mixer;
+            prevMixer.hasDetails = false;
+            setState((prev) => ({ ...prev, mixer: prevMixer }));
+         }
 
-            (async () => {
+         (async () => {
+            try {
                const mixer = await getMixerLayout();
-               mixer.hasDetails = false;
-               setState((prev) => ({ ...prev, mixer }));
-
                await precacheTracks(state.mixer.audioTracks);
                mixer.hasDetails = true;
                setState((prev) => ({ ...prev, mixer }));
-            })();
-         }
-
-         setState((prev) => ({ ...prev, id, isOnline }));
+            } catch (err) {
+               // TODO: prompt user to reload when an exception occurs
+               dbg_err(err);
+            }
+         })();
 
          return true;
       });

@@ -1,68 +1,50 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, createElement, render, useState } from './lib/react.js';
-import { SessionProvider, useSession } from './lib/state.js';
-import { enableCacheDebugMessages } from './lib/cache.js';
+import { H, useState } from './lib/react.js';
+import { useSession } from './lib/state.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
-import OfflineView from './lib/offline.js';
 import TrackView from './track.js';
 
 
-function MainView() {
+export default function MainView({ className }) {
    const [selectedTrack, setSelectedTrack] = useState(null);
-   const { mixer } = useSession();
+   const { audioTracks, hasDetails } = useSession().mixer;
+
+   if (! hasDetails) {
+      return H`
+         <div
+            className="flex items-center justify-center ${className}"
+         >
+            <div>Loading mixer...</div>
+         </div>
+      `
+   }
 
    return H`
       <div
-         className="relative size-screen"
-         style=${{
-            minWidth: 512,
-            minHeight: 384
-         }}
+         className="flex flex-row ${className}"
       >
-         ${mixer.hasDetails ?H`
-            <div
-               className="absolute inset-0 flex flex-row"
-            >
-               <${NavigationView}
-                  className="w-36 flex-shrink-0"
-                  tracks=${mixer.audioTracks}
-                  selectedTrack=${selectedTrack}
-                  onChange=${setSelectedTrack}
-               />
-               <div
-                  className="p-5"
-               >
-                  ${selectedTrack ?H`
-                     <${TrackView}
-                        track=${selectedTrack}
-                     />
-                  `:H`
-                     <${MixerView}
-                        tracks=${mixer.audioTracks}
-                     />
-                  `}
-               </div>
-            </div>
-         `:H`
-            <div
-               className="absolute inset-0 flex items-center justify-center"
-            >
-               <div>Loading...</div>
-            </div>
-         `}
-         <${OfflineView}
-            className="absolute inset-0"
+         <${NavigationView}
+            className="w-36 flex-shrink-0"
+            tracks=${audioTracks}
+            selectedTrack=${selectedTrack}
+            onChange=${setSelectedTrack}
          />
+         <div
+            className="p-5"
+         >
+            ${selectedTrack ?H`
+               <${TrackView}
+                  track=${selectedTrack}
+               />
+            `:H`
+               <${MixerView}
+                  tracks=${audioTracks}
+               />
+            `}
+         </div>
       </div>
    `;
 }
-
-
-enableCacheDebugMessages();
-dawscript.enableDebugMessages();
-
-const mainView = createElement(MainView);
-render(createElement(SessionProvider, null, mainView), document.body);

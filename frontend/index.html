@@ -7,8 +7,22 @@
    <link rel="icon" href="data:,">
    <link rel="stylesheet" href="static/tailwind.min.css" />
    <link rel="stylesheet" href="static/styles.css" />
+   <style>
+      .size-app {
+        width: 100dvw;
+        height: 100dvh;
+        min-width: 512;
+        min-height: 384;
+      }
+   </style>
 </head>
 <body class="overscroll-none bg-default text-default">
+  <div
+    class="size-app"
+    style="display: flex; justify-content: center; align-items: center;"
+  >
+    <span>Loading app...</span>
+  </div>
   <script type="importmap">
   {
     "imports": {
@@ -16,6 +30,6 @@
     }
   }
   </script>
-  <script type="module" src="main.js"></script>
+  <script type="module" src="app.js" data-debug-messages=""></script>
 </body>
 </html>
