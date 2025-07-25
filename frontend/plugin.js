@@ -3,7 +3,7 @@
 
 import { H, useAsyncEffect, useState } from './lib/react.js';
 import { useImmutableState } from './lib/state.js';
-import { precacheCallResult, hasCachedCallResult } from './lib/cache.js';
+import { callAndCacheResult, hasCachedCallResult } from './lib/cache.js';
 import { ParameterKnob } from './lib/widget.js';
 
 const { host } = dawscript;
@@ -28,19 +28,19 @@ export function PluginView({ plugin }) {
    );
 
    useAsyncEffect(async () => {
-      if (hostName && isParamsNonEmpty) {
+      if (! isReady && hostName && isParamsNonEmpty) {
          if (! skipPrecache) {
-            await Promise.all(params.map(param =>
-               precacheCallResult([
-                  [host.getParameterName, param],
-                  [host.getParameterRange, param],
-                  [host.getParameterValue, param]
+            await Promise.all(
+               params.flatMap(param => [
+                  callAndCacheResult(host.getParameterName, param),
+                  callAndCacheResult(host.getParameterRange, param),
+                  callAndCacheResult(host.getParameterValue, param)
                ])
-            ));
+            );
          }
          setReady(true);
       }
-   }, [hostName, isParamsNonEmpty]);
+   }, [isReady, hostName, isParamsNonEmpty]);
 
    return H`
       <div

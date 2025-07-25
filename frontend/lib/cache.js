@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { useCallback, useEffect, useMemo, useRef, useState }
-   from './react.js';
+import { useCallback, useEffect, useMemo, useState } from './react.js';
 
 let _debugMessages = false;
 
@@ -20,20 +19,9 @@ export async function hasCachedCallResult(fn, arg) {
    return hasCacheKey(makeCacheKey(fn, arg));
 }
 
-export async function precacheCallResult(fn_arg_type_array) {
-   await Promise.all(fn_arg_type_array.map(fi => callAndCacheResult(...fi)));
-}
-
-export async function callAndCacheResult(fn, arg, type = 'string') {
-   const ckey = makeCacheKey(fn, arg);
-
-   if (hasCacheKey(ckey)) {
-      return read(ckey, type);
-   }
-
+export async function callAndCacheResult(fn, arg) {
    const value = await fn(arg)
-   write(ckey, value);
-
+   write(makeCacheKey(fn, arg), value);
    return value;
 }
 
@@ -53,13 +41,9 @@ export function useCachedState(init, key) {
    const readOrInitValue = () => read(key, typeof initialValue) ?? initialValue;
 
    const [value, setValue] = useState(readOrInitValue);
-   const prevKeyHashRef = useRef(key.hash);
    
    useEffect(() => {
-      if (prevKeyHashRef.current !== key.hash) {
-         prevKeyHashRef.current = key.hash;
-         setValue(readOrInitValue());
-      }
+      setValue(readOrInitValue());
    }, [key.hash]);
 
    const setValueAndWrite = useCallback((newValue) => {

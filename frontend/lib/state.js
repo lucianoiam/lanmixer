@@ -4,7 +4,7 @@
 import { useAsyncEffect, useCallback, useEffect, useState, useContext,
          createContext, createElement }
    from './react.js';
-import { makeCacheKey, hasCacheKey, clearCache, precacheCallResult,
+import { makeCacheKey, hasCacheKey, clearCache, callAndCacheResult,
          useCachedState } 
    from './cache.js';
 
@@ -108,7 +108,7 @@ function useSessionState() {
          (async () => {
             try {
                const mixer = await getMixerLayout();
-               await precacheTracks(state.mixer.audioTracks);
+               await precacheTracks(mixer.audioTracks);
                mixer.hasDetails = true;
                setState((prev) => ({ ...prev, mixer }));
             } catch (err) {
@@ -144,11 +144,13 @@ async function getMixerLayout() {
 }
 
 async function precacheTracks(tracks) {
-   await Promise.all(tracks.map(track => precacheCallResult([
-      [host.getTrackName, track],
-      [host.getTrackVolume, track],
-      [host.isTrackMute, track]
-   ])));
+   await Promise.all(
+      tracks.flatMap(track => [
+         callAndCacheResult(host.getTrackName, track),
+         callAndCacheResult(host.getTrackVolume, track),
+         callAndCacheResult(host.isTrackMute, track)
+      ])
+   );
 }
 
 function dbg_err(message) {
