@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H, useAsyncEffect, useState } from './lib/react.js';
-import { useImmutableState } from './lib/host.js';
+import { useImmutableState } from './lib/state.js';
 import { precacheCallResult, hasCachedCallResult } from './lib/cache.js';
 import { ParameterKnob } from './lib/widget.js';
 

@@ -50,15 +50,15 @@ export function useCachedState(init, key) {
       return typeof init === 'function' ? init() : init;
    }, [init]);
 
-   const loadValue = () => read(key, typeof initialValue) ?? initialValue;
+   const readOrInitValue = () => read(key, typeof initialValue) ?? initialValue;
 
-   const [value, setValue] = useState(loadValue);
-   const prevKeyRef = useRef(key);
+   const [value, setValue] = useState(readOrInitValue);
+   const prevKeyHashRef = useRef(key.hash);
    
    useEffect(() => {
-      if (prevKeyRef.current !== key) {
-         prevKeyRef.current = key;
-         setValue(loadValue());
+      if (prevKeyHashRef.current !== key.hash) {
+         prevKeyHashRef.current = key.hash;
+         setValue(readOrInitValue());
       }
    }, [key.hash]);
 

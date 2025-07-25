@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H } from './lib/react.js';
-import { useImmutableState } from './lib/host.js';
+import { useImmutableState } from './lib/state.js';
 import { PluginView } from '/plugin.js';
 import { TrackStrip } from './lib/widget.js';
 

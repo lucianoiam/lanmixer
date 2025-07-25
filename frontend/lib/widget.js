@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H, createElement } from './react.js';
-import { useImmutableState, useMutableState } from './host.js';
+import { useImmutableState, useMutableState } from './state.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '/vendor/guinda/guinda.react.module.js';
 

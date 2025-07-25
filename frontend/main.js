@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H, createElement, render, useState } from './lib/react.js';
-import { SessionProvider, useSession } from './lib/host.js';
+import { SessionProvider, useSession } from './lib/state.js';
 import { enableCacheDebugMessages } from './lib/cache.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
@@ -12,7 +12,7 @@ import TrackView from './track.js';
 
 function MainView() {
    const [selectedTrack, setSelectedTrack] = useState(null);
-   const { audioTracks, isMixerReady } = useSession();
+   const { mixer } = useSession();
 
    return H`
       <div
@@ -22,13 +22,13 @@ function MainView() {
             minHeight: 384
          }}
       >
-         ${isMixerReady ?H`
+         ${mixer.hasDetails ?H`
             <div
                className="absolute inset-0 flex flex-row"
             >
                <${NavigationView}
                   className="w-36 flex-shrink-0"
-                  tracks=${audioTracks}
+                  tracks=${mixer.audioTracks}
                   selectedTrack=${selectedTrack}
                   onChange=${setSelectedTrack}
                />
@@ -41,7 +41,7 @@ function MainView() {
                      />
                   `:H`
                      <${MixerView}
-                        tracks=${audioTracks}
+                        tracks=${mixer.audioTracks}
                      />
                   `}
                </div>
