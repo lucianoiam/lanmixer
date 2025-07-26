@@ -4,7 +4,7 @@
 import { H, useAsyncEffect, useState } from './lib/react.js';
 import { useImmutableState } from './lib/state.js';
 import { callAndCacheResult, hasCachedCallResult } from './lib/cache.js';
-import { ParameterKnob } from './lib/widget.js';
+import { ParameterKnob, PluginEnableButton } from './lib/widget.js';
 
 const { host } = dawscript;
 
@@ -15,7 +15,9 @@ export function PluginView({ plugin }) {
    const isParamsNonEmpty = params.length > 0;
 
    const [isReady, setReady] = useState(
-      isParamsNonEmpty && params.every(param =>
+      isParamsNonEmpty
+      && hasCachedCallResult(host.isPluginEnabled, plugin)
+      && params.every(param =>
          hasCachedCallResult(host.getParameterName, param) &&
          hasCachedCallResult(host.getParameterRange, param) &&
          hasCachedCallResult(host.getParameterValue, param)
@@ -24,13 +26,14 @@ export function PluginView({ plugin }) {
 
    useAsyncEffect(async () => {
       if (! isReady && isParamsNonEmpty) {
-         await Promise.all(
-            params.flatMap(param => [
+         await Promise.all([
+            callAndCacheResult(host.isPluginEnabled, plugin),
+            ...params.flatMap(param => [
                callAndCacheResult(host.getParameterName, param),
                callAndCacheResult(host.getParameterRange, param),
                callAndCacheResult(host.getParameterValue, param)
             ])
-         );
+         ]);
 
          setReady(true);
       }
@@ -38,12 +41,23 @@ export function PluginView({ plugin }) {
 
    return H`
       <div
-         className="flex flex-col"
+         className="flex flex-col gap-5 p-5"
+         style=${{
+            backgroundColor: '#151515'
+         }}
       >
          ${name && isReady ? H`
-            <span>
-               ${name}
-            </span>
+            <div
+               className="flex flex-row gap-5 items-center">
+               <${PluginEnableButton}
+                  plugin=${plugin}
+               />
+               <h1
+                  className="text-xl font-bold"
+               >
+                  ${name}
+               </h1>
+            </div>
          `:H`
             <span>
                Loading...
@@ -74,11 +88,9 @@ function ParameterView({ param }) {
 
    return H`
       <div
-         className="flex flex-col gap-5 w-20"
+         className="flex flex-col gap-5 w-20 h-24"
       >
-         <h1
-            className="text-xl font-bold"
-         >
+         <h1>
             ${name}
          </h1>
          <${ParameterKnob}

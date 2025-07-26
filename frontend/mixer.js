@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 import { H } from './lib/react.js';
-import { TrackLabel, TrackStrip } from './lib/widget.js';
+import { TrackStrip } from './track.js';
+import { TrackLabel } from './lib/widget.js';
 
 
 export default function MixerView({ tracks }) {

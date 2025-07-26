@@ -5,7 +5,7 @@ import { H, useState } from './lib/react.js';
 import { useSession } from './lib/state.js';
 import MixerView from './mixer.js';
 import NavigationView from './navigation.js';
-import TrackView from './track.js';
+import FullTrackView from './track.js';
 
 
 export default function MainView({ className }) {
@@ -36,7 +36,7 @@ export default function MainView({ className }) {
             className="p-5"
          >
             ${selectedTrack ?H`
-               <${TrackView}
+               <${FullTrackView}
                   track=${selectedTrack}
                />
             `:H`

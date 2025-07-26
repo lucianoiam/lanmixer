@@ -3,13 +3,13 @@
 
 import { H } from './lib/react.js';
 import { useImmutableState } from './lib/state.js';
+import { MuteButton, PanKnob, VolumeFader } from './lib/widget.js';
 import { PluginView } from '/plugin.js';
-import { TrackStrip } from './lib/widget.js';
 
 const { host } = dawscript;
 
    
-export default function TrackView({ track }) {
+export default function FullTrackView({ track }) {
    const plugins = useImmutableState([], track, host.getTrackPlugins);
 
    return H`
@@ -20,7 +20,7 @@ export default function TrackView({ track }) {
             track=${track}
          />
          <ul
-            className="flex flex-row gap-24"
+            className="flex flex-col gap-5"
          >
             ${plugins.map(plugin => H`
                <li
@@ -32,6 +32,24 @@ export default function TrackView({ track }) {
                </li>
             `)}
          </ul>
+      </div>
+   `;
+}
+
+export function TrackStrip({ track }) {
+   return H`
+      <div
+         className="flex flex-col items-center gap-5"
+      >
+         <${PanKnob}
+            track=${track}
+         />
+         <${VolumeFader}
+            track=${track}
+         />
+         <${MuteButton}
+            track=${track}
+         />
       </div>
    `;
 }

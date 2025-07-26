@@ -4,8 +4,6 @@
 import { H, useEffect, useRef } from './lib/react.js';
 import { TrackLabel } from './lib/widget.js';
 
-const { host } = dawscript;
-
 
 export default function NavigationView({
    tracks,
