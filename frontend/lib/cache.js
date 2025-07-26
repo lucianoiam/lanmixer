@@ -3,16 +3,12 @@
 
 import { useCallback, useEffect, useMemo, useState } from './react.js';
 
+let _storage = {};
 let _debugMessages = false;
 
 
 export function enableCacheDebugMessages() {
    _debugMessages = true;
-}
-
-export function clearCache() {
-   dbg('clear');
-   sessionStorage.clear();
 }
 
 export async function hasCachedCallResult(fn, arg) {
@@ -30,7 +26,7 @@ export function makeCacheKey(fn, arg) {
 }
 
 export function hasCacheKey(key) {
-   return key.hash in sessionStorage;
+   return key.hash in _storage;
 }
 
 export function useCachedState(init, key) {
@@ -54,50 +50,6 @@ export function useCachedState(init, key) {
    return [value, setValueAndWrite];
 }
 
-function read(key, type = 'string') {
-   const rawValue = sessionStorage.getItem(key.hash);
-
-   let value = null;
-
-   if (rawValue === null) {
-      dbg(`○ ${key.hash} ${formatKey(key)}`);
-   } else {
-      dbg(`● ${key.hash} = ${rawValue} ${formatKey(key)}`);
-
-      if (type === 'string') {
-         value = rawValue;
-
-      } else if (type === 'boolean') {
-         value = rawValue === 'true';
-
-      } else if (type === 'number') {
-         value = Number(rawValue);
-
-      } else if (type === 'object') {
-         const parsed = JSON.parse(rawValue);
-         if (typeof parsed === type) {
-            value = parsed;
-         }
-      }
-   }
-
-   return value;
-}
-
-function write(key, value) {
-   const rawValue = typeof value === 'object'
-      ? JSON.stringify(value)
-      : String(value);
-
-   if (key.hash in sessionStorage) {
-      dbg(`⨁ ${key.hash} = ${rawValue} ${formatKey(key)}`);
-   } else {
-      dbg(`+ ${key.hash} = ${rawValue} ${formatKey(key)}`);
-   }
-
-   sessionStorage.setItem(key.hash, rawValue);
-}
-
 function formatKey(key) {
    if (! key.fn.name) {
       return '';
@@ -106,6 +58,28 @@ function formatKey(key) {
    const args = key.arg ? `( ${key.arg} }` : '()';
 
    return `, ${key.fn.name}${args}`;
+}
+
+function read(key) {
+   const value = key.hash in _storage ? _storage[key.hash] : null;
+
+   if (value !== null) {
+      dbg(`● ${key.hash} = ${value} ${formatKey(key)}`);
+   } else {
+      dbg(`○ ${key.hash} ${formatKey(key)}`);
+   }
+
+   return value;
+}
+
+function write(key, value) {
+   if (key.hash in _storage) {
+      dbg(`⨁ ${key.hash} = ${value} ${formatKey(key)}`);
+   } else {
+      dbg(`+ ${key.hash} = ${value} ${formatKey(key)}`);
+   }
+
+   _storage[key.hash] = value;
 }
 
 function djb2_hash(str) {

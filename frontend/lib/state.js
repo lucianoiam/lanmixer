@@ -4,8 +4,7 @@
 import { useAsyncEffect, useCallback, useEffect, useState, useContext,
          createContext, createElement }
    from './react.js';
-import { makeCacheKey, hasCacheKey, clearCache, callAndCacheResult,
-         useCachedState } 
+import { makeCacheKey, hasCacheKey, callAndCacheResult, useCachedState } 
    from './cache.js';
 
 const { host, TrackType } = dawscript;
@@ -90,32 +89,24 @@ function useSessionState() {
       let id = 0;
 
       dawscript.connect((isOnline) => {
-         if (! isOnline) {
-            setState((prev) => ({ ...prev, isOnline }));
-            return true;
-         }
+         setState((prev) => ({ ...prev, isOnline }));
 
-         id++;
-         setState((prev) => ({ ...prev, id, isOnline }));
-            
-         if (id > 1) { // auto reconnection?
-            clearCache(); // full refresh
-            const prevMixer = state.mixer;
-            prevMixer.hasDetails = false;
-            setState((prev) => ({ ...prev, mixer: prevMixer }));
-         }
+         if (isOnline) {
+            id++;
+            setState((prev) => ({ ...prev, id }));
 
-         (async () => {
-            try {
-               const mixer = await getMixerLayout();
-               await precacheTracks(mixer.audioTracks);
-               mixer.hasDetails = true;
-               setState((prev) => ({ ...prev, mixer }));
-            } catch (err) {
-               // TODO: prompt user to reload when an exception occurs
-               dbg_err(err);
-            }
-         })();
+            (async () => {
+               try {
+                  const mixer = await getMixerLayout();
+                  await precacheTracks(mixer.audioTracks);
+                  mixer.hasDetails = true;
+                  setState((prev) => ({ ...prev, mixer }));
+               } catch (err) {
+                  // TODO: prompt user to reload when an exception occurs
+                  dbg_err(err);
+               }
+            })();
+         }
 
          return true;
       });
