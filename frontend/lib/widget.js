@@ -28,6 +28,9 @@ export function TrackStrip({ track }) {
       <div
          className="flex flex-col items-center gap-5"
       >
+         <${PanKnob}
+            track=${track}
+         />
          <${VolumeFader}
             track=${track}
          />
@@ -81,6 +84,31 @@ export function MuteButton({ track }) {
             width: 37,
             height: 37,
             backgroundColor: '#404040'
+         }
+      }
+   );
+}
+
+export function PanKnob({ track }) {
+   const [value, setValue] = useMutableState(0, track, {
+      get: host.getTrackPan,
+      set: host.setTrackPan,
+      addListener: host.addTrackPanListener,
+      removeListener: host.removeTrackPanListener
+   });
+
+   const onInput = (e) => setValue(e.target.value);
+   
+   return createElement(
+      KnobComponent, {
+         onInput,
+         value,
+         defaultValue: value,
+         min: -1.0,
+         max: 1.0,
+         style: {
+            width: 48,
+            height: 48
          }
       }
    );
