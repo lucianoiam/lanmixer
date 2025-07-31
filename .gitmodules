@@ -1,0 +1,6 @@
+[submodule "vendor/dawscript"]
+	path = vendor/dawscript
+	url = https://github.com/lucianoiam/dawscript
+[submodule "vendor/guinda"]
+	path = vendor/guinda
+	url = https://github.com/lucianoiam/guinda
