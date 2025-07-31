@@ -13,11 +13,7 @@ export function TrackLabel({ track }) {
    const name = useImmutableState('', track, host.getTrackName);
 
    return H`
-      <span
-         style=${{
-            height: '1em'
-         }}
-      >
+      <span>
          ${name}
       </span>
    `;
@@ -120,8 +116,8 @@ export function ParameterKnob({ param }) {
       state,
       {
          style: {
-            width: 48,
-            height: 48
+            width: 56,
+            height: 56
          }
       }
    );

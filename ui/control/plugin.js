@@ -41,10 +41,7 @@ export function PluginView({ plugin }) {
 
    return H`
       <div
-         className="flex flex-col gap-5 p-5"
-         style=${{
-            backgroundColor: '#151515'
-         }}
+         className="flex flex-col gap-5 p-5 bg-neutral-900"
       >
          ${name && isReady ? H`
             <div
@@ -93,17 +90,17 @@ function ParameterView({ param }) {
 
    return H`
       <div
-         className="flex flex-col items-center gap-5 w-20 h-36"
+         className="flex flex-col items-center gap-2 w-24 h-32"
       >
          <h1>
             ${name}
          </h1>
-         <${ParameterKnob}
-            param=${param}
-         />
          <div className="font-mono text-sx">
             ${displayValue}
          </div>
+         <${ParameterKnob}
+            param=${param}
+         />
       </div>
    `;
 }

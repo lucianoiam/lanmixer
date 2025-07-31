@@ -2,26 +2,16 @@
 // SPDX-License-Identifier: MIT
 
 import { H } from '../lib/react.js';
-import { TrackLabel } from '../lib/widget.js';
 import { TrackStrip } from './track.js';
 
 
-export default function MixerView({ tracks }) {
+export default function MixerView({ tracks, className }) {
    return H`
       <ul
-         className="flex flex-row"
+         className="flex flex-row p-5 ${className}"
       >
          ${tracks.map(track => H`
-            <li
-               key=${track}
-               className="flex flex-col gap-5 items-center"
-               style=${{
-                  width: 120   
-               }}
-            >
-               <${TrackLabel}
-                  track=${track}
-               />
+            <li>
                <${TrackStrip}
                   track=${track}
                />

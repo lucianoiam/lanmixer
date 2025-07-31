@@ -15,11 +15,11 @@ export default function MainView({ className }) {
    if (! hasDetails) {
       return H`
          <div
-            className="flex items-center justify-center ${className}"
+            className="flex items-center justify-center h-full ${className}"
          >
             <div>Loading mixer...</div>
          </div>
-      `
+      `;
    }
 
    return H`
@@ -27,19 +27,19 @@ export default function MainView({ className }) {
          className="flex flex-row ${className}"
       >
          <${NavigationView}
-            className="w-36 flex-shrink-0"
+            className="w-36 overflow-auto"
             tracks=${audioTracks}
             selectedTrack=${selectedTrack}
             onChange=${setSelectedTrack}
          />
          <div
-            className="p-5"
+            className="flex-1 overflow-auto"
          >
-            ${selectedTrack ?H`
+            ${selectedTrack ? H`
                <${FullTrackView}
                   track=${selectedTrack}
                />
-            `:H`
+            ` : H`
                <${MixerView}
                   tracks=${audioTracks}
                />

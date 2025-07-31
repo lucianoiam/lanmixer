@@ -12,35 +12,36 @@ export default function NavigationView({
    className
 }) {
    return H`
-      <ul
-         className="bg-neutral-900 ${className}"
+      <div
+         className="flex flex-col bg-neutral-900 ${className}"
       >
-         <li
-            key="mixer"
+         <${NavigationButton}
+            className="h-20"
+            isSelected=${selectedTrack == null}
+            onClick=${onChange}
          >
-            <${NavigationButton}
-               isSelected=${selectedTrack == null}
-               onClick=${onChange}
-            >
-               MIXER
-            </${NavigationButton}>
-         </li>
-         ${tracks.map(track => H`
-            <li
-               key=${track}
-            >
-               <${NavigationButton}
-                  track=${track}
-                  isSelected=${selectedTrack == track}
-                  onClick=${onChange}
-               />
-            </li>
-         `)}
-      </ul>
+            MIXER
+         </${NavigationButton}>
+         <ul
+            className="flex-1 overflow-auto"
+         >
+            ${tracks.map(track => H`
+               <li
+                  key=${track}
+               >
+                  <${NavigationButton}
+                     track=${track}
+                     isSelected=${selectedTrack == track}
+                     onClick=${onChange}
+                  />
+               </li>
+            `)}
+         </ul>
+      </div>
    `;
 }
 
-function NavigationButton({ track, isSelected, onClick, children }) {
+function NavigationButton({ track, isSelected, onClick, className, children }) {
   const ref = useRef();
 
   useEffect(() => {
@@ -52,11 +53,11 @@ function NavigationButton({ track, isSelected, onClick, children }) {
    return H`
       <g-button
          ref=${ref}
-         className="w-full h-10"
+         className="w-full h-14 ${className}"
          mode="none"
          defaultValue="${isSelected}"
          onClick=${() => onClick(track)}
-         onTouchStart=${() => onClick(track)}
+         onTouchStart=${/*guinda bug*/() => onClick(track)}
       >
          ${track ?H`
             <${TrackLabel}
