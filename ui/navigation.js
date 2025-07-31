@@ -55,9 +55,9 @@ function NavigationButton({ track, isSelected, onClick, className, children }) {
          ref=${ref}
          className="w-full h-14 ${className}"
          mode="none"
+         touch="false"
          defaultValue="${isSelected}"
          onClick=${() => onClick(track)}
-         onTouchStart=${/*guinda bug*/() => onClick(track)}
       >
          ${track ?H`
             <${TrackLabel}
