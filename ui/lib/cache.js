@@ -11,7 +11,7 @@ export function enableCacheDebugMessages() {
    _debugMessages = true;
 }
 
-export async function hasCachedCallResult(fn, arg) {
+export function hasCachedCallResult(fn, arg) {
    return hasCacheKey(makeCacheKey(fn, arg));
 }
 

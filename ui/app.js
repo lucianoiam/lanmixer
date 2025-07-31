@@ -8,13 +8,28 @@ import OfflineView from './lib/offline.js';
 import MainView from './main.js';
 
 
-if (document.querySelector(`script[src="${import.meta.url.split('/').pop()}"]`)
-      .dataset.debugMessages === 'true') {
-   enableCacheDebugMessages();
-   dawscript.enableDebugMessages();
+let loaderElem = null;
+
+function main() {
+   loaderElem = document.getElementById('loader').cloneNode(true);
+   
+   const scriptSel = `script[src="${import.meta.url.split('/').pop()}"]`;
+
+   if (document.querySelector(scriptSel).dataset.debugMessages === 'true') {
+      enableCacheDebugMessages();
+      dawscript.enableDebugMessages();
+   }
+
+   render(createElement(AppView), document.body);
 }
 
-render(createElement(AppView), document.body);
+export default function Loader({ message }) {
+   loaderElem.classList.remove('invisible');
+   loaderElem.querySelector('span').textContent = message;
+   const props = { dangerouslySetInnerHTML: { __html: loaderElem.outerHTML } };
+
+   return createElement('div', props);
+}
 
 function AppView() {
    return H`
@@ -32,3 +47,5 @@ function AppView() {
       </${SessionProvider}>
    `;
 }
+
+main();

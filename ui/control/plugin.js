@@ -12,12 +12,12 @@ const { host } = dawscript;
 export function PluginView({ plugin }) {
    const name = useImmutableState('', plugin, host.getPluginName);
    const params = useImmutableState([], plugin, host.getPluginParameters);
-   const isParamsNonEmpty = params.length > 0;
 
    const [isReady, setReady] = useState(
-      isParamsNonEmpty
-      && hasCachedCallResult(host.isPluginEnabled, plugin)
-      && params.every(param =>
+      hasCachedCallResult(host.isPluginEnabled, plugin) &&
+      hasCachedCallResult(host.getPluginName, plugin) &&
+      hasCachedCallResult(host.getPluginParameters, plugin) &&
+      params.every(param =>
          hasCachedCallResult(host.getParameterName, param) &&
          hasCachedCallResult(host.getParameterValue, param) &&
          hasCachedCallResult(host.getParameterDisplayValue, param)
@@ -25,9 +25,11 @@ export function PluginView({ plugin }) {
    );
 
    useAsyncEffect(async () => {
-      if (! isReady && isParamsNonEmpty) {
+      if (params.length > 0) {
          await Promise.all([
             callAndCacheResult(host.isPluginEnabled, plugin),
+            callAndCacheResult(host.getPluginName, plugin),
+            callAndCacheResult(host.getPluginParameters, plugin),
             ...params.flatMap(param => [
                callAndCacheResult(host.getParameterName, param),
                callAndCacheResult(host.getParameterValue, param),
@@ -37,34 +39,29 @@ export function PluginView({ plugin }) {
 
          setReady(true);
       }
-   }, [isParamsNonEmpty]);
+   }, [params]);
+
+   if (! isReady) {
+      return null;
+   }
 
    return H`
       <div
          className="flex flex-col gap-5 p-5 bg-neutral-900"
       >
-         ${name && isReady ? H`
-            <div
-               className="flex flex-row gap-5 items-center">
-               <${PluginEnableButton}
-                  plugin=${plugin}
-               />
-               <h1
-                  className="text-xl font-bold"
-               >
-                  ${name}
-               </h1>
-            </div>
-         `:H`
-            <span>
-               Loading...
-            </span>
-         `}
+         <div
+            className="flex flex-row gap-5 items-center">
+            <${PluginEnableButton}
+               plugin=${plugin}
+            />
+            <h1
+               className="text-xl font-bold"
+            >
+               ${name}
+            </h1>
+         </div>
          <ul
             className="flex flex-row flex-wrap gap-5"
-            style=${{
-               visibility: isReady ? '' : 'hidden'   
-            }}
          >
             ${params.map(param => H`
                <li

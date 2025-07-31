@@ -5,6 +5,7 @@ import { H, useState } from './lib/react.js';
 import { useSession } from './lib/state.js';
 import MixerView from './control/mixer.js';
 import FullTrackView from './control/track.js';
+import Loader from './app.js';
 import NavigationView from './navigation.js';
 
 
@@ -13,13 +14,9 @@ export default function MainView({ className }) {
    const { audioTracks, hasDetails } = useSession().mixer;
 
    if (! hasDetails) {
-      return H`
-         <div
-            className="flex items-center justify-center h-full ${className}"
-         >
-            <div>Loading mixer...</div>
-         </div>
-      `;
+      return H`<${Loader}
+         message="MIXER"
+      />`;
    }
 
    return H`
