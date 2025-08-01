@@ -3,10 +3,10 @@
 
 import { H, useState } from './lib/react.js';
 import { useSession } from './lib/state.js';
+import { Loader } from './lib/widget.js';
 import MixerView from './control/mixer.js';
 import FullTrackView from './control/track.js';
-import Loader from './app.js';
-import NavigationView from './navigation.js';
+import MainNavigationView from './navigation.js';
 
 
 export default function MainView({ className }) {
@@ -23,12 +23,6 @@ export default function MainView({ className }) {
       <div
          className="flex flex-row ${className}"
       >
-         <${NavigationView}
-            className="w-36 overflow-auto"
-            tracks=${audioTracks}
-            selectedTrack=${selectedTrack}
-            onChange=${setSelectedTrack}
-         />
          <div
             className="flex-1 overflow-auto"
          >
@@ -42,6 +36,12 @@ export default function MainView({ className }) {
                />
             `}
          </div>
+         <${MainNavigationView}
+            className="w-48 overflow-auto"
+            tracks=${audioTracks}
+            selectedTrack=${selectedTrack}
+            onChange=${setSelectedTrack}
+         />
       </div>
    `;
 }

@@ -15,6 +15,10 @@ export function hasCachedCallResult(fn, arg) {
    return hasCacheKey(makeCacheKey(fn, arg));
 }
 
+export function getCachedCallResult(fn, arg) {
+   return read(makeCacheKey(fn, arg));
+}
+
 export async function callAndCacheResult(fn, arg) {
    const value = await fn(arg)
    write(makeCacheKey(fn, arg), value);

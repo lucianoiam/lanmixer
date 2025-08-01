@@ -8,10 +8,10 @@ import { TrackStrip } from './track.js';
 export default function MixerView({ tracks, className }) {
    return H`
       <ul
-         className="flex flex-row p-5 ${className}"
+         className="flex flex-row justify-center items-center h-full p-5 ${className}"
       >
          ${tracks.map(track => H`
-            <li>
+            <li className="h-full">
                <${TrackStrip}
                   track=${track}
                />

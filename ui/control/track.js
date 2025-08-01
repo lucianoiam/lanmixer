@@ -14,14 +14,13 @@ export default function FullTrackView({ track, className }) {
 
    return H`
       <div
-         className="flex flex-row pl-5 h-full ${className}"
+         className="flex flex-row h-full ${className}"
       >
-         <${TrackStrip}
-            track=${track}
-            className="p-5 shrink-0"
-         />
+         <div className="w-36 bg-neutral-900">
+            TODO: Plugins nav
+         </div>
          <ul
-            className="flex-1 flex flex-col gap-5 p-5 overflow-auto"
+            className="flex-1 flex flex-col gap-5 p-5 pr-0 overflow-auto"
          >
             ${plugins.map(plugin => H`
                <li
@@ -39,6 +38,12 @@ export default function FullTrackView({ track, className }) {
                </li>
             `)}
          </ul>
+         <div className="flex items-center">
+            <${TrackStrip}
+               track=${track}
+               className="p-5 shrink-0"
+            />
+         </div>
       </div>
    `;
 }
@@ -46,7 +51,7 @@ export default function FullTrackView({ track, className }) {
 export function TrackStrip({ track, className }) {
    return H`
       <div
-         className="flex flex-col items-center gap-5 w-24 ${className}"
+         className="flex flex-col items-center gap-10 h-full w-36 ${className}"
       >
          <${TrackLabel}
             track=${track}
@@ -56,9 +61,13 @@ export function TrackStrip({ track, className }) {
          />
          <${VolumeFader}
             track=${track}
+            className="flex-1"
          />
          <${MuteButton}
             track=${track}
+         />
+         <div
+            className="h-[6%]"
          />
       </div>
    `;

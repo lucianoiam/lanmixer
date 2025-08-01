@@ -5,27 +5,22 @@ import { H, useEffect, useRef } from './lib/react.js';
 import { TrackLabel } from './lib/widget.js';
 
 
-export default function NavigationView({
+export default function MainNavigationView({
    tracks,
    selectedTrack,
    onChange,
    className
 }) {
+   const tracksWithPlugins = tracks;
+
    return H`
       <div
          className="flex flex-col bg-neutral-900 ${className}"
       >
-         <${NavigationButton}
-            className="h-20"
-            isSelected=${selectedTrack == null}
-            onClick=${onChange}
-         >
-            MIXER
-         </${NavigationButton}>
          <ul
-            className="flex-1 overflow-auto"
+            className="flex-1 flex flex-col justify-end overflow-auto"
          >
-            ${tracks.map(track => H`
+            ${tracksWithPlugins.map(track => H`
                <li
                   key=${track}
                >
@@ -37,6 +32,13 @@ export default function NavigationView({
                </li>
             `)}
          </ul>
+         <${NavigationButton}
+            className="h-20"
+            isSelected=${selectedTrack == null}
+            onClick=${onChange}
+         >
+            MIXER
+         </${NavigationButton}>
       </div>
    `;
 }

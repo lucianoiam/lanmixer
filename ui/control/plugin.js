@@ -1,47 +1,18 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, useAsyncEffect, useState } from '../lib/react.js';
-import { useImmutableState } from '../lib/state.js';
-import { callAndCacheResult, hasCachedCallResult } from '../lib/cache.js';
+import { H } from '../lib/react.js';
+import { useImmutableState, usePluginAndParameterDetails }
+   from '../lib/state.js';
 import { ParameterKnob, PluginEnableButton } from '../lib/widget.js';
 
 const { host } = dawscript;
 
 
 export function PluginView({ plugin }) {
-   const name = useImmutableState('', plugin, host.getPluginName);
-   const params = useImmutableState([], plugin, host.getPluginParameters);
+   const details = usePluginAndParameterDetails(plugin);
 
-   const [isReady, setReady] = useState(
-      hasCachedCallResult(host.isPluginEnabled, plugin) &&
-      hasCachedCallResult(host.getPluginName, plugin) &&
-      hasCachedCallResult(host.getPluginParameters, plugin) &&
-      params.every(param =>
-         hasCachedCallResult(host.getParameterName, param) &&
-         hasCachedCallResult(host.getParameterValue, param) &&
-         hasCachedCallResult(host.getParameterDisplayValue, param)
-      )
-   );
-
-   useAsyncEffect(async () => {
-      if (params.length > 0) {
-         await Promise.all([
-            callAndCacheResult(host.isPluginEnabled, plugin),
-            callAndCacheResult(host.getPluginName, plugin),
-            callAndCacheResult(host.getPluginParameters, plugin),
-            ...params.flatMap(param => [
-               callAndCacheResult(host.getParameterName, param),
-               callAndCacheResult(host.getParameterValue, param),
-               callAndCacheResult(host.getParameterDisplayValue, param)
-            ])
-         ]);
-
-         setReady(true);
-      }
-   }, [params]);
-
-   if (! isReady) {
+   if (! details) {
       return null;
    }
 
@@ -50,25 +21,29 @@ export function PluginView({ plugin }) {
          className="flex flex-col gap-5 p-5 bg-neutral-900"
       >
          <div
-            className="flex flex-row gap-5 items-center">
+            className="flex flex-row"
+         >
             <${PluginEnableButton}
                plugin=${plugin}
             />
             <h1
-               className="text-xl font-bold"
+               className="text-xl font-bold flex-1 text-center"
             >
-               ${name}
+               ${details.name}
             </h1>
+            <div
+               style=${{width: 24}}
+            />
          </div>
          <ul
-            className="flex flex-row flex-wrap gap-5"
+            className="inline-flex flex-wrap gap-5 justify-center"
          >
-            ${params.map(param => H`
+            ${details.params.map(paramDetails => H`
                <li
-                  key=${param}
+                  key=${paramDetails.handle}}
                >
                   <${ParameterView}
-                     param=${param}
+                     details=${paramDetails}
                   />
                </li>
             `)}
@@ -77,9 +52,8 @@ export function PluginView({ plugin }) {
    `;
 }
 
-function ParameterView({ param }) {
-   const name = useImmutableState('', param, host.getParameterName);
-   const displayValue = useImmutableState('', param, {
+function ParameterView({ details }) {
+   const displayValue = useImmutableState('', details.handle, {
       get: host.getParameterDisplayValue,
       addListener: host.addParameterDisplayValueListener,
       removeListener: host.removeParameterDisplayValueListener
@@ -90,13 +64,13 @@ function ParameterView({ param }) {
          className="flex flex-col items-center gap-2 w-24 h-32"
       >
          <h1>
-            ${name}
+            ${details.name}
          </h1>
          <div className="font-mono text-sx">
             ${displayValue}
          </div>
          <${ParameterKnob}
-            param=${param}
+            param=${details.handle}
          />
       </div>
    `;
