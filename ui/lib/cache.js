@@ -6,20 +6,15 @@ import { useCallback, useEffect, useMemo, useState } from './react.js';
 let _storage = {};
 let _debugMessages = false;
 
-
 export function enableCacheDebugMessages() {
    _debugMessages = true;
 }
 
-export function hasCachedCallResult(fn, arg) {
-   return hasCacheKey(makeCacheKey(fn, arg));
-}
-
-export function getCachedCallResult(fn, arg) {
+export function readCallResult(fn, arg) {
    return read(makeCacheKey(fn, arg));
 }
 
-export async function callAndCacheResult(fn, arg) {
+export async function callAndWriteResult(fn, arg) {
    const value = await fn(arg)
    write(makeCacheKey(fn, arg), value);
    return value;

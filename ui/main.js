@@ -2,18 +2,17 @@
 // SPDX-License-Identifier: MIT
 
 import { H, useState } from './lib/react.js';
-import { useSession } from './lib/state.js';
+import { useAudioTracks } from './lib/app-state.js';
 import { Loader } from './lib/widget.js';
 import MixerView from './control/mixer.js';
 import FullTrackView from './control/track.js';
 import MainNavigationView from './navigation.js';
 
-
 export default function MainView({ className }) {
    const [selectedTrack, setSelectedTrack] = useState(null);
-   const { audioTracks, hasDetails } = useSession().mixer;
+   const audioTracks = useAudioTracks();
 
-   if (! hasDetails) {
+   if (! audioTracks) {
       return H`<${Loader}
          message="MIXER"
       />`;

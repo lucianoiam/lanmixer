@@ -4,7 +4,6 @@
 import { H } from '../lib/react.js';
 import { TrackStrip } from './track.js';
 
-
 export default function MixerView({ tracks, className }) {
    return H`
       <ul

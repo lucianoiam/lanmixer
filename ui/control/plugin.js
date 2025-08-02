@@ -2,17 +2,16 @@
 // SPDX-License-Identifier: MIT
 
 import { H } from '../lib/react.js';
-import { useImmutableState, usePluginAndParameterDetails }
-   from '../lib/state.js';
-import { ParameterKnob, PluginEnableButton } from '../lib/widget.js';
+import { useObjectProperty } from '../lib/ds-state.js';
+import { usePlugin } from '../lib/app-state.js';
+import { ParameterValueKnob, PluginEnableButton } from '../lib/widget.js';
 
 const { host } = dawscript;
 
+export function PluginView({ handle }) {
+   const plugin = usePlugin(handle);
 
-export function PluginView({ plugin }) {
-   const details = usePluginAndParameterDetails(plugin);
-
-   if (! details) {
+   if (! plugin) {
       return null;
    }
 
@@ -24,12 +23,12 @@ export function PluginView({ plugin }) {
             className="flex flex-row"
          >
             <${PluginEnableButton}
-               plugin=${plugin}
+               handle=${plugin.handle}
             />
             <h1
                className="text-xl font-bold flex-1 text-center"
             >
-               ${details.name}
+               ${plugin.name}
             </h1>
             <div
                style=${{width: 24}}
@@ -38,12 +37,12 @@ export function PluginView({ plugin }) {
          <ul
             className="inline-flex flex-wrap gap-5 justify-center"
          >
-            ${details.params.map(paramDetails => H`
+            ${plugin.params.map(param => H`
                <li
-                  key=${paramDetails.handle}}
+                  key=${param.handle}}
                >
                   <${ParameterView}
-                     details=${paramDetails}
+                     param=${param}
                   />
                </li>
             `)}
@@ -52,8 +51,8 @@ export function PluginView({ plugin }) {
    `;
 }
 
-function ParameterView({ details }) {
-   const displayValue = useImmutableState('', details.handle, {
+function ParameterView({ param }) {
+   const displayValue = useObjectProperty('', param.handle, {
       get: host.getParameterDisplayValue,
       addListener: host.addParameterDisplayValueListener,
       removeListener: host.removeParameterDisplayValueListener
@@ -64,13 +63,13 @@ function ParameterView({ details }) {
          className="flex flex-col items-center gap-2 w-24 h-32"
       >
          <h1>
-            ${details.name}
+            ${param.name}
          </h1>
          <div className="font-mono text-sx">
             ${displayValue}
          </div>
-         <${ParameterKnob}
-            param=${details.handle}
+         <${ParameterValueKnob}
+            handle=${param.handle}
          />
       </div>
    `;

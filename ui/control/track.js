@@ -2,16 +2,11 @@
 // SPDX-License-Identifier: MIT
 
 import { H } from '../lib/react.js';
-import { useImmutableState } from '../lib/state.js';
-import { MuteButton, PanKnob, TrackLabel, VolumeFader } from '../lib/widget.js';
 import { PluginView } from './plugin.js';
-
-const { host } = dawscript;
-
+import { TrackMuteButton, TrackNameLabel, TrackPanKnob, TrackVolumeFader }
+   from '../lib/widget.js';
 
 export default function FullTrackView({ track, className }) {
-   const plugins = useImmutableState([], track, host.getTrackPlugins);
-
    return H`
       <div
          className="flex flex-row h-full ${className}"
@@ -22,13 +17,13 @@ export default function FullTrackView({ track, className }) {
          <ul
             className="flex-1 flex flex-col gap-5 p-5 pr-0 overflow-auto"
          >
-            ${plugins.map(plugin => H`
+            ${track.plugins.map(plugin => H`
                <li
-                  key=${plugin}
+                  key=${plugin.handle}
                   className="flex flex-row"
                >
                   <${PluginView}
-                     plugin=${plugin}
+                     handle=${plugin}
                   />
                   <!-- Push scrollbar to the right -->
                   <div
@@ -53,18 +48,18 @@ export function TrackStrip({ track, className }) {
       <div
          className="flex flex-col items-center gap-10 h-full w-36 ${className}"
       >
-         <${TrackLabel}
-            track=${track}
+         <${TrackNameLabel}
+            handle=${track.handle}
          />
-         <${PanKnob}
-            track=${track}
+         <${TrackPanKnob}
+            handle=${track.handle}
          />
-         <${VolumeFader}
-            track=${track}
+         <${TrackVolumeFader}
+            handle=${track.handle}
             className="flex-1"
          />
-         <${MuteButton}
-            track=${track}
+         <${TrackMuteButton}
+            handle=${track.handle}
          />
          <div
             className="h-[6%]"

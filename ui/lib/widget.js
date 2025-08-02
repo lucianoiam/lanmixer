@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H, createElement } from './react.js';
-import { useImmutableState, useMutableState } from './state.js';
+import { useObjectProperty, useObjectState } from './ds-state.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '/vendor/guinda/guinda.react.module.js';
 
@@ -17,8 +17,8 @@ export function Loader({ message }) {
    return createElement('div', props);
 }
 
-export function TrackLabel({ track }) {
-   const name = useImmutableState('', track, host.getTrackName);
+export function TrackNameLabel({ handle }) {
+   const name = useObjectProperty('', handle, host.getTrackName);
 
    return H`
       <span>
@@ -27,8 +27,8 @@ export function TrackLabel({ track }) {
    `;
 }
 
-export function VolumeFader({ track, className }) {
-   const state = useMutableState(0, track, {
+export function TrackVolumeFader({ handle, className }) {
+   const state = useObjectState(0, handle, {
       get: host.getTrackVolume,
       set: host.setTrackVolume,
       addListener: host.addTrackVolumeListener,
@@ -48,8 +48,8 @@ export function VolumeFader({ track, className }) {
    );
 }
 
-export function MuteButton({ track, className }) {
-   const state = useMutableState(false, track, {
+export function TrackMuteButton({ handle, className }) {
+   const state = useObjectState(false, handle, {
       get: host.isTrackMute,
       set: host.setTrackMute,
       addListener: host.addTrackMuteListener,
@@ -71,8 +71,8 @@ export function MuteButton({ track, className }) {
    );
 }
 
-export function PluginEnableButton({ plugin, className }) {
-   const state = useMutableState(false, plugin, {
+export function PluginEnableButton({ handle, className }) {
+   const state = useObjectState(false, handle, {
       get: host.isPluginEnabled,
       set: host.setPluginEnabled,
       addListener: host.addPluginEnabledListener,
@@ -94,8 +94,8 @@ export function PluginEnableButton({ plugin, className }) {
    );
 }
 
-export function PanKnob({ track, className }) {
-   const state = useMutableState(0, track, {
+export function TrackPanKnob({ handle, className }) {
+   const state = useObjectState(0, handle, {
       get: host.getTrackPan,
       set: host.setTrackPan,
       addListener: host.addTrackPanListener,
@@ -115,8 +115,8 @@ export function PanKnob({ track, className }) {
    );
 }
 
-export function ParameterKnob({ param, className }) {
-   const state = useMutableState(0, param, {
+export function ParameterValueKnob({ handle, className }) {
+   const state = useObjectState(0, handle, {
       get: host.getParameterValue,
       set: host.setParameterValue,
       addListener: host.addParameterValueListener,

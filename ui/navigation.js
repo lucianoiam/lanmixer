@@ -2,8 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H, useEffect, useRef } from './lib/react.js';
-import { TrackLabel } from './lib/widget.js';
-
+import { TrackNameLabel } from './lib/widget.js';
 
 export default function MainNavigationView({
    tracks,
@@ -11,8 +10,6 @@ export default function MainNavigationView({
    onChange,
    className
 }) {
-   const tracksWithPlugins = tracks;
-
    return H`
       <div
          className="flex flex-col bg-neutral-900 ${className}"
@@ -20,9 +17,9 @@ export default function MainNavigationView({
          <ul
             className="flex-1 flex flex-col justify-end overflow-auto"
          >
-            ${tracksWithPlugins.map(track => H`
+            ${tracks.map(track => H`
                <li
-                  key=${track}
+                  key=${track.handle}
                >
                   <${NavigationButton}
                      track=${track}
@@ -62,8 +59,8 @@ function NavigationButton({ track, isSelected, onClick, className, children }) {
          onClick=${() => onClick(track)}
       >
          ${track ?H`
-            <${TrackLabel}
-               track=${track}
+            <${TrackNameLabel}
+               handle=${track.handle}
             />
          `:
             children
