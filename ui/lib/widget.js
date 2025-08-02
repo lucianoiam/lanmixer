@@ -9,11 +9,12 @@ import { KnobComponent, FaderComponent, ButtonComponent }
 const { host } = dawscript;
 const loaderElem = document.getElementById('loader').cloneNode(true);
 
-export function Loader({ message }) {
-   loaderElem.classList.remove('invisible');
+export function Loader({ message, className }) {
    loaderElem.querySelector('span').textContent = message;
-   const props = { dangerouslySetInnerHTML: { __html: loaderElem.outerHTML } };
-
+   const props = {
+      dangerouslySetInnerHTML: { __html: loaderElem.outerHTML },
+      className
+   };
    return createElement('div', props);
 }
 

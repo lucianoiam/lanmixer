@@ -5,9 +5,10 @@ import { H } from '../lib/react.js';
 import { PluginView } from './plugin.js';
 import { useEffect, useRef, useState } from '../lib/react.js';
 import { NavigationButton } from '../navigation.js';
-import { TrackMuteButton, TrackNameLabel, TrackPanKnob, TrackVolumeFader }
+import { TrackMuteButton, TrackNameLabel, TrackPanKnob, TrackVolumeFader,
+         Loader }
    from '../lib/widget.js';
-import { usePluginNames } from '../lib/state.js';
+import { usePlugin, usePluginNames } from '../lib/state.js';
 
 export default function FullTrackView({ track, className }) {
    const [selectedPlugin, selectPlugin] = useState(null);
@@ -75,7 +76,7 @@ function PluginNavigation({ handles, selection, onSelect }) {
    }, [handles, selection, onSelect]);
 
    return H`
-   <ul className="flex flex-col justify-center w-40 gap-2">
+   <ul className="flex flex-col justify-center w-40 shrink-0 gap-2">
       ${names.map((name, i) => H`
          <li
             key=${handles[i]}
@@ -107,6 +108,15 @@ function TrackPluginsView({ handles, focus }) {
          }
       }
    }, [focus, handles]);
+
+   const isLoading = handles.some(handle => usePlugin(handle) === null);
+
+   if (isLoading) {
+      return H`<${Loader}
+         message="PLUGINS"
+         className="size-full"
+      />`;
+   }
 
    return H`
    <ul

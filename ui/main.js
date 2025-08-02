@@ -13,9 +13,11 @@ export default function MainView({ className }) {
    const audioTracks = useAudioTracks();
 
    if (! audioTracks) {
-      return H`<${Loader}
-         message="MIXER"
-      />`;
+      return H`
+         <${Loader}
+            message="MIXER"
+            className="size-full"
+         />`;
    }
 
    return H`
