@@ -17,7 +17,7 @@ export default function MainNavigationView({
          <ul
             className="flex-1 flex flex-col justify-end overflow-auto"
          >
-            ${tracks.map(track => H`
+            ${tracks.filter(t => t.plugins.length > 0).map(track => H`
                <li
                   key=${track.handle}
                >
