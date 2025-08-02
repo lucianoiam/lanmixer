@@ -12,17 +12,16 @@ export default function MainNavigationView({
 }) {
    return H`
       <div
-         className="flex flex-col bg-neutral-900 ${className}"
+         className="flex flex-col ${className}"
       >
          <${NavigationButton}
-            className="h-20"
             isSelected=${selectedTrack == null}
             onClick=${onChange}
          >
             MIXER
          </${NavigationButton}>
          <ul
-            className="flex-1 flex flex-col justify-center overflow-auto pb-20"
+            className="flex-1 flex flex-col gap-2 justify-center overflow-auto pb-20"
          >
             ${tracks.filter(t => t.pluginHandles.length > 0).map(track => H`
                <li
@@ -62,7 +61,7 @@ export function NavigationButton({
    return H`
       <g-button
          ref=${ref}
-         className="w-full h-14 ${className}"
+         className="w-full h-14 bg-neutral-800 ${className}"
          mode="none"
          touch="false"
          defaultValue="${isSelected}"

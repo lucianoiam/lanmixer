@@ -12,16 +12,21 @@ import { usePluginNames } from '../lib/state.js';
 export default function FullTrackView({ track, className }) {
    const [selectedPlugin, selectPlugin] = useState(null);
 
+   useEffect(() => {
+      selectPlugin(track.pluginHandles[0]);
+   }, [track]);
+
    return H`
       <div
          className="flex flex-row h-full ${className}"
       >
          <${PluginNavigation}
+            key=${track.handle}
             handles=${track.pluginHandles}
             selection=${selectedPlugin}
             onSelect=${selectPlugin}
          />
-         <${PluginsView}
+         <${TrackPluginsView}
             handles=${track.pluginHandles}
             focus=${selectedPlugin}
          />
@@ -70,7 +75,7 @@ function PluginNavigation({ handles, selection, onSelect }) {
    }, [handles, selection, onSelect]);
 
    return H`
-   <ul className="flex flex-col justify-center w-40 bg-neutral-900">
+   <ul className="flex flex-col justify-center w-40 gap-2">
       ${names.map((name, i) => H`
          <li
             key=${handles[i]}
@@ -88,7 +93,7 @@ function PluginNavigation({ handles, selection, onSelect }) {
    `;
 }
 
-function PluginsView({ handles, focus }) {
+function TrackPluginsView({ handles, focus }) {
    const listRef = useRef();
 
    useEffect(() => {
@@ -98,10 +103,7 @@ function PluginsView({ handles, focus }) {
          const list = listRef.current;
          const item = list.children[index];
          if (item) {
-            const listHeight = list.clientHeight;
-            const itemHeight = item.offsetHeight;
-            const scrollTo = item.offsetTop - (listHeight / 2) + (itemHeight / 2);
-            list.scrollTo({ top: scrollTo, behavior: 'smooth' });
+            list.scrollTo({ top: item.offsetTop, behavior: 'smooth' });
          }
       }
    }, [focus, handles]);

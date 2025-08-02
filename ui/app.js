@@ -32,6 +32,10 @@ function main() {
       dawscript.enableDebugMessages();
    }
 
+   document.addEventListener('gesturestart', (ev) => {
+      ev.preventDefault();
+   });
+
    render(createElement(AppView), document.body);
 }
 

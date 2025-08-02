@@ -26,7 +26,7 @@ export function PluginView({ handle }) {
                handle=${plugin.handle}
             />
             <h1
-               className="text-xl font-bold flex-1 text-center"
+               className=" text-xl font-bold flex-1 text-center"
             >
                ${plugin.name}
             </h1>
@@ -60,17 +60,19 @@ function ParameterView({ param }) {
 
    return H`
       <div
-         className="flex flex-col items-center gap-2 w-24 h-32"
+         className="flex flex-col items-center w-36 p-3 gap-2 border border-neutral-800 rounded"
       >
-         <h1>
-            ${param.name}
-         </h1>
-         <div className="font-mono text-sx">
+         <div className="font-mono text-sx text-center h-[3rem] line-clamp-2">
             ${displayValue}
          </div>
          <${ParameterValueKnob}
             handle=${param.handle}
          />
+         <div
+            className="text-sm text-center text-neutral-500 h-[2.5rem] line-clamp-2"
+         >
+            ${param.name}
+         </div>
       </div>
    `;
 }
