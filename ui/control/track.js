@@ -68,6 +68,8 @@ export function TrackStrip({ track, className }) {
 
 function PluginNavigation({ handles, selection, onSelect }) {
    const names = usePluginNames(handles);
+   const ulRef = useRef();
+   const [isOverflowing, setIsOverflowing] = useState(false);
 
    useEffect(() => {
       if (handles.length > 0 && selection == null) {
@@ -75,8 +77,18 @@ function PluginNavigation({ handles, selection, onSelect }) {
       }
    }, [handles, selection, onSelect]);
 
+   useEffect(() => {
+      const ul = ulRef.current;
+      if (!ul) return;
+      // Check if content overflows
+      setIsOverflowing(ul.scrollHeight > ul.clientHeight);
+   }, [names]);
+
    return H`
-   <ul className="flex flex-col justify-center w-40 shrink-0 gap-2">
+   <ul
+      ref=${ulRef}
+      className="flex flex-col w-42 shrink-0 gap-2 pr-2 ${isOverflowing ? 'overflow-auto' : 'justify-center'}"
+   >
       ${names.map((name, i) => H`
          <li
             key=${handles[i]}
@@ -121,7 +133,7 @@ function TrackPluginsView({ handles, focus }) {
    return H`
    <ul
       ref=${listRef}
-      className="flex-1 flex flex-col items-center gap-5 p-5 pr-0 overflow-auto"
+      className="flex-1 flex flex-col items-center gap-2 overflow-auto"
    >
       ${handles.map(handle => H`
          <li

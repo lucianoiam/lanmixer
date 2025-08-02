@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, useEffect, useRef } from './lib/react.js';
+import { H, useEffect, useRef, useState } from './lib/react.js';
 import { TrackNameLabel } from './lib/widget.js';
 
 export default function MainNavigationView({
@@ -10,6 +10,17 @@ export default function MainNavigationView({
    onChange,
    className
 }) {
+   const ulRef = useRef();
+   const [isOverflowing, setIsOverflowing] = useState(false);
+
+   const filteredTracks = tracks.filter(t => t.pluginHandles.length > 0);
+
+   useEffect(() => {
+      const ul = ulRef.current;
+      if (!ul) return;
+      setIsOverflowing(ul.scrollHeight > ul.clientHeight);
+   }, [filteredTracks]);
+
    return H`
       <div
          className="flex flex-col ${className}"
@@ -21,9 +32,10 @@ export default function MainNavigationView({
             MIXER
          </${NavigationButton}>
          <ul
-            className="flex-1 flex flex-col gap-2 justify-center overflow-auto pb-20"
+            ref=${ulRef}
+            className="flex-1 flex flex-col gap-2 pb-20 ${isOverflowing ? 'overflow-auto' : 'justify-center'}"
          >
-            ${tracks.filter(t => t.pluginHandles.length > 0).map(track => H`
+            ${filteredTracks.map(track => H`
                <li
                   key=${track.handle}
                >

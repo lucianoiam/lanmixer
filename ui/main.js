@@ -38,7 +38,7 @@ export default function MainView({ className }) {
             `}
          </div>
          <${MainNavigationView}
-            className="w-40 overflow-auto"
+            className="w-42 pl-2 overflow-auto"
             tracks=${audioTracks}
             selectedTrack=${selectedTrack}
             onChange=${selectTrack}
