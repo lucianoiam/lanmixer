@@ -2,14 +2,14 @@
 // SPDX-License-Identifier: MIT
 
 import { H, useState } from './lib/react.js';
-import { useAudioTracks } from './lib/app-state.js';
+import { useAudioTracks } from './lib/state.js';
 import { Loader } from './lib/widget.js';
 import MixerView from './control/mixer.js';
 import FullTrackView from './control/track.js';
 import MainNavigationView from './navigation.js';
 
 export default function MainView({ className }) {
-   const [selectedTrack, setSelectedTrack] = useState(null);
+   const [selectedTrack, selectTrack] = useState(null);
    const audioTracks = useAudioTracks();
 
    if (! audioTracks) {
@@ -36,10 +36,10 @@ export default function MainView({ className }) {
             `}
          </div>
          <${MainNavigationView}
-            className="w-48 overflow-auto"
+            className="w-40 overflow-auto"
             tracks=${audioTracks}
             selectedTrack=${selectedTrack}
-            onChange=${setSelectedTrack}
+            onChange=${selectTrack}
          />
       </div>
    `;

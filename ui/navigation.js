@@ -14,21 +14,6 @@ export default function MainNavigationView({
       <div
          className="flex flex-col bg-neutral-900 ${className}"
       >
-         <ul
-            className="flex-1 flex flex-col justify-end overflow-auto"
-         >
-            ${tracks.filter(t => t.plugins.length > 0).map(track => H`
-               <li
-                  key=${track.handle}
-               >
-                  <${NavigationButton}
-                     track=${track}
-                     isSelected=${selectedTrack == track}
-                     onClick=${onChange}
-                  />
-               </li>
-            `)}
-         </ul>
          <${NavigationButton}
             className="h-20"
             isSelected=${selectedTrack == null}
@@ -36,11 +21,36 @@ export default function MainNavigationView({
          >
             MIXER
          </${NavigationButton}>
+         <ul
+            className="flex-1 flex flex-col justify-center overflow-auto pb-20"
+         >
+            ${tracks.filter(t => t.pluginHandles.length > 0).map(track => H`
+               <li
+                  key=${track.handle}
+               >
+                  <${NavigationButton}
+                     target=${track}
+                     isSelected=${selectedTrack == track}
+                     onClick=${onChange}
+                  >
+                     <${TrackNameLabel}
+                        handle=${track.handle}
+                     />
+                  </${NavigationButton}>
+               </li>
+            `)}
+         </ul>
       </div>
    `;
 }
 
-function NavigationButton({ track, isSelected, onClick, className, children }) {
+export function NavigationButton({
+   target,
+   isSelected,
+   onClick,
+   className,
+   children
+}) {
   const ref = useRef();
 
   useEffect(() => {
@@ -56,15 +66,9 @@ function NavigationButton({ track, isSelected, onClick, className, children }) {
          mode="none"
          touch="false"
          defaultValue="${isSelected}"
-         onClick=${() => onClick(track)}
+         onClick=${() => onClick(target)}
       >
-         ${track ?H`
-            <${TrackNameLabel}
-               handle=${track.handle}
-            />
-         `:
-            children
-         }
+         ${children}
       </g-button>
    `;
 }

@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 import { H } from '../lib/react.js';
-import { useObjectProperty } from '../lib/ds-state.js';
-import { usePlugin } from '../lib/app-state.js';
+import { useObjectProperty } from '../lib/host.js';
+import { usePlugin } from '../lib/state.js';
 import { ParameterValueKnob, PluginEnableButton } from '../lib/widget.js';
 
 const { host } = dawscript;

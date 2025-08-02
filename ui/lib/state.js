@@ -3,7 +3,7 @@
 
 import { useAsyncEffect, useState } from './react.js';
 import { callAndWriteResult, readCallResult } from './cache.js';
-import { useObjectProperty } from './ds-state.js';
+import { useObjectProperty } from './host.js';
 
 const { host, TrackType } = dawscript;
 
@@ -18,12 +18,25 @@ export function useAudioTracks() {
       if (handles !== null) {
          const types = await fetchTrackTypes(handles);
          const audHnd = handles.filter((_, i) => types[i] === TrackType.AUDIO);
-         await fetchTrackDetails(audHnd);
-         setTracks(readTrackDetails(audHnd));
+         setTracks(await fetchTrackDetails(audHnd));
       }
    }, [handles]);
 
    return tracks;
+}
+
+export function usePluginNames(handles) {
+   const [names, setNames] = useState(() =>
+      handles.map(handle => readCallResult(host.getPluginName, handle))
+   );
+
+   useAsyncEffect(async () => {
+      setNames(await Promise.all(handles.map(handle =>
+         callAndWriteResult(host.getPluginName, handle)
+      )));
+   }, []);
+
+   return names;
 }
 
 export function usePlugin(handle) {
@@ -37,20 +50,13 @@ export function usePlugin(handle) {
 
    useAsyncEffect(async () => {
       if (paramHnd !== null) {
-         await fetchParameterDetails(paramHnd);
-         setParams(readParameterDetails(paramHnd));
+         setParams(await fetchParameterDetails(paramHnd));
       }
    }, [paramHnd]);
 
    return (name !== null) && (isEnabled !== null) && (params !== null)
       ? { handle, name, isEnabled, params }
       : null;
-}
-
-async function fetchTrackTypes(handles) {
-   return await Promise.all(handles.map(handle =>
-      callAndWriteResult(host.getTrackType, handle)
-   ));
 }
 
 function readTrackDetails(handles) {
@@ -61,20 +67,9 @@ function readTrackDetails(handles) {
       volume: readCallResult(host.getTrackVolume, handle),
       pan: readCallResult(host.getTrackPan, handle),
       isMuted: readCallResult(host.isTrackMute, handle),
-      plugins: readCallResult(host.getTrackPlugins, handle)
+      pluginHandles: readCallResult(host.getTrackPlugins, handle)
    }))
       .filter(track => Object.values(track).every(prop => prop !== null));
-}
-
-async function fetchTrackDetails(handles) {
-   await Promise.all(handles.flatMap(handle => [
-      callAndWriteResult(host.getTrackType, handle),
-      callAndWriteResult(host.getTrackName, handle),
-      callAndWriteResult(host.getTrackVolume, handle),
-      callAndWriteResult(host.getTrackPan, handle),
-      callAndWriteResult(host.isTrackMute, handle),
-      callAndWriteResult(host.getTrackPlugins, handle)
-   ]));
 }
 
 function readParameterDetails(handles) {
@@ -86,11 +81,57 @@ function readParameterDetails(handles) {
    }))
       .filter(param => Object.values(param).every(prop => prop !== null));
 }
+   
+async function fetchTrackTypes(handles) {
+   return await Promise.all(handles.map(handle =>
+      callAndWriteResult(host.getTrackType, handle)
+   ));
+}
+
+async function fetchTrackDetails(handles) {
+   const calls = [
+      host.getTrackType,
+      host.getTrackName,
+      host.getTrackVolume,
+      host.getTrackPan,
+      host.isTrackMute,
+      host.getTrackPlugins
+   ];
+
+   return await Promise.all(
+      handles.flatMap(handle => calls.map(fn => callAndWriteResult(fn, handle)))
+   )
+   .then(flat =>
+      Array.from({length: handles.length}, (_, i) =>
+         flat.slice(i * calls.length, i * calls.length + calls.length)
+      )
+   )
+   .then(groups =>
+      groups.map(([type, name, volume, pan, isMuted, pluginHandles], i) =>
+         ({ handle: handles[i], type, name, volume, pan, isMuted, pluginHandles })
+      )
+   );
+}
 
 async function fetchParameterDetails(handles) {
-   await Promise.all(handles.flatMap(handle => [
-      callAndWriteResult(host.getParameterName, handle),
-      callAndWriteResult(host.getParameterValue, handle),
-      callAndWriteResult(host.getParameterDisplayValue, handle)
-   ]));
+   const calls = [
+      host.getParameterName,
+      host.getParameterValue,
+      host.getParameterDisplayValue
+   ];
+
+   return await Promise.all(
+      handles.flatMap(handle =>
+         calls.map(fn => callAndWriteResult(fn, handle)))
+      )
+      .then(flat =>
+         Array.from({length: handles.length}, (_, i) =>
+            flat.slice(i * calls.length, i * calls.length + calls.length)
+         )
+      )
+      .then(groups => 
+         groups.map(([name, value, displayValue], i) =>
+            ({ handle: handles[i], name, value, displayValue })
+         )
+      );
 }

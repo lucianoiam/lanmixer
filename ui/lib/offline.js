@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H, useEffect, useState, useRef } from './react.js';
-import { useSession } from './ds-state.js';
+import { useSession } from './host.js';
 
 export default function OfflineView({ className }) {
    const [isVisible, setVisible] = useState(false);

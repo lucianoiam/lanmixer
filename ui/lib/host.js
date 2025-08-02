@@ -19,9 +19,9 @@ export function useSession() {
 }
 
 // TODO: prompt user to reload when an exception occurs
-export function useObjectProperty(init, target, fn) {
+export function useObjectProperty(init, handle, fn) {
    fn = typeof fn === 'function' ? { get: fn } : fn;
-   return useObjectState(init, target, fn)[0];
+   return useObjectState(init, handle, fn)[0];
 }
 
 // TODO: prompt user to reload when an exception occurs
@@ -30,18 +30,18 @@ export function useObjectProperty(init, target, fn) {
 // when the component mounts and are automatically cleaned up on unmount,
 // ensuring state stays in sync and preventing memory leaks.
 // fn: { get, set, addListener, removeListener }
-export function useObjectState(init, target, fn) {
-   const key = makeCacheKey(fn.get, target); 
+export function useObjectState(init, handle, fn) {
+   const key = makeCacheKey(fn.get, handle); 
    const [state, setState] = useCachedState(init, key);
 
    useAsyncEffect(async () => {
       try {
          if (typeof fn.addListener === 'function') {
-            await fn.addListener(target, setState);
+            await fn.addListener(handle, setState);
          }
 
          if (! hasCacheKey(key) || typeof fn.set === 'function') {
-            setState(await fn.get(target));
+            setState(await fn.get(handle));
          }
       } catch (err) {
          dbg_err(err);
@@ -49,7 +49,7 @@ export function useObjectState(init, target, fn) {
 
       return () => {
          if (typeof fn.removeListener === 'function') {
-            fn.removeListener(target, setState)
+            fn.removeListener(handle, setState)
                .catch(dbg_err);
          }
       };
@@ -57,7 +57,7 @@ export function useObjectState(init, target, fn) {
 
    const setStateAndCallSetFn = useCallback(async (newState) => {
       setState(newState);
-      await fn.set(target, newState);
+      await fn.set(handle, newState);
    }, [key.hash]);
 
    return [state, setStateAndCallSetFn];
