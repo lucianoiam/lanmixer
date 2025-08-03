@@ -2,19 +2,12 @@
 // SPDX-License-Identifier: MIT
 
 import { H } from '../lib/react.js';
-import { useObjectProperty } from '../lib/host.js';
-import { usePlugin } from '../lib/state.js';
+import { useObjectField } from '../lib/host.js';
 import { ParameterValueKnob, PluginEnableButton } from '../lib/widget.js';
 
 const { host } = dawscript;
 
-export function PluginView({ handle }) {
-   const plugin = usePlugin(handle);
-
-   if (! plugin) {
-      return null;
-   }
-
+export function PluginView({ plugin }) {
    return H`
       <div
          className="flex flex-col gap-5 p-5 bg-neutral-900"
@@ -52,7 +45,7 @@ export function PluginView({ handle }) {
 }
 
 function ParameterView({ param }) {
-   const displayValue = useObjectProperty('', param.handle, {
+   const displayValue = useObjectField('', param.handle, {
       get: host.getParameterDisplayValue,
       addListener: host.addParameterDisplayValueListener,
       removeListener: host.removeParameterDisplayValueListener

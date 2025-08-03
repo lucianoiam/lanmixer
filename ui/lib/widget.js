@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H, createElement } from './react.js';
-import { useObjectProperty, useObjectState } from './host.js';
+import { useObjectField, useObjectState } from './host.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '/vendor/guinda/guinda.react.module.js';
 
@@ -19,7 +19,7 @@ export function Loader({ message, className }) {
 }
 
 export function TrackNameLabel({ handle }) {
-   const name = useObjectProperty('', handle, host.getTrackName);
+   const name = useObjectField('', handle, host.getTrackName);
 
    return H`
       <span>

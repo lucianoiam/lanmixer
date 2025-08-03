@@ -8,7 +8,7 @@ import { NavigationButton } from '../navigation.js';
 import { TrackMuteButton, TrackNameLabel, TrackPanKnob, TrackVolumeFader,
          Loader }
    from '../lib/widget.js';
-import { usePlugin, usePluginNames } from '../lib/state.js';
+import { usePlugins, usePluginNames } from '../lib/state.js';
 
 export default function FullTrackView({ track, className }) {
    const [selectedPlugin, selectPlugin] = useState(null);
@@ -107,6 +107,7 @@ function PluginNavigation({ handles, selection, onSelect }) {
 }
 
 function TrackPluginsView({ handles, focus }) {
+   const plugins = usePlugins(handles);
    const listRef = useRef();
 
    useEffect(() => {
@@ -121,9 +122,7 @@ function TrackPluginsView({ handles, focus }) {
       }
    }, [focus, handles]);
 
-   const isLoading = handles.some(handle => usePlugin(handle) === null);
-
-   if (isLoading) {
+   if (! plugins) {
       return H`<${Loader}
          message="PLUGINS"
          className="size-full"
@@ -135,13 +134,13 @@ function TrackPluginsView({ handles, focus }) {
       ref=${listRef}
       className="flex-1 flex flex-col items-center gap-2 overflow-auto"
    >
-      ${handles.map(handle => H`
+      ${plugins.map(plugin => H`
          <li
-            key=${handle}
+            key=${plugin.handle}
             className="flex flex-row"
          >
             <${PluginView}
-               handle=${handle}
+               plugin=${plugin}
             />
             <!-- Push scrollbar to the right -->
             <div

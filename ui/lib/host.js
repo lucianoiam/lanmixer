@@ -19,7 +19,7 @@ export function useSession() {
 }
 
 // TODO: prompt user to reload when an exception occurs
-export function useObjectProperty(init, handle, fn) {
+export function useObjectField(init, handle, fn) {
    fn = typeof fn === 'function' ? { get: fn } : fn;
    return useObjectState(init, handle, fn)[0];
 }

@@ -2,136 +2,149 @@
 // SPDX-License-Identifier: MIT
 
 import { useAsyncEffect, useState } from './react.js';
-import { callAndWriteResult, readCallResult } from './cache.js';
-import { useObjectProperty } from './host.js';
+import { callAndWriteResult as call, readCallResult as read }
+   from './cache.js';
+import { useObjectField } from './host.js';
 
 const { host, TrackType } = dawscript;
 
 export function useAudioTracks() {
-   const handles = useObjectProperty(null, null, host.getTracks);
+   const handles = useObjectField(null, null, host.getTracks);
    const [tracks, setTracks] = useState(() => handles !== null
-      ? readTrackDetails(handles).filter(t => t.type === TrackType.AUDIO)
+      ? hydrateTracks(handles).filter(t => t.type === TrackType.AUDIO)
       : null
    );
 
    useAsyncEffect(async () => {
-      if (handles !== null) {
-         const types = await fetchTrackTypes(handles);
-         const audHnd = handles.filter((_, i) => types[i] === TrackType.AUDIO);
-         setTracks(await fetchTrackDetails(audHnd));
-      }
+      if (handles === null) return;
+      const types = await Promise.all(handles.map(handle =>
+         call(host.getTrackType, handle)
+      ));
+      const audHnd = handles.filter((_, i) => types[i] === TrackType.AUDIO);
+      setTracks(await fetchTracks(audHnd));
    }, [handles]);
 
    return tracks;
 }
 
 export function usePluginNames(handles) {
-   const [names, setNames] = useState(() =>
-      handles.map(handle => readCallResult(host.getPluginName, handle))
+   const [names, setNames] = useState(() => handles
+      .map(handle => read(host.getPluginName, handle))
    );
 
    useAsyncEffect(async () => {
-      setNames(await Promise.all(handles.map(handle =>
-         callAndWriteResult(host.getPluginName, handle)
-      )));
-   }, []);
+      const hydrated = handles.map(handle => read(host.getPluginName, handle));
+      setNames(hydrated);
+      if (hydrated.some(name => name === null)) {
+         setNames(await Promise.all(handles
+            .map(handle => call(host.getPluginName, handle)))
+         );
+      }
+   }, [handles]);
 
    return names;
 }
 
-export function usePlugin(handle) {
-   const name = useObjectProperty(null, handle, host.getPluginName);
-   const isEnabled = useObjectProperty(null, handle, host.isPluginEnabled);
-   const paramHnd = useObjectProperty(null, handle, host.getPluginParameters);
-   const [params, setParams] = useState(() => paramHnd !== null
-      ? readParameterDetails(paramHnd)
-      : null
-   );
+export function usePlugins(handles) {
+   const [plugins, setPlugins] = useState(() => hydratePlugins(handles));
 
    useAsyncEffect(async () => {
-      if (paramHnd !== null) {
-         setParams(await fetchParameterDetails(paramHnd));
+      const hydrated = hydratePlugins(handles);
+      setPlugins(hydrated);
+      if (hydrated === null) {
+         setPlugins(await fetchPlugins(handles));
       }
-   }, [paramHnd]);
+   }, [handles]);
 
-   return (name !== null) && (isEnabled !== null) && (params !== null)
-      ? { handle, name, isEnabled, params }
-      : null;
+   return plugins;
 }
 
-function readTrackDetails(handles) {
-   return handles.map(handle => ({
+function hydrateTracks(handles) {
+   return allOrNull(handles.map(handle => ({
       handle,
-      type: readCallResult(host.getTrackType, handle),
-      name: readCallResult(host.getTrackName, handle),
-      volume: readCallResult(host.getTrackVolume, handle),
-      pan: readCallResult(host.getTrackPan, handle),
-      isMuted: readCallResult(host.isTrackMute, handle),
-      pluginHandles: readCallResult(host.getTrackPlugins, handle)
-   }))
-      .filter(track => Object.values(track).every(prop => prop !== null));
+      type: read(host.getTrackType, handle),
+      name: read(host.getTrackName, handle),
+      volume: read(host.getTrackVolume, handle),
+      pan: read(host.getTrackPan, handle),
+      isMuted: read(host.isTrackMute, handle),
+      pluginHandles: read(host.getTrackPlugins, handle)
+   })));
 }
 
-function readParameterDetails(handles) {
-   return handles.map(handle => ({
+async function fetchTracks(handles) {
+   return Promise.all(handles.map(async handle => {
+      const r = await Promise.all([
+         call(host.getTrackType, handle),
+         call(host.getTrackName, handle),
+         call(host.getTrackVolume, handle),
+         call(host.getTrackPan, handle),
+         call(host.isTrackMute, handle),
+         call(host.getTrackPlugins, handle)
+      ]);
+      return {
+         handle,
+         type: r[0],
+         name: r[1],
+         volume: r[2],
+         pan: r[3],
+         isMuted: r[4],
+         pluginHandles: r[5]
+      };
+   }));
+}
+
+function hydratePlugins(handles) {
+   return allOrNull(handles.map(handle => ({
       handle,
-      name: readCallResult(host.getParameterName, handle),
-      value: readCallResult(host.getParameterValue, handle),
-      displayValue: readCallResult(host.getParameterDisplayValue, handle)
-   }))
-      .filter(param => Object.values(param).every(prop => prop !== null));
-}
-   
-async function fetchTrackTypes(handles) {
-   return await Promise.all(handles.map(handle =>
-      callAndWriteResult(host.getTrackType, handle)
-   ));
+      name: read(host.getPluginName, handle),
+      isEnabled: read(host.isPluginEnabled, handle),
+      params: hydrateParameters(read(host.getPluginParameters, handle) ?? [])
+   })));
 }
 
-async function fetchTrackDetails(handles) {
-   const calls = [
-      host.getTrackType,
-      host.getTrackName,
-      host.getTrackVolume,
-      host.getTrackPan,
-      host.isTrackMute,
-      host.getTrackPlugins
-   ];
-
-   return await Promise.all(
-      handles.flatMap(handle => calls.map(fn => callAndWriteResult(fn, handle)))
-   )
-   .then(flat =>
-      Array.from({length: handles.length}, (_, i) =>
-         flat.slice(i * calls.length, i * calls.length + calls.length)
-      )
-   )
-   .then(groups =>
-      groups.map(([type, name, volume, pan, isMuted, pluginHandles], i) =>
-         ({ handle: handles[i], type, name, volume, pan, isMuted, pluginHandles })
-      )
-   );
+async function fetchPlugins(handles) {
+   return Promise.all(handles.map(async handle => {
+      const r = await Promise.all([
+         call(host.getPluginName, handle),
+         call(host.isPluginEnabled, handle),
+         call(host.getPluginParameters, handle)
+      ]);
+      return {
+         handle,
+         name: r[0],
+         isEnabled: r[1],
+         params: await fetchParameters(r[2])
+      };
+   }));
 }
 
-async function fetchParameterDetails(handles) {
-   const calls = [
-      host.getParameterName,
-      host.getParameterValue,
-      host.getParameterDisplayValue
-   ];
+function hydrateParameters(handles) {
+   return allOrNull(handles.map(handle => ({
+      handle,
+      name: read(host.getParameterName, handle),
+      value: read(host.getParameterValue, handle),
+      displayValue: read(host.getParameterDisplayValue, handle)
+   })));
+}
 
-   return await Promise.all(
-      handles.flatMap(handle =>
-         calls.map(fn => callAndWriteResult(fn, handle)))
-      )
-      .then(flat =>
-         Array.from({length: handles.length}, (_, i) =>
-            flat.slice(i * calls.length, i * calls.length + calls.length)
-         )
-      )
-      .then(groups => 
-         groups.map(([name, value, displayValue], i) =>
-            ({ handle: handles[i], name, value, displayValue })
-         )
-      );
+async function fetchParameters(handles) {
+   return Promise.all(handles.map(async handle => {
+      const r = await Promise.all([
+         call(host.getParameterName, handle),
+         call(host.getParameterValue, handle),
+         call(host.getParameterDisplayValue, handle)
+      ]);
+      return {
+         handle,
+         name: r[0],
+         value: r[1],
+         displayValue: r[2]
+      };
+   }));
+}
+
+function allOrNull(arr) {
+   return arr.every(o =>
+      Object.values(o).every(v => v !== null)
+   ) ? arr : null;
 }
