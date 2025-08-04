@@ -4,7 +4,7 @@
 import { callAndWriteResult as call, readCallResult as read }
    from './cache.js';
 import { host, TrackType } from './dawscript.js';
-import { useObjectField } from './host.js';
+import { useObjectField } from './host-state.js';
 import { useAsyncEffect, useState } from './react.js';
 
 

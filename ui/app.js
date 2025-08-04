@@ -3,7 +3,7 @@
 
 import { H, createElement, render } from './lib/react.js';
 import { enableCacheDebugMessages } from './lib/cache.js';
-import { SessionProvider } from './lib/host.js';
+import { SessionProvider } from './lib/host-state.js';
 import OfflineView from './view/OfflineView.js';
 import MainView from './view/MainView.js';
 

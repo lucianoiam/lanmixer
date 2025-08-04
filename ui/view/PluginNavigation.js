@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H, useEffect } from '../../lib/react.js';
-import { usePluginNames } from '../../lib/state.js';
+import { usePluginNames } from '../../lib/view-state.js';
 import ConditionalScroll from '../widget/ConditionalScroll.js';
 import NavigationButton from '../widget/NavigationButton.js';
 

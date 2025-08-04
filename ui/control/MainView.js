@@ -4,15 +4,12 @@
 import { H, useState } from '../lib/react.js';
 import { useAudioTracks } from '../lib/view-state.js';
 import LoaderView from '../widget/LoaderView.js';
-import MixerView from './MixerView.js';
-import TrackView from './TrackView.js';
+import MixerView from './control/MixerView.js';
+import TrackFullView from './control/TrackFullView.js';
 import MainNavigationView from './MainNavigation.js';
 
 
-export default function MainView({
-   className = '',
-   style = {}
-}) {
+export default function MainView({ className }) {
    const [selectedTrack, selectTrack] = useState(null);
    const audioTracks = useAudioTracks();
 
@@ -20,18 +17,16 @@ export default function MainView({
       return H`
          <${LoaderView}
             message="MIXER"
-            className="size-full ${className}"
-            style="${style}"
+            className="size-full"
          />`;
    }
 
    return H`
       <div
          className="flex flex-row ${className}"
-         style="${style}"
       >
          ${selectedTrack ? H`
-            <${TrackView}
+            <${TrackFullView}
                track=${selectedTrack}
             />
          ` : H`

@@ -3,7 +3,7 @@
 
 import { H } from '../lib/react.js';
 import { host } from '../lib/dawscript.js';
-import { useObjectField } from '../lib/host.js';
+import { useObjectField } from '../lib/host-state.js';
 import { ParameterValueKnob } from '../widget/GuindaWidget.js';
 
 

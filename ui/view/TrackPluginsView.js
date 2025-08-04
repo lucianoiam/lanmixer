@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H, useEffect, useRef } from '../../lib/react.js';
-import { usePlugins } from '../../lib/state.js';
+import { usePlugins } from '../../lib/view-state.js';
 import LoaderView from '../widget/LoaderView.js';
 import PluginView from './PluginView.js';
 

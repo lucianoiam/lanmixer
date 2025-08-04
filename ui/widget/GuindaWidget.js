@@ -3,7 +3,7 @@
 
 import { H, createElement } from '../lib/react.js';
 import { host } from '../lib/dawscript.js';
-import { useObjectField, useObjectState } from '../lib/host.js';
+import { useObjectField, useObjectState } from '../lib/host-state.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '../vendor/guinda/guinda.react.module.js';
 
