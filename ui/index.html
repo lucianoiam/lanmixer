@@ -16,12 +16,6 @@
    </style>
 </head>
 <body class="bg-default text-default">
-  <script type="importmap">
-  {
-    "imports": { "preact": "/vendor/preact.module.js" }
-  }
-  </script>
-  <script type="module" src="app.js" data-debug-messages="false"></script>
   <script src="vendor/tailwind.js"></script>
   <div class="size-app">
     <div id="loader" class="flex items-center justify-center size-full">
@@ -35,5 +29,11 @@
     document.querySelector('#loader img').onload = e =>
       e.target.closest('#loader').classList.remove('invisible');
   </script>
+  <script type="importmap">
+  {
+    "imports": { "preact": "/vendor/preact.module.js" }
+  }
+  </script>
+  <script type="module" src="app.js" data-debug-messages="false"></script>
 </body>
 </html>

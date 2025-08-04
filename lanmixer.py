@@ -11,7 +11,7 @@ def load_controller():
     from dawscript_core.util import dawscript_path
 
     htdocs = dawscript_path("../../ui")
-    web_ctrl.set_server_config(htdocs, service_name="LAN Mixer")
+    web_ctrl.set_server_config(htdocs, service_name="LAN Mixer", inject_js=False)
 
     return web_ctrl
 
