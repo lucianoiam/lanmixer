@@ -4,10 +4,11 @@
 import { H, createElement, render } from './lib/react.js';
 import { enableCacheDebugMessages } from './lib/cache.js';
 import { SessionProvider } from './lib/host.js';
-import OfflineView from './lib/offline.js';
-import MainView from './main.js';
+import OfflineView from './view/OfflineView.js';
+import MainView from './view/MainView.js';
 
-function AppView() {
+
+function App() {
    return H`
       <${SessionProvider}>
          <div
@@ -36,7 +37,7 @@ function main() {
       ev.preventDefault();
    });
 
-   render(createElement(AppView), document.body);
+   render(createElement(App), document.body);
 }
 
 main();

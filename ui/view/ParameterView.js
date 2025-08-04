@@ -1,0 +1,34 @@
+// SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
+// SPDX-License-Identifier: MIT
+
+import { H } from '../lib/react.js';
+import { host } from '../lib/dawscript.js';
+import { useObjectField } from '../lib/host.js';
+import { ParameterValueKnob } from '../widget/GuindaWidget.js';
+
+
+export default function ParameterView({ param }) {
+   const displayValue = useObjectField('', param.handle, {
+      get: host.getParameterDisplayValue,
+      addListener: host.addParameterDisplayValueListener,
+      removeListener: host.removeParameterDisplayValueListener
+   });
+
+   return H`
+      <div
+         className="flex flex-col items-center w-36 p-3 gap-2 border border-neutral-800 rounded"
+      >
+         <div className="font-mono text-sx text-center h-[3rem] line-clamp-2">
+            ${displayValue}
+         </div>
+         <${ParameterValueKnob}
+            handle=${param.handle}
+         />
+         <div
+            className="text-sm text-center text-neutral-500 h-[2.5rem] line-clamp-2"
+         >
+            ${param.name}
+         </div>
+      </div>
+   `;
+}

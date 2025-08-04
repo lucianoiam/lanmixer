@@ -1,22 +1,12 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, createElement } from './react.js';
-import { useObjectField, useObjectState } from './host.js';
+import { H, createElement } from '../lib/react.js';
+import { host } from '../lib/dawscript.js';
+import { useObjectField, useObjectState } from '../lib/host.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
-   from '/vendor/guinda/guinda.react.module.js';
+   from '../vendor/guinda/guinda.react.module.js';
 
-const { host } = dawscript;
-const loaderElem = document.getElementById('loader').cloneNode(true);
-
-export function Loader({ message, className }) {
-   loaderElem.querySelector('span').textContent = message;
-   const props = {
-      dangerouslySetInnerHTML: { __html: loaderElem.outerHTML },
-      className
-   };
-   return createElement('div', props);
-}
 
 export function TrackNameLabel({ handle }) {
    const name = useObjectField('', handle, host.getTrackName);

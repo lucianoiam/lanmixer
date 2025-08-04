@@ -3,8 +3,9 @@
 
 import { H, useEffect, useRef, useState } from '../lib/react.js';
 
+
 // TODO: doesn't work with flex-1
-export function ConditionalScroll({
+export default function ConditionalScroll({
    children,
    className,
    style,

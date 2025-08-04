@@ -2,8 +2,9 @@
 // SPDX-License-Identifier: MIT
 
 import { H } from '../lib/react.js';
-import { ConditionalScroll } from '../lib/container.js';
-import { TrackStrip } from './track.js';
+import ConditionalScroll from '../widget/ConditionalScroll.js';
+import TrackStripView from './TrackStripView.js';
+
 
 export default function MixerView({ tracks, className }) {
    return H`
@@ -15,7 +16,7 @@ export default function MixerView({ tracks, className }) {
          >
             ${tracks.map(track => H`
                <li>
-                  <${TrackStrip}
+                  <${TrackStripView}
                      track=${track}
                   />
                </li>

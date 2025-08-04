@@ -1,11 +1,11 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
+import { hasCacheKey, makeCacheKey, useCachedState } from './cache.js';
+import { connect, host } from './dawscript.js';
 import { useAsyncEffect, useCallback, useContext, useEffect, useState,
          createContext, createElement } from './react.js';
-import { hasCacheKey, makeCacheKey, useCachedState } from './cache.js';
 
-const { host } = dawscript;
 
 const SessionContext = createContext();
 
@@ -73,7 +73,7 @@ function useSessionState() {
    useEffect(() => {
       let id = 0;
 
-      dawscript.connect((isOnline) => {
+      connect((isOnline) => {
          setState((prev) => ({ ...prev, isOnline }));
 
          if (isOnline) {

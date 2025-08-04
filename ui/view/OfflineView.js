@@ -1,8 +1,9 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, useEffect, useState, useRef } from './react.js';
-import { useSession } from './host.js';
+import { H, useEffect, useState, useRef } from '../lib/react.js';
+import { useSession } from '../lib/host.js';
+
 
 export default function OfflineView({ className }) {
    const [isVisible, setVisible] = useState(false);

@@ -1,12 +1,13 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, useState } from './lib/react.js';
-import { useAudioTracks } from './lib/state.js';
-import { Loader } from './lib/widget.js';
-import MixerView from './control/mixer.js';
-import FullTrackView from './control/track.js';
-import MainNavigationView from './navigation.js';
+import { H, useState } from '../lib/react.js';
+import { useAudioTracks } from '../lib/state.js';
+import LoaderView from '../widget/LoaderView.js';
+import MixerView from './MixerView.js';
+import TrackView from './TrackView.js';
+import MainNavigationView from './MainNavigation.js';
+
 
 export default function MainView({ className }) {
    const [selectedTrack, selectTrack] = useState(null);
@@ -14,7 +15,7 @@ export default function MainView({ className }) {
 
    if (! audioTracks) {
       return H`
-         <${Loader}
+         <${LoaderView}
             message="MIXER"
             className="size-full"
          />`;
@@ -25,7 +26,7 @@ export default function MainView({ className }) {
          className="flex flex-row ${className}"
       >
          ${selectedTrack ? H`
-            <${FullTrackView}
+            <${TrackView}
                track=${selectedTrack}
             />
          ` : H`

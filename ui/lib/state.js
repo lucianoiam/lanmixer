@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { useAsyncEffect, useState } from './react.js';
 import { callAndWriteResult as call, readCallResult as read }
    from './cache.js';
+import { host, TrackType } from './dawscript.js';
 import { useObjectField } from './host.js';
+import { useAsyncEffect, useState } from './react.js';
 
-const { host, TrackType } = dawscript;
 
 export function useAudioTracks() {
    const handles = useObjectField(null, null, host.getTracks);
