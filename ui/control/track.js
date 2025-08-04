@@ -5,6 +5,7 @@ import { H } from '../lib/react.js';
 import { PluginView } from './plugin.js';
 import { useEffect, useRef, useState } from '../lib/react.js';
 import { NavigationButton } from '../navigation.js';
+import { ConditionalScroll } from '../lib/container.js';
 import { TrackMuteButton, TrackNameLabel, TrackPanKnob, TrackVolumeFader,
          Loader }
    from '../lib/widget.js';
@@ -19,7 +20,7 @@ export default function FullTrackView({ track, className }) {
 
    return H`
       <div
-         className="flex flex-row h-full ${className}"
+         className="flex flex-row size-full ${className}"
       >
          <${PluginNavigation}
             key=${track.handle}
@@ -28,15 +29,13 @@ export default function FullTrackView({ track, className }) {
             onSelect=${selectPlugin}
          />
          <${TrackPluginsView}
+            className="w-full"
             handles=${track.pluginHandles}
             focus=${selectedPlugin}
          />
-         <div className="flex items-center">
-            <${TrackStrip}
-               track=${track}
-               className="p-5 shrink-0"
-            />
-         </div>
+         <${TrackStrip}
+            track=${track}
+         />
       </div>
    `;
 }
@@ -68,8 +67,6 @@ export function TrackStrip({ track, className }) {
 
 function PluginNavigation({ handles, selection, onSelect }) {
    const names = usePluginNames(handles);
-   const ulRef = useRef();
-   const [isOverflowing, setIsOverflowing] = useState(false);
 
    useEffect(() => {
       if (handles.length > 0 && selection == null) {
@@ -77,36 +74,30 @@ function PluginNavigation({ handles, selection, onSelect }) {
       }
    }, [handles, selection, onSelect]);
 
-   useEffect(() => {
-      const ul = ulRef.current;
-      if (!ul) return;
-      // Check if content overflows
-      setIsOverflowing(ul.scrollHeight > ul.clientHeight);
-   }, [names]);
-
    return H`
-   <ul
-      ref=${ulRef}
-      className="flex flex-col w-42 shrink-0 gap-2 pr-2 ${isOverflowing ? 'overflow-auto' : 'justify-center'}"
-   >
-      ${names.map((name, i) => H`
-         <li
-            key=${handles[i]}
-         >
-            <${NavigationButton}
-               target=${handles[i]}
-               isSelected=${selection == handles[i]}
-               onClick=${() => onSelect(handles[i])}
-            >
-               <span>${name}</span>
-            </${NavigationButton}>
-         </li>
-      `)}
-   </ul>
+      <${ConditionalScroll}
+         className="flex flex-col w-42 gap-2 pr-2"
+      >
+         <ul className="contents">
+            ${names.map((name, i) => H`
+               <li
+                  key=${handles[i]}
+               >
+                  <${NavigationButton}
+                     target=${handles[i]}
+                     isSelected=${selection == handles[i]}
+                     onClick=${() => onSelect(handles[i])}
+                  >
+                     <span>${name}</span>
+                  </${NavigationButton}>
+               </li>
+            `)}
+         </ul>
+      </${ConditionalScroll}>
    `;
 }
 
-function TrackPluginsView({ handles, focus }) {
+function TrackPluginsView({ handles, focus, className }) {
    const plugins = usePlugins(handles);
    const listRef = useRef();
 
@@ -132,7 +123,7 @@ function TrackPluginsView({ handles, focus }) {
    return H`
    <ul
       ref=${listRef}
-      className="flex-1 flex flex-col items-center gap-2 overflow-auto"
+      className="flex flex-col items-center gap-2 overflow-auto ${className}"
    >
       ${plugins.map(plugin => H`
          <li

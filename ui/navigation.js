@@ -1,7 +1,8 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, useEffect, useRef, useState } from './lib/react.js';
+import { H, useEffect, useRef } from './lib/react.js';
+import { ConditionalScroll } from './lib/container.js';
 import { TrackNameLabel } from './lib/widget.js';
 
 export default function MainNavigationView({
@@ -10,16 +11,7 @@ export default function MainNavigationView({
    onChange,
    className
 }) {
-   const ulRef = useRef();
-   const [isOverflowing, setIsOverflowing] = useState(false);
-
    const filteredTracks = tracks.filter(t => t.pluginHandles.length > 0);
-
-   useEffect(() => {
-      const ul = ulRef.current;
-      if (!ul) return;
-      setIsOverflowing(ul.scrollHeight > ul.clientHeight);
-   }, [filteredTracks]);
 
    return H`
       <div
@@ -31,26 +23,29 @@ export default function MainNavigationView({
          >
             MIXER
          </${NavigationButton}>
-         <ul
-            ref=${ulRef}
-            className="flex-1 flex flex-col gap-2 pb-20 ${isOverflowing ? 'overflow-auto' : 'justify-center'}"
+         <${ConditionalScroll}
+            className="flex flex-col gap-2 pt-2 pb-20 max-h-full"
          >
-            ${filteredTracks.map(track => H`
-               <li
-                  key=${track.handle}
-               >
-                  <${NavigationButton}
-                     target=${track}
-                     isSelected=${selectedTrack == track}
-                     onClick=${onChange}
+            <ul
+               className="contents"
+            >
+               ${filteredTracks.map(track => H`
+                  <li
+                     key=${track.handle}
                   >
-                     <${TrackNameLabel}
-                        handle=${track.handle}
-                     />
-                  </${NavigationButton}>
-               </li>
-            `)}
-         </ul>
+                     <${NavigationButton}
+                        target=${track}
+                        isSelected=${selectedTrack == track}
+                        onClick=${onChange}
+                     >
+                        <${TrackNameLabel}
+                           handle=${track.handle}
+                        />
+                     </${NavigationButton}>
+                  </li>
+               `)}
+            </ul>
+         </${ConditionalScroll}>
       </div>
    `;
 }

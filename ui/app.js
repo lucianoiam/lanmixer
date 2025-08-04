@@ -14,10 +14,10 @@ function AppView() {
             className="relative size-app"
          >
             <${MainView}
-               className="absolute inset-0"
+               className="size-full"
             />
             <${OfflineView}
-               className="absolute inset-0"
+               className="size-full absolute inset-0"
             />
          </div>
       </${SessionProvider}>

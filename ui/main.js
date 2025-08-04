@@ -24,21 +24,18 @@ export default function MainView({ className }) {
       <div
          className="flex flex-row ${className}"
       >
-         <div
-            className="flex-1 overflow-auto"
-         >
-            ${selectedTrack ? H`
-               <${FullTrackView}
-                  track=${selectedTrack}
-               />
-            ` : H`
-               <${MixerView}
-                  tracks=${audioTracks}
-               />
-            `}
-         </div>
+         ${selectedTrack ? H`
+            <${FullTrackView}
+               track=${selectedTrack}
+            />
+         ` : H`
+            <${MixerView}
+               className="p-5"
+               tracks=${audioTracks}
+            />
+         `}
          <${MainNavigationView}
-            className="w-42 pl-2 overflow-auto"
+            className="w-42 pl-2"
             tracks=${audioTracks}
             selectedTrack=${selectedTrack}
             onChange=${selectTrack}
