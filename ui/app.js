@@ -12,7 +12,7 @@ function App() {
    return H`
       <${SessionProvider}>
          <div
-            className="relative size-app"
+            className="size-app relative"
          >
             <${MainView}
                className="size-full"

@@ -23,7 +23,7 @@ export default function TrackPluginsView({
          const list = listRef.current;
          const item = list.children[index];
          if (item) {
-            list.scrollTo({ top: item.offsetTop, behavior: 'smooth' });
+            item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
          }
       }
    }, [focus, handles]);
@@ -37,25 +37,23 @@ export default function TrackPluginsView({
    }
 
    return H`
-   <ul
-      ref=${listRef}
-      className="flex flex-col items-center gap-2 overflow-auto ${className}"
-      style="${style}"
-   >
-      ${plugins.map(plugin => H`
-         <li
-            key=${plugin.handle}
-            className="flex flex-row"
+      <div
+         className="flex flex-col items-center gap-2 overflow-auto ${className}"
+         style="${style}"
+      >
+         <ul
+            ref=${listRef}
+            className="contents"
          >
-            <${PluginView}
-               plugin=${plugin}
-            />
-            <!-- Push scrollbar to the right -->
-            <div
-               className="flex-1"
-            >
-            </div>
-         </li>
-      `)}
-   </ul>`;
+            ${plugins.map(plugin => H`
+               <li
+                  key=${plugin.handle}
+               >
+                  <${PluginView}
+                     plugin=${plugin}
+                  />
+               </li>
+            `)}
+         </ul>
+      </div>`;
 }

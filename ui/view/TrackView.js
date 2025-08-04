@@ -26,19 +26,19 @@ export default function TrackView({
          <${PluginNavigation}
             key=${track.handle}
             handles=${track.pluginHandles}
+            className="pr-2 shrink-0"
             selection=${selectedPlugin}
             onSelect=${selectPlugin}
          />
          <${TrackPluginsView}
-            className="w-full"
+            className="flex-1"
             handles=${track.pluginHandles}
             focus=${selectedPlugin}
          />
          <${TrackStripView}
             track=${track}
+            className="p-5"
          />
       </div>
    `;
 }
-
-

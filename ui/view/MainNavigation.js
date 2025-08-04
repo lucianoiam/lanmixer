@@ -18,7 +18,7 @@ export default function MainNavigationView({
 
    return H`
       <div
-         className="flex flex-col ${className}"
+         className="flex flex-col w-42 ${className}"
          style="${style}"
       >
          <${NavigationButton}
@@ -28,7 +28,7 @@ export default function MainNavigationView({
             MIXER
          </${NavigationButton}>
          <${ConditionalScroll}
-            className="flex flex-col gap-2 pt-2 pb-20 max-h-full"
+            className="flex flex-col gap-2 pt-2 pb-20 h-full"
          >
             <ul
                className="contents"

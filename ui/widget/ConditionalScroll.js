@@ -7,7 +7,7 @@ import { H, useEffect, useRef, useState } from '../lib/react.js';
 // TODO: doesn't work with flex-1
 export default function ConditionalScroll({
    children,
-   justifyClass = 'justify-center',
+   justifyClass = 'justify-evenly',
    className = '',
    style = {}
 }) {

@@ -20,7 +20,7 @@ export default function MainView({
       return H`
          <${LoaderView}
             message="MIXER"
-            className="size-full ${className}"
+            className="${className}"
             style="${style}"
          />`;
    }
@@ -41,7 +41,7 @@ export default function MainView({
             />
          `}
          <${MainNavigationView}
-            className="w-42 pl-2"
+            className="pl-2 shrink-0"
             tracks=${audioTracks}
             selectedTrack=${selectedTrack}
             onChange=${selectTrack}

@@ -1,8 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { callAndWriteResult as call, readCallResult as read }
-   from './cache.js';
+import { callAndWriteResult as call, readCallResult as read } from './cache.js';
 import { host, TrackType } from './dawscript.js';
 import { useObjectField } from './host-state.js';
 import { useAsyncEffect, useState } from './react.js';

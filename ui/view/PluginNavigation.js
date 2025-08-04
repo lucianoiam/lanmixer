@@ -24,10 +24,12 @@ export default function PluginNavigation({
 
    return H`
       <${ConditionalScroll}
-         className="flex flex-col w-42 gap-2 pr-2 ${className}"
+         className="flex flex-col gap-2 w-42 ${className}"
          style="${style}"
       >
-         <ul className="contents">
+         <ul
+            className="contents"
+         >
             ${names.map((name, i) => H`
                <li
                   key=${handles[i]}
