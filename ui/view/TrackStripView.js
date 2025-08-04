@@ -6,10 +6,15 @@ import { TrackNameLabel, TrackPanKnob, TrackVolumeFader, TrackMuteButton }
    from '../widget/GuindaWidget.js';
 
 
-export default function TrackStripView({ track, className }) {
+export default function TrackStripView({
+   track,
+   className = '',
+   style = {}
+}) {
    return H`
       <div
          className="flex flex-col items-center gap-10 h-full w-36 ${className}"
+         style="${style}"
       >
          <${TrackNameLabel}
             handle=${track.handle}

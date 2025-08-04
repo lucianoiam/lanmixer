@@ -9,7 +9,10 @@ import TrackView from './TrackView.js';
 import MainNavigationView from './MainNavigation.js';
 
 
-export default function MainView({ className }) {
+export default function MainView({
+   className = '',
+   style = {}
+}) {
    const [selectedTrack, selectTrack] = useState(null);
    const audioTracks = useAudioTracks();
 
@@ -17,13 +20,15 @@ export default function MainView({ className }) {
       return H`
          <${LoaderView}
             message="MIXER"
-            className="size-full"
+            className="size-full ${className}"
+            style="${style}"
          />`;
    }
 
    return H`
       <div
          className="flex flex-row ${className}"
+         style="${style}"
       >
          ${selectedTrack ? H`
             <${TrackView}

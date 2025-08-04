@@ -6,10 +6,15 @@ import ConditionalScroll from '../widget/ConditionalScroll.js';
 import TrackStripView from './TrackStripView.js';
 
 
-export default function MixerView({ tracks, className }) {
+export default function MixerView({
+   tracks,
+   className = '',
+   style = {}
+}) {
    return H`
       <${ConditionalScroll}
          className="flex flex-row w-full ${className}"
+         style="${style}"
       >
          <ul
             className="contents"

@@ -7,7 +7,11 @@ import TrackPluginsView from './TrackPluginsView.js';
 import PluginNavigation from './PluginNavigation.js';
 
 
-export default function TrackView({ track, className }) {
+export default function TrackView({
+   track,
+   className = '',
+   style = {}
+}) {
    const [selectedPlugin, selectPlugin] = useState(null);
 
    useEffect(() => {
@@ -17,6 +21,7 @@ export default function TrackView({ track, className }) {
    return H`
       <div
          className="flex flex-row size-full ${className}"
+         style="${style}"
       >
          <${PluginNavigation}
             key=${track.handle}

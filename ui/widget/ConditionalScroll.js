@@ -7,9 +7,9 @@ import { H, useEffect, useRef, useState } from '../lib/react.js';
 // TODO: doesn't work with flex-1
 export default function ConditionalScroll({
    children,
-   className,
-   style,
-   justifyClass = 'justify-center'
+   justifyClass = 'justify-center',
+   className = '',
+   style = {}
 }) {
    const ref = useRef();
    const [state, setState] = useState({ visible: false, scrolling: false });

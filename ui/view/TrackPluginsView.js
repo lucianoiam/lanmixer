@@ -7,7 +7,12 @@ import LoaderView from '../widget/LoaderView.js';
 import PluginView from './PluginView.js';
 
 
-export default function TrackPluginsView({ handles, focus, className }) {
+export default function TrackPluginsView({
+   handles,
+   focus,
+   className = '',
+   style = {}
+}) {
    const plugins = usePlugins(handles);
    const listRef = useRef();
 
@@ -26,7 +31,8 @@ export default function TrackPluginsView({ handles, focus, className }) {
    if (!plugins) {
       return H`<${LoaderView}
          message="PLUGINS"
-         className="size-full"
+         className="size-full ${className}"
+         style="${style}"
       />`;
    }
 
@@ -34,6 +40,7 @@ export default function TrackPluginsView({ handles, focus, className }) {
    <ul
       ref=${listRef}
       className="flex flex-col items-center gap-2 overflow-auto ${className}"
+      style="${style}"
    >
       ${plugins.map(plugin => H`
          <li

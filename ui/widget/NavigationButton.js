@@ -5,7 +5,12 @@ import { H, useEffect, useRef } from '../lib/react.js';
 
 
 export default function NavigationButton({
-   target, isSelected, onClick, className, children
+   target, 
+   isSelected,
+   onClick,
+   className = '',
+   style = {},
+   children
 }) {
    const ref = useRef();
 
@@ -19,6 +24,7 @@ export default function NavigationButton({
       <g-button
          ref=${ref}
          className="w-full h-14 bg-neutral-800 ${className}"
+         style=${style}
          mode="none"
          touch="false"
          defaultValue="${isSelected}"

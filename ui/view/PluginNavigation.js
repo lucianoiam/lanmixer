@@ -7,7 +7,13 @@ import ConditionalScroll from '../widget/ConditionalScroll.js';
 import NavigationButton from '../widget/NavigationButton.js';
 
 
-export default function PluginNavigation({ handles, selection, onSelect }) {
+export default function PluginNavigation({
+   handles,
+   selection,
+   onSelect,
+   className = '',
+   style = {}
+}) {
    const names = usePluginNames(handles);
 
    useEffect(() => {
@@ -18,7 +24,8 @@ export default function PluginNavigation({ handles, selection, onSelect }) {
 
    return H`
       <${ConditionalScroll}
-         className="flex flex-col w-42 gap-2 pr-2"
+         className="flex flex-col w-42 gap-2 pr-2 ${className}"
+         style="${style}"
       >
          <ul className="contents">
             ${names.map((name, i) => H`

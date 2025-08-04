@@ -11,13 +11,15 @@ export default function MainNavigationView({
    tracks,
    selectedTrack,
    onChange,
-   className
+   className = '',
+   style = {}
 }) {
    const filteredTracks = tracks.filter(t => t.pluginHandles.length > 0);
 
    return H`
       <div
          className="flex flex-col ${className}"
+         style="${style}"
       >
          <${NavigationButton}
             isSelected=${selectedTrack == null}

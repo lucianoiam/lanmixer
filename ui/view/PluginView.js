@@ -6,10 +6,15 @@ import { PluginEnableButton } from '../widget/GuindaWidget.js';
 import ParameterView from './ParameterView.js';
 
 
-export default function PluginView({ plugin }) {
+export default function PluginView({
+   plugin,
+   className = '',
+   style = {}
+}) {
    return H`
       <div
-         className="flex flex-col gap-5 p-5 bg-neutral-900"
+         className="flex flex-col gap-5 p-5 bg-neutral-900 ${className}"
+         style="${style}"
       >
          <div
             className="flex flex-row"

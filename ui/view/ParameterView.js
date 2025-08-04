@@ -7,7 +7,11 @@ import { useObjectField } from '../lib/host.js';
 import { ParameterValueKnob } from '../widget/GuindaWidget.js';
 
 
-export default function ParameterView({ param }) {
+export default function ParameterView({
+   param,
+   className = '',
+   style = {}
+}) {
    const displayValue = useObjectField('', param.handle, {
       get: host.getParameterDisplayValue,
       addListener: host.addParameterDisplayValueListener,
@@ -16,7 +20,8 @@ export default function ParameterView({ param }) {
 
    return H`
       <div
-         className="flex flex-col items-center w-36 p-3 gap-2 border border-neutral-800 rounded"
+         className="flex flex-col items-center w-36 p-3 gap-2 border border-neutral-800 rounded ${className}"
+         style="${style}"
       >
          <div className="font-mono text-sx text-center h-[3rem] line-clamp-2">
             ${displayValue}

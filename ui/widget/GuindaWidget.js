@@ -8,17 +8,28 @@ import { KnobComponent, FaderComponent, ButtonComponent }
    from '../vendor/guinda/guinda.react.module.js';
 
 
-export function TrackNameLabel({ handle }) {
+export function TrackNameLabel({
+   handle,
+   className = '',
+   style = {}
+}) {
    const name = useObjectField('', handle, host.getTrackName);
 
    return H`
-      <span>
+      <span
+         class="${className}"
+         style="${style}"
+      >
          ${name}
       </span>
    `;
 }
 
-export function TrackVolumeFader({ handle, className }) {
+export function TrackVolumeFader({
+   handle,
+   className = '',
+   style = {}
+}) {
    const state = useObjectState(0, handle, {
       get: host.getTrackVolume,
       set: host.setTrackVolume,
@@ -33,13 +44,18 @@ export function TrackVolumeFader({ handle, className }) {
          className,
          style: {
             width: 37,
-            minHeight: 96
+            minHeight: 96,
+            ...style
          }
       }
    );
 }
 
-export function TrackMuteButton({ handle, className }) {
+export function TrackMuteButton({
+   handle,
+   className = '',
+   style = {}
+}) {
    const state = useObjectState(false, handle, {
       get: host.isTrackMute,
       set: host.setTrackMute,
@@ -56,13 +72,18 @@ export function TrackMuteButton({ handle, className }) {
          style: {
             width: 37,
             height: 37,
-            backgroundColor: '#404040'
+            backgroundColor: '#404040',
+            ...style
          }
       }
    );
 }
 
-export function PluginEnableButton({ handle, className }) {
+export function PluginEnableButton({
+   handle,
+   className = '',
+   style = {}
+}) {
    const state = useObjectState(false, handle, {
       get: host.isPluginEnabled,
       set: host.setPluginEnabled,
@@ -79,13 +100,18 @@ export function PluginEnableButton({ handle, className }) {
          style: {
             width: 24,
             height: 24,
-            backgroundColor: '#404040'
+            backgroundColor: '#404040',
+            ...style
          }
       }
    );
 }
 
-export function TrackPanKnob({ handle, className }) {
+export function TrackPanKnob({
+   handle,
+   className = '',
+   style = {}
+}) {
    const state = useObjectState(0, handle, {
       get: host.getTrackPan,
       set: host.setTrackPan,
@@ -100,13 +126,18 @@ export function TrackPanKnob({ handle, className }) {
          className,
          style: {
             width: 48,
-            height: 48
+            height: 48,
+            ...style
          }
       }
    );
 }
 
-export function ParameterValueKnob({ handle, className }) {
+export function ParameterValueKnob({
+   handle,
+   className = '',
+   style = {}
+}) {
    const state = useObjectState(0, handle, {
       get: host.getParameterValue,
       set: host.setParameterValue,
@@ -121,7 +152,8 @@ export function ParameterValueKnob({ handle, className }) {
          className,
          style: {
             width: 56,
-            height: 56
+            height: 56,
+            ...style
          }
       }
    );

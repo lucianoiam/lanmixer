@@ -5,7 +5,10 @@ import { H, useEffect, useState, useRef } from '../lib/react.js';
 import { useSession } from '../lib/host.js';
 
 
-export default function OfflineView({ className }) {
+export default function OfflineView({
+   className = '',
+   style = {}
+}) {
    const [isVisible, setVisible] = useState(false);
    const { isOnline } = useSession();
    const timer = useRef(null);
@@ -29,6 +32,7 @@ export default function OfflineView({ className }) {
    return H`
       <div
          class="bg-default bg-opacity-90 flex items-center justify-center ${className}"
+         style="${style}"
       >
          <img
             src="static/offline.png"
