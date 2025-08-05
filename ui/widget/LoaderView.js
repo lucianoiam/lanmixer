@@ -4,7 +4,7 @@
 import { createElement } from '../lib/react.js';
 
 
-const element = document.getElementById('loader').cloneNode(true);
+const element = document.getElementById('loader-template').cloneNode(true);
 
 export default function LoaderView({
    message,

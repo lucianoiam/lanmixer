@@ -1,34 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-   <meta charset="UTF-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-   <title>LAN Mixer</title>
-   <link rel="icon" href="data:,">
-   <link rel="stylesheet" href="static/styles.css" />
-   <style>
-      .size-app {
-        width: 100dvw;
-        height: 100dvh;
-        min-width: 800px;
-        min-height: 600px;
-      }
-   </style>
-</head>
-<body class="bg-default text-default">
+  <title>LAN Mixer</title>
+  <link rel="icon" href="data:,">
+  <style>
+    html { overscroll-behavior: none; }
+    .size-app { min-width: 800px; min-height: 600px; width: 100dvw; height: 100dvh; }
+  </style>
   <script src="vendor/tailwind.js"></script>
-  <div class="size-app">
-    <div id="loader" class="flex items-center justify-center size-full">
+</head>
+<body class="bg-neutral-950 text-white">
+  <div class="size-app invisible">
+    <img onload="parentNode.classList.remove('invisible')" src="assets/floppy.svg" class="hidden">
+    <div id="loader-template" class="flex items-center justify-center size-full">
       <div class="flex flex-row items-center gap-2 w-24">
-        <img src="static/floppy.svg" class="size-8">
+        <img src="assets/floppy.svg" class="size-8">
         <span>APP</span>
       </div>
     </div>
   </div>
-  <script>
-    document.querySelector('#loader img').onload = e =>
-      e.target.closest('#loader').classList.remove('invisible');
-  </script>
   <script type="importmap">
   {
     "imports": { "preact": "/vendor/preact.module.js" }

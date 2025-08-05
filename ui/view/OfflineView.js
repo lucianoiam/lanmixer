@@ -31,11 +31,11 @@ export default function OfflineView({
 
    return H`
       <div
-         class="bg-default bg-opacity-90 flex items-center justify-center ${className}"
+         class="bg-black/50 backdrop-blur-xs flex items-center justify-center ${className}"
          style="${style}"
       >
          <img
-            src="static/offline.png"
+            src="assets/offline.png"
             style=${{
                width: 96,
                height: 96

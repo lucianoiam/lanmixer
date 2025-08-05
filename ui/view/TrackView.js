@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H, useEffect, useState } from '../../lib/react.js';
-import { useTrackPlugins } from '../lib/state-mixer.js';
+import { useTrackPlugins } from '../lib/state-views.js';
 import LoaderView from '../widget/LoaderView.js';
 import TrackStripView from './TrackStripView.js';
 import TrackPluginsView from './TrackPluginsView.js';
