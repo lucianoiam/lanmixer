@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H } from '../lib/react.js';
-import { PluginEnableButton } from '../widget/GuindaWidget.js';
+import { ListenerPluginEnableButton } from '../widget/ListenerWidget.js';
 import ParameterView from './ParameterView.js';
 
 
@@ -17,13 +17,13 @@ export default function PluginView({
          style="${style}"
       >
          <div
-            className="flex flex-row"
+            className="flex flex-row w-full"
          >
-            <${PluginEnableButton}
+            <${ListenerPluginEnableButton}
                handle=${plugin.handle}
             />
             <h1
-               className=" text-xl font-bold flex-1 text-center"
+               className="text-xl font-bold flex-1 text-center"
             >
                ${plugin.name}
             </h1>
@@ -32,7 +32,7 @@ export default function PluginView({
             />
          </div>
          <ul
-            className="inline-flex flex-wrap gap-5 justify-center"
+            className="flex flex-wrap gap-5 justify-center"
          >
             ${plugin.params.map(param => H`
                <li

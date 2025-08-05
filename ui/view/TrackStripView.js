@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 import { H } from '../lib/react.js';
-import { TrackNameLabel, TrackPanKnob, TrackVolumeFader, TrackMuteButton }
-   from '../widget/GuindaWidget.js';
+import { ListenerTrackPanKnob, ListenerTrackVolumeFader, ListenerTrackMuteButton,
+         TrackNameLabel } from '../widget/ListenerWidget.js';
 
 
 export default function TrackStripView({
@@ -19,14 +19,14 @@ export default function TrackStripView({
          <${TrackNameLabel}
             handle=${track.handle}
          />
-         <${TrackPanKnob}
+         <${ListenerTrackPanKnob}
             handle=${track.handle}
          />
-         <${TrackVolumeFader}
+         <${ListenerTrackVolumeFader}
             handle=${track.handle}
             className="flex-1"
          />
-         <${TrackMuteButton}
+         <${ListenerTrackMuteButton}
             handle=${track.handle}
          />
          <div

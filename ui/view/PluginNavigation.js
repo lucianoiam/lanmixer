@@ -2,25 +2,24 @@
 // SPDX-License-Identifier: MIT
 
 import { H, useEffect } from '../../lib/react.js';
-import { usePluginNames } from '../../lib/view-state.js';
 import ConditionalScroll from '../widget/ConditionalScroll.js';
 import NavigationButton from '../widget/NavigationButton.js';
 
 
 export default function PluginNavigation({
-   handles,
+   plugins,
    selection,
    onSelect,
    className = '',
    style = {}
 }) {
-   const names = usePluginNames(handles);
-
    useEffect(() => {
-      if (handles.length > 0 && selection == null) {
-         onSelect(handles[0]);
+      if (plugins.length > 0 && selection == null) {
+         onSelect(plugins[0]);
       }
-   }, [handles, selection, onSelect]);
+   }, [plugins, selection, onSelect]);
+
+   const names = plugins.map(plugin => plugin.name);
 
    return H`
       <${ConditionalScroll}
@@ -32,12 +31,12 @@ export default function PluginNavigation({
          >
             ${names.map((name, i) => H`
                <li
-                  key=${handles[i]}
+                  key=${plugins[i]}
                >
                   <${NavigationButton}
-                     target=${handles[i]}
-                     isSelected=${selection == handles[i]}
-                     onClick=${() => onSelect(handles[i])}
+                     target=${plugins[i]}
+                     isSelected=${selection == plugins[i]}
+                     onClick=${() => onSelect(plugins[i])}
                   >
                      <span>${name}</span>
                   </${NavigationButton}>

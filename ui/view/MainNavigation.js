@@ -3,7 +3,7 @@
 
 import { H } from '../lib/react.js';
 import ConditionalScroll from '../widget/ConditionalScroll.js';
-import { TrackNameLabel } from '../widget/GuindaWidget.js';
+import { TrackNameLabel } from '../widget/ListenerWidget.js';
 import NavigationButton from '../widget/NavigationButton.js';
 
 
@@ -28,7 +28,8 @@ export default function MainNavigationView({
             MIXER
          </${NavigationButton}>
          <${ConditionalScroll}
-            className="flex flex-col gap-2 pt-2 pb-20 h-full"
+            className="flex flex-col gap-2 pt-2 h-full"
+            noScrollClass="justify-evenly pb-20"
          >
             <ul
                className="contents"

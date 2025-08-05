@@ -3,8 +3,8 @@
 
 import { H } from '../lib/react.js';
 import { host } from '../lib/dawscript.js';
-import { useObjectField } from '../lib/host-state.js';
-import { ParameterValueKnob } from '../widget/GuindaWidget.js';
+import { useObjectField } from '../lib/state-host.js';
+import { ListenerParameterValueKnob } from '../widget/ListenerWidget.js';
 
 
 export default function ParameterView({
@@ -26,7 +26,7 @@ export default function ParameterView({
          <div className="font-mono text-sx text-center h-[3rem] line-clamp-2">
             ${displayValue}
          </div>
-         <${ParameterValueKnob}
+         <${ListenerParameterValueKnob}
             handle=${param.handle}
          />
          <div

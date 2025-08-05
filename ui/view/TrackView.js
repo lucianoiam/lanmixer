@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 import { H, useEffect, useState } from '../../lib/react.js';
+import { useTrackPlugins } from '../lib/state-mixer.js';
+import LoaderView from '../widget/LoaderView.js';
 import TrackStripView from './TrackStripView.js';
 import TrackPluginsView from './TrackPluginsView.js';
 import PluginNavigation from './PluginNavigation.js';
@@ -12,11 +14,23 @@ export default function TrackView({
    className = '',
    style = {}
 }) {
+   const plugins = useTrackPlugins(track);
    const [selectedPlugin, selectPlugin] = useState(null);
 
    useEffect(() => {
-      selectPlugin(track.pluginHandles[0]);
-   }, [track]);
+      if (plugins) {
+         selectPlugin(plugins[0]);
+      }
+   }, [plugins]);
+
+   if (! plugins) {
+      return H`
+         <${LoaderView}
+            message="PLUGINS"
+            className="size-full ${className}"
+            style="${style}"
+         />`;
+   }
 
    return H`
       <div
@@ -25,14 +39,14 @@ export default function TrackView({
       >
          <${PluginNavigation}
             key=${track.handle}
-            handles=${track.pluginHandles}
+            plugins=${plugins}
             className="pr-2 shrink-0"
             selection=${selectedPlugin}
             onSelect=${selectPlugin}
          />
          <${TrackPluginsView}
             className="flex-1"
-            handles=${track.pluginHandles}
+            plugins=${plugins}
             focus=${selectedPlugin}
          />
          <${TrackStripView}

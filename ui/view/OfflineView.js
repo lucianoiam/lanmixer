@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H, useEffect, useState, useRef } from '../lib/react.js';
-import { useSession } from '../lib/host-state.js';
+import { useSession } from '../lib/state-host.js';
 
 
 export default function OfflineView({

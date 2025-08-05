@@ -3,13 +3,13 @@
 
 import { callAndWriteResult as call, readCallResult as read } from './cache.js';
 import { host, TrackType } from './dawscript.js';
-import { useObjectField } from './host-state.js';
+import { useObjectField } from './state-host.js';
 import { useAsyncEffect, useState } from './react.js';
 
 
 export function useAudioTracks() {
    const handles = useObjectField(null, null, host.getTracks);
-   const [tracks, setTracks] = useState(() => handles !== null
+   const [state, setState] = useState(() => handles !== null
       ? hydrateTracks(handles).filter(t => t.type === TrackType.AUDIO)
       : null
    );
@@ -20,42 +20,26 @@ export function useAudioTracks() {
          call(host.getTrackType, handle)
       ));
       const audHnd = handles.filter((_, i) => types[i] === TrackType.AUDIO);
-      setTracks(await fetchTracks(audHnd));
+      setState(await fetchTracks(audHnd));
    }, [handles]);
 
-   return tracks;
+   return state;
 }
 
-export function usePluginNames(handles) {
-   const [names, setNames] = useState(() => handles
-      .map(handle => read(host.getPluginName, handle))
+export function useTrackPlugins(track) {
+   const [state, setState] = useState(() =>
+      hydratePlugins(track.pluginHandles)
    );
 
    useAsyncEffect(async () => {
-      const hydrated = handles.map(handle => read(host.getPluginName, handle));
-      setNames(hydrated);
-      if (hydrated.some(name => name === null)) {
-         setNames(await Promise.all(handles
-            .map(handle => call(host.getPluginName, handle)))
-         );
-      }
-   }, [handles]);
-
-   return names;
-}
-
-export function usePlugins(handles) {
-   const [plugins, setPlugins] = useState(() => hydratePlugins(handles));
-
-   useAsyncEffect(async () => {
-      const hydrated = hydratePlugins(handles);
-      setPlugins(hydrated);
+      const hydrated = hydratePlugins(track.pluginHandles);
+      setState(hydrated);
       if (hydrated === null) {
-         setPlugins(await fetchPlugins(handles));
+         setState(await fetchPlugins(track.pluginHandles));
       }
-   }, [handles]);
+   }, [track]);
 
-   return plugins;
+   return state;
 }
 
 function hydrateTracks(handles) {

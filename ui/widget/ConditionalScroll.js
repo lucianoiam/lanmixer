@@ -4,10 +4,10 @@
 import { H, useEffect, useRef, useState } from '../lib/react.js';
 
 
-// TODO: doesn't work with flex-1
+// TODO : doesn't work with flex-1
 export default function ConditionalScroll({
    children,
-   justifyClass = 'justify-evenly',
+   noScrollClass = 'justify-evenly',
    className = '',
    style = {}
 }) {
@@ -31,7 +31,7 @@ export default function ConditionalScroll({
    const computedClassName = state.visible
         ? (state.scrolling
             ? 'overflow-auto'
-            : justifyClass)
+            : noScrollClass)
         : 'invisible';
 
    return H`
