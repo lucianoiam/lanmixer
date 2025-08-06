@@ -3,7 +3,7 @@
 
 import { H, useEffect, useState } from '../../lib/react.js';
 import { useTrackPlugins } from '../lib/state-views.js';
-import LoaderView from '../widget/LoaderView.js';
+import LoaderView from '../widgets/LoaderView.js';
 import TrackStripView from './TrackStripView.js';
 import TrackPluginsView from './TrackPluginsView.js';
 import PluginNavigation from './PluginNavigation.js';

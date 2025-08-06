@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 import { H, useEffect } from '../../lib/react.js';
-import ConditionalScroll from '../widget/ConditionalScroll.js';
-import NavigationButton from '../widget/NavigationButton.js';
+import ConditionalScroll from '../widgets/ConditionalScroll.js';
+import NavigationButton from '../widgets/NavigationButton.js';
 
 
 export default function PluginNavigation({

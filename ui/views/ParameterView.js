@@ -4,7 +4,7 @@
 import { H } from '../lib/react.js';
 import { host } from '../lib/dawscript.js';
 import { useObjectField } from '../lib/state-host.js';
-import { ListenerParameterValueKnob } from '../widget/ListenerWidget.js';
+import { ListenerParameterValueKnob } from '../widgets/ListenerWidget.js';
 
 
 export default function ParameterView({

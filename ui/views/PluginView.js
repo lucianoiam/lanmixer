@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H } from '../lib/react.js';
-import { ListenerPluginEnableButton } from '../widget/ListenerWidget.js';
+import { ListenerPluginEnableButton } from '../widgets/ListenerWidget.js';
 import ParameterView from './ParameterView.js';
 
 

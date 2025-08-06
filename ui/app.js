@@ -4,8 +4,8 @@
 import { H, createElement, render } from './lib/react.js';
 import { enableCacheDebugMessages } from './lib/cache.js';
 import { SessionProvider } from './lib/state-host.js';
-import OfflineView from './view/OfflineView.js';
-import MainView from './view/MainView.js';
+import OfflineView from './views/OfflineView.js';
+import MainView from './views/MainView.js';
 
 
 function App() {
@@ -26,7 +26,7 @@ function App() {
 }
 
 function main() {
-   const scriptSel = `script[src="${import.meta.url.split('/').pop()}"]`;
+   const scriptSel = 'script[src="' + import.meta.url.split('/').pop() + '"]';
 
    if (document.querySelector(scriptSel).dataset.debugMessages === 'true') {
       enableCacheDebugMessages();

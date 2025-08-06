@@ -3,7 +3,7 @@
 
 import { H } from '../lib/react.js';
 import { ListenerTrackPanKnob, ListenerTrackVolumeFader, ListenerTrackMuteButton,
-         TrackNameLabel } from '../widget/ListenerWidget.js';
+         TrackNameLabel } from '../widgets/ListenerWidget.js';
 
 
 export default function TrackStripView({

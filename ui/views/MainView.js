@@ -3,7 +3,7 @@
 
 import { H, useState } from '../lib/react.js';
 import { useAudioTracks } from '../lib/state-views.js';
-import LoaderView from '../widget/LoaderView.js';
+import LoaderView from '../widgets/LoaderView.js';
 import MixerView from './MixerView.js';
 import TrackView from './TrackView.js';
 import MainNavigationView from './MainNavigation.js';

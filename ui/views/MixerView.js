@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { H } from '../lib/react.js';
-import ConditionalScroll from '../widget/ConditionalScroll.js';
+import ConditionalScroll from '../widgets/ConditionalScroll.js';
 import TrackStripView from './TrackStripView.js';
 
 

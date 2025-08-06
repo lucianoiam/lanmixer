@@ -2,9 +2,9 @@
 // SPDX-License-Identifier: MIT
 
 import { H } from '../lib/react.js';
-import ConditionalScroll from '../widget/ConditionalScroll.js';
-import { TrackNameLabel } from '../widget/ListenerWidget.js';
-import NavigationButton from '../widget/NavigationButton.js';
+import ConditionalScroll from '../widgets/ConditionalScroll.js';
+import { TrackNameLabel } from '../widgets/ListenerWidget.js';
+import NavigationButton from '../widgets/NavigationButton.js';
 
 
 export default function MainNavigationView({
