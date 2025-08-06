@@ -4,7 +4,7 @@
 import { H, useEffect, useRef, useState } from '../lib/react.js';
 
 
-// TODO : doesn't work with flex-1
+// TODO : doesn't seem to work when parent has flex-1
 export default function ConditionalScroll({
    children,
    noScrollClass = 'justify-evenly',

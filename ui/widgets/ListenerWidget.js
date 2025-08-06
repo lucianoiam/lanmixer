@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, createElement } from '../lib/react.js';
+import { createElement } from '../lib/react.js';
 import { host } from '../lib/dawscript.js';
-import { useObjectField, useObjectState } from '../lib/state-host.js';
+import { useObjectState } from '../lib/state-host.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '../vendor/guinda/guinda.react.module.js';
 
@@ -20,7 +20,7 @@ export function ListenerTrackVolumeFader({
       removeListener: host.removeTrackVolumeListener
    });
 
-   return createInputWidget(
+   return createInputComponent(
       FaderComponent,
       state,
       {
@@ -46,7 +46,7 @@ export function ListenerTrackMuteButton({
       removeListener: host.removeTrackMuteListener
    });
 
-   return createInputWidget(
+   return createInputComponent(
       ButtonComponent,
       state,
       {
@@ -74,7 +74,7 @@ export function ListenerPluginEnableButton({
       removeListener: host.removePluginEnabledListener
    });
 
-   return createInputWidget(
+   return createInputComponent(
       ButtonComponent,
       state,
       {
@@ -102,7 +102,7 @@ export function ListenerTrackPanKnob({
       removeListener: host.removeTrackPanListener
    });
 
-   return createInputWidget(
+   return createInputComponent(
       KnobComponent,
       state,
       {
@@ -128,7 +128,7 @@ export function ListenerParameterValueKnob({
       removeListener: host.removeParameterValueListener
    });
 
-   return createInputWidget(
+   return createInputComponent(
       KnobComponent,
       state,
       {
@@ -142,7 +142,7 @@ export function ListenerParameterValueKnob({
    );
 }
 
-function createInputWidget(Component, state, props = {}) {
+function createInputComponent(Component, state, props = {}) {
    const [value, setValue] = state;
    return createElement(
       Component,
@@ -153,21 +153,4 @@ function createInputWidget(Component, state, props = {}) {
          ...props
       }
    );
-}
-
-export function TrackNameLabel({
-   handle,
-   className = '',
-   style = {}
-}) {
-   const name = useObjectField('', handle, host.getTrackName);
-
-   return H`
-      <span
-         class="${className}"
-         style="${style}"
-      >
-         ${name}
-      </span>
-   `;
 }

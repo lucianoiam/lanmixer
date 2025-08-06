@@ -3,7 +3,7 @@
 
 import { H } from '../lib/react.js';
 import ConditionalScroll from '../widgets/ConditionalScroll.js';
-import { TrackNameLabel } from '../widgets/ListenerWidget.js';
+import { TrackNameLabel } from '../widgets/TrackNameLabel.js';
 import NavigationButton from '../widgets/NavigationButton.js';
 
 

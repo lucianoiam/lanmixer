@@ -1,12 +1,12 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, useEffect, useState } from '../../lib/react.js';
+import { H, useEffect, useRef, useState } from '../../lib/react.js';
 import { useTrackPlugins } from '../lib/state-views.js';
 import LoaderView from '../widgets/LoaderView.js';
 import TrackStripView from './TrackStripView.js';
-import TrackPluginsView from './TrackPluginsView.js';
 import PluginNavigation from './PluginNavigation.js';
+import PluginView from './PluginView.js';
 
 
 export default function TrackView({
@@ -16,12 +16,23 @@ export default function TrackView({
 }) {
    const plugins = useTrackPlugins(track);
    const [selectedPlugin, selectPlugin] = useState(null);
+   const pluginListRef = useRef();
 
    useEffect(() => {
-      if (plugins) {
+      if (! plugins) {
+         return;
+      }
+
+      if (selectedPlugin) {
+         const index = plugins.indexOf(selectedPlugin);
+         if (index >= 0) {
+            pluginListRef.current?.children[index]
+               ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+         }
+      } else {
          selectPlugin(plugins[0]);
       }
-   }, [plugins]);
+   }, [plugins, selectedPlugin]);
 
    if (! plugins) {
       return H`
@@ -40,15 +51,28 @@ export default function TrackView({
          <${PluginNavigation}
             key=${track.handle}
             plugins=${plugins}
-            className="pr-2 shrink-0"
+            className="pr-2"
             selection=${selectedPlugin}
             onSelect=${selectPlugin}
          />
-         <${TrackPluginsView}
-            className="flex-1"
-            plugins=${plugins}
-            focus=${selectedPlugin}
-         />
+         <div
+            className="flex-1 flex flex-col items-center gap-2 overflow-auto"
+         >
+            <ul
+               ref=${pluginListRef}
+               className="contents"
+            >
+               ${plugins.map(plugin => H`
+                  <li
+                     key=${plugin.handle}
+                  >
+                     <${PluginView}
+                        plugin=${plugin}
+                     />
+                  </li>
+               `)}
+            </ul>
+         </div>
          <${TrackStripView}
             track=${track}
             className="p-5"
