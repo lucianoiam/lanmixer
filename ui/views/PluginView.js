@@ -13,17 +13,17 @@ export default function PluginView({
 }) {
    return H`
       <div
-         className="flex flex-col gap-5 p-5 bg-neutral-900 ${className}"
+         className="flex flex-col gap-5 p-5 ${className}"
          style="${style}"
       >
          <div
-            className="flex flex-row w-full"
+            className="flex flex-row gap-5 items-center justify-center"
          >
             <${ListenerPluginEnableButton}
                handle=${plugin.handle}
             />
             <h1
-               className="text-xl font-bold flex-1 text-center"
+               className="text-xl font-bold"
             >
                ${plugin.name}
             </h1>
