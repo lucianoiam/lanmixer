@@ -16,23 +16,76 @@ export default function TrackView({
 }) {
    const plugins = useTrackPlugins(track);
    const [selectedPlugin, selectPlugin] = useState(null);
+   const [isScrolling, setScrolling] = useState(false);
    const pluginListRef = useRef();
-
+   
+   // Default selection
    useEffect(() => {
       if (! plugins) {
          return;
       }
-
-      if (selectedPlugin) {
-         const index = plugins.indexOf(selectedPlugin);
-         if (index >= 0) {
-            pluginListRef.current?.children[index]
-               ?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-         }
-      } else {
-         selectPlugin(plugins[0]);
+      selectPlugin(plugins[0]);
+   }, [plugins]);
+   
+   // Nav → scroll
+   useEffect(() => {
+      if (! plugins || isScrolling) {
+         return;
       }
-   }, [plugins, selectedPlugin]);
+      const index = plugins.indexOf(selectedPlugin);
+      if (index >= 0) {
+         const li = pluginListRef.current?.children[index];
+         pluginListRef.current.parentNode.scrollTop = li.offsetTop;
+      }
+   }, [selectedPlugin]);
+
+   // Scroll → nav
+   useEffect(() => {
+      if (! plugins || ! pluginListRef.current) {
+         return;
+      }
+
+      const scrollParent = pluginListRef.current.parentNode;
+
+      const listener = () => {
+         const ul = pluginListRef.current;
+         const parentRect = scrollParent.getBoundingClientRect();
+         let maxVisibleHeight = 0;
+         let selectedIndex = 0;
+
+         for (let i = 0; i < ul.children.length; ++i) {
+            const li = ul.children[i];
+            const liRect = li.getBoundingClientRect();
+
+            // Calculate visible height (overlap)
+            const visibleTop = Math.max(liRect.top, parentRect.top);
+            const visibleBottom = Math.min(liRect.bottom, parentRect.bottom);
+            const visibleHeight = Math.max(0, visibleBottom - visibleTop);
+
+            if (visibleHeight > maxVisibleHeight) {
+               maxVisibleHeight = visibleHeight;
+               selectedIndex = i;
+            }
+         }
+
+         setScrolling(true);
+         selectPlugin(plugins[selectedIndex]);
+      };
+
+      scrollParent.addEventListener('scroll', listener, { passive: true });
+
+      return () => {
+         scrollParent.removeEventListener('scroll', listener);
+      };
+   }, [plugins]);
+
+   useEffect(() => {
+      if (! isScrolling) {
+         return;
+      }
+      const tid = setTimeout(() => setScrolling(false), 100);
+      return () => clearTimeout(tid);
+   }, [isScrolling]);
 
    if (! plugins) {
       return H`
@@ -68,6 +121,7 @@ export default function TrackView({
                   >
                      <${PluginView}
                         plugin=${plugin}
+                        className="${plugin !== selectedPlugin ? 'opacity-25' : ''}"
                      />
                   </li>
                `)}

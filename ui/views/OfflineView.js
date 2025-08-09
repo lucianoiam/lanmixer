@@ -31,7 +31,7 @@ export default function OfflineView({
 
    return H`
       <div
-         class="bg-black/50 backdrop-blur-xs flex items-center justify-center ${className}"
+         class="bg-black/75 flex items-center justify-center ${className}"
          style="${style}"
       >
          <img

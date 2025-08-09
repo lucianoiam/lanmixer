@@ -18,10 +18,13 @@ export default function ParameterView({
       removeListener: host.removeParameterDisplayValueListener
    });
 
+   const cancelTouchMove = (ev) => ev.preventDefault();
+
    return H`
       <div
          className="flex flex-col items-center w-36 p-3 gap-2 border border-neutral-800 rounded ${className}"
          style="${style}"
+         onTouchMove=${cancelTouchMove}
       >
          <div className="font-mono text-sx text-center h-[3rem] line-clamp-2">
             ${displayValue}
