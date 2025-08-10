@@ -23,6 +23,7 @@ export default function MixerView({
                <li>
                   <${TrackStripView}
                      track=${track}
+                     className="w-36"
                   />
                </li>
             `)}

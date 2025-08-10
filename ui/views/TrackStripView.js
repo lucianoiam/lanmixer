@@ -13,7 +13,7 @@ export default function TrackStripView({
 }) {
    return H`
       <div
-         className="flex flex-col items-center gap-10 h-full w-36 ${className}"
+         className="flex flex-col items-center gap-10 h-full ${className}"
          style="${style}"
       >
          <${TrackNameLabel}

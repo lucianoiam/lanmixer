@@ -23,7 +23,7 @@ export default function NavigationButton({
    return H`
       <g-button
          ref=${ref}
-         className="w-full h-14 bg-neutral-800 ${className}"
+         className="w-full h-14 px-1 text-center bg-neutral-800 ${className}"
          style=${style}
          mode="none"
          touch="false"

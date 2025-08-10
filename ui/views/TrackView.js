@@ -129,7 +129,7 @@ export default function TrackView({
          </div>
          <${TrackStripView}
             track=${track}
-            className="p-5"
+            className="p-5 pl-0 w-24"
          />
       </div>
    `;
