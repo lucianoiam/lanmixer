@@ -37,7 +37,8 @@ export function ListenerTrackVolumeFader({
 export function ListenerTrackMuteButton({
    handle,
    className = '',
-   style = {}
+   style = {},
+   children = null
 }) {
    const state = useObjectState(false, handle, {
       get: host.isTrackMute,
@@ -58,7 +59,8 @@ export function ListenerTrackMuteButton({
             backgroundColor: '#404040',
             ...style
          }
-      }
+      },
+      children
    );
 }
 
@@ -142,7 +144,7 @@ export function ListenerParameterValueKnob({
    );
 }
 
-function createInputComponent(Component, state, props = {}) {
+function createInputComponent(Component, state, props = {}, children = null) {
    const [value, setValue] = state;
    return createElement(
       Component,
@@ -151,6 +153,7 @@ function createInputComponent(Component, state, props = {}) {
          defaultValue: value,
          onInput: (e) => setValue(e.target.value),
          ...props
-      }
+      },
+      children
    );
 }

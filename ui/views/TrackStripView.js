@@ -28,7 +28,9 @@ export default function TrackStripView({
          />
          <${ListenerTrackMuteButton}
             handle=${track.handle}
-         />
+         >
+            <span>M</span>
+         </${ListenerTrackMuteButton}>
          <div
             className="h-[6%]"
          />
