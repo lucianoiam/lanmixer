@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H } from '../lib/react.js';
+import { htm } from '../lib/react.js';
 import { ListenerPluginEnableButton } from '../widgets/ListenerWidget.js';
 import ParameterView from './ParameterView.js';
 
@@ -11,7 +11,7 @@ export default function PluginView({
    className = '',
    style = {}
 }) {
-   return H`
+   return htm`
       <div
          className="flex flex-col gap-5 p-5 ${className}"
          style="${style}"
@@ -34,7 +34,7 @@ export default function PluginView({
          <ul
             className="flex flex-wrap gap-5 justify-center"
          >
-            ${plugin.params.map(param => H`
+            ${plugin.params.map(param => htm`
                <li
                   key=${param.handle}}
                >

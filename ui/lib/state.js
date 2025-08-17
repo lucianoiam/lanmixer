@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 import { callAndWriteResult as call, readCallResult as read } from './cache.js';
-import { host, TrackType } from './dawscript.js';
-import { useObjectField } from './state-host.js';
+import { host, TrackType } from './dawscript.module.js';
+import { useObjectField } from './session.js';
 import { useAsyncEffect, useState } from './react.js';
 
 

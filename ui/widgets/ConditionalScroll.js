@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, useEffect, useRef, useState } from '../lib/react.js';
+import { htm, useEffect, useRef, useState } from '../lib/react.js';
 
 
 // TODO : doesn't seem to work when parent has flex-1
@@ -34,7 +34,7 @@ export default function ConditionalScroll({
             : noScrollClass)
         : 'invisible';
 
-   return H`
+   return htm`
       <div
          ref=${ref}
          className="${computedClassName} ${className}"

@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H } from '../lib/react.js';
+import { htm } from '../lib/react.js';
 import ConditionalScroll from '../widgets/ConditionalScroll.js';
 import { TrackNameLabel } from '../widgets/TrackNameLabel.js';
 import NavigationButton from '../widgets/NavigationButton.js';
@@ -16,7 +16,7 @@ export default function MainNavigationView({
 }) {
    const filteredTracks = tracks.filter(t => t.pluginHandles.length > 0);
 
-   return H`
+   return htm`
       <div
          className="flex flex-col w-42 ${className}"
          style="${style}"
@@ -34,7 +34,7 @@ export default function MainNavigationView({
             <ul
                className="contents"
             >
-               ${filteredTracks.map(track => H`
+               ${filteredTracks.map(track => htm`
                   <li
                      key=${track.handle}
                   >

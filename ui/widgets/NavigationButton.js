@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, useEffect, useRef } from '../lib/react.js';
+import { htm, useEffect, useRef } from '../lib/react.js';
 
 
 export default function NavigationButton({
@@ -20,7 +20,7 @@ export default function NavigationButton({
       }
    }, [isSelected]);
 
-   return H`
+   return htm`
       <g-button
          ref=${ref}
          className="w-full h-14 px-1 text-center bg-neutral-800 ${className}"

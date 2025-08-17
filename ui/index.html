@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" style="overscroll-behavior: none;">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>LAN Mixer</title>
   <link rel="icon" href="data:,">
   <style>
-    html { overscroll-behavior: none; }
     .size-app { min-width: 960px; min-height: 640px; width: 100dvw; height: 100dvh; }
   </style>
   <script src="vendor/tailwind.js"></script>
@@ -17,14 +16,12 @@
     <div id="loader-template" class="flex items-center justify-center size-full">
       <div class="flex flex-row items-center gap-2 w-24">
         <img src="assets/floppy.svg" class="size-8">
-        <span>APP</span>
+        <span class="font-mono">PROGRAM</span>
       </div>
     </div>
   </div>
   <script type="importmap">
-  {
-    "imports": { "preact": "/vendor/preact.module.js" }
-  }
+    { "imports": { "preact": "/vendor/preact.module.js" } }
   </script>
   <script type="module" src="lib/main.js" data-debug-messages="false"></script>
 </body>

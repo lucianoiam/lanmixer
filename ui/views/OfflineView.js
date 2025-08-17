@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, useEffect, useState, useRef } from '../lib/react.js';
-import { useSession } from '../lib/state-host.js';
+import { htm, useEffect, useState, useRef } from '../lib/react.js';
+import { useSession } from '../lib/session.js';
 
 
 export default function OfflineView({
@@ -29,7 +29,7 @@ export default function OfflineView({
 
    className += isVisible ? ' block' : ' hidden';
 
-   return H`
+   return htm`
       <div
          class="bg-black/75 flex items-center justify-center ${className}"
          style="${style}"

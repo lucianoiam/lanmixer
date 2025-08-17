@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, createElement, render } from './react.js';
+import { htm, createElement, render } from './react.js';
 import { enableCacheDebugMessages } from './cache.js';
-import { SessionProvider } from './state-host.js';
+import { SessionProvider } from './session.js';
 import OfflineView from '../views/OfflineView.js';
 import MainView from '../views/MainView.js';
 
@@ -25,7 +25,7 @@ function main() {
 }
 
 function RootComponent() {
-   return H`
+   return htm`
       <${SessionProvider}>
          <div
             className="size-app relative"

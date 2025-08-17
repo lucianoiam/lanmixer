@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H } from '../lib/react.js';
-import { host } from '../lib/dawscript.js';
-import { useObjectField } from '../lib/state-host.js';
+import { htm } from '../lib/react.js';
+import { host } from '../lib/dawscript.module.js';
+import { useObjectField } from '../lib/session.js';
 import { ListenerParameterValueKnob } from '../widgets/ListenerWidget.js';
 
 
@@ -20,7 +20,7 @@ export default function ParameterView({
 
    const cancelTouchMove = (ev) => ev.preventDefault();
 
-   return H`
+   return htm`
       <div
          className="flex flex-col items-center w-36 p-3 gap-2 border border-neutral-800 rounded ${className}"
          style="${style}"

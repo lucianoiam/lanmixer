@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H } from '../lib/react.js';
+import { htm } from '../lib/react.js';
 import { ListenerTrackPanKnob, ListenerTrackVolumeFader, ListenerTrackMuteButton } from '../widgets/ListenerWidget.js';
 import { TrackNameLabel } from '../widgets/TrackNameLabel.js';
 
@@ -11,7 +11,7 @@ export default function TrackStripView({
    className = '',
    style = {}
 }) {
-   return H`
+   return htm`
       <div
          className="flex flex-col items-center gap-10 h-full ${className}"
          style="${style}"

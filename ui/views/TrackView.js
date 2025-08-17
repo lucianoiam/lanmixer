@@ -1,8 +1,8 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, useEffect, useRef, useState } from '../../lib/react.js';
-import { useTrackPlugins } from '../lib/state-views.js';
+import { htm, useEffect, useRef, useState } from '../../lib/react.js';
+import { useTrackPlugins } from '../lib/state.js';
 import LoaderView from '../widgets/LoaderView.js';
 import TrackStripView from './TrackStripView.js';
 import PluginNavigation from './PluginNavigation.js';
@@ -88,15 +88,15 @@ export default function TrackView({
    }, [isScrolling]);
 
    if (! plugins) {
-      return H`
+      return htm`
          <${LoaderView}
-            message="PLUGINS"
+            message="DSP"
             className="size-full ${className}"
             style="${style}"
          />`;
    }
 
-   return H`
+   return htm`
       <div
          className="flex flex-row size-full ${className}"
          style="${style}"
@@ -115,7 +115,7 @@ export default function TrackView({
                ref=${pluginListRef}
                className="contents"
             >
-               ${plugins.map(plugin => H`
+               ${plugins.map(plugin => htm`
                   <li
                      key=${plugin.handle}
                   >

@@ -1,9 +1,9 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H } from '../lib/react.js';
-import { host } from '../lib/dawscript.js';
-import { useObjectField } from '../lib/state-host.js';
+import { htm } from '../lib/react.js';
+import { host } from '../lib/dawscript.module.js';
+import { useObjectField } from '../lib/session.js';
 
 
 export function TrackNameLabel({
@@ -11,7 +11,7 @@ export function TrackNameLabel({
 }) {
    const name = useObjectField('', handle, host.getTrackName);
 
-   return H`
+   return htm`
       <span
          class="${className}"
          style="${style}"

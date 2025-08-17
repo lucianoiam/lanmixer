@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, useLayoutEffect, useRef, useState } from '../lib/react.js';
+import { htm, useLayoutEffect, useRef, useState } from '../lib/react.js';
 import ConditionalScroll from '../widgets/ConditionalScroll.js';
 import TrackStripView from './TrackStripView.js';
 
@@ -73,7 +73,7 @@ export default function MixerView({
       };
    }, [tracks]); // reattach if track list changes
 
-   return H`
+   return htm`
       <${ConditionalScroll}
          className="flex flex-row w-full ${className}"
          style="${style}"
@@ -82,7 +82,7 @@ export default function MixerView({
             ref=${listRef}
             className="contents"
          >
-            ${tracks.map((track, i) => H`
+            ${tracks.map((track, i) => htm`
                <li>
                   <${TrackStripView}
                      track=${track}

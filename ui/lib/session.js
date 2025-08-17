@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 import { hasCacheKey, makeCacheKey, useCachedState } from './cache.js';
-import { connect, host } from './dawscript.js';
+import { connect, host } from './dawscript.module.js';
 import { useAsyncEffect, useCallback, useContext, useEffect, useState,
          createContext, createElement } from './react.js';
 
@@ -82,7 +82,7 @@ function useSessionState() {
 
             (async () => {
                try {
-                  const globals = await fetchSessionGlobals();
+                  const globals = await fetchGlobals();
                   setState((prev) => ({ ...prev, ...globals }));
                } catch (err) {
                   // TODO: prompt user to reload when an exception occurs
@@ -98,7 +98,7 @@ function useSessionState() {
    return state;
 }
 
-async function fetchSessionGlobals() {
+async function fetchGlobals() {
    return {
       faderLabels: await host.getFaderLabels()
    }; 

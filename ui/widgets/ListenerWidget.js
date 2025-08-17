@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 import { createElement } from '../lib/react.js';
-import { host } from '../lib/dawscript.js';
-import { useObjectState } from '../lib/state-host.js';
+import { host } from '../lib/dawscript.module.js';
+import { useObjectState } from '../lib/session.js';
 import { KnobComponent, FaderComponent, ButtonComponent }
    from '../vendor/guinda/guinda.react.module.js';
 

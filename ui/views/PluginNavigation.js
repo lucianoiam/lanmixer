@@ -1,7 +1,7 @@
 // SPDX-FileCopyrightText: 2025 Luciano Iam <oss@lucianoiam.com>
 // SPDX-License-Identifier: MIT
 
-import { H, useEffect } from '../../lib/react.js';
+import { htm, useEffect } from '../../lib/react.js';
 import ConditionalScroll from '../widgets/ConditionalScroll.js';
 import NavigationButton from '../widgets/NavigationButton.js';
 
@@ -21,7 +21,7 @@ export default function PluginNavigation({
 
    const names = plugins.map(plugin => plugin.name);
 
-   return H`
+   return htm`
       <${ConditionalScroll}
          className="flex flex-col gap-2 w-42 ${className}"
          style="${style}"
@@ -29,7 +29,7 @@ export default function PluginNavigation({
          <ul
             className="contents"
          >
-            ${names.map((name, i) => H`
+            ${names.map((name, i) => htm`
                <li
                   key=${plugins[i]}
                >

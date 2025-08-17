@@ -4,12 +4,12 @@
 export * from '/vendor/preact.module.js';
 export * from '/vendor/hooks.module.js';
 
-import htm from '/vendor/htm.module.js';
+import _htm from '/vendor/htm.module.js';
 import { useEffect, useRef } from '/vendor/hooks.module.js';
 import { createElement } from '/vendor/preact.module.js';
 
 
-export const H = htm.bind(createElement);
+export const htm = _htm.bind(createElement);
 
 export function useUpdateEffect(callback, deps) {
    const isFirstRender = useRef(true);
