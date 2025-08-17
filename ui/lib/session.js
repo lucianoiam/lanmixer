@@ -67,7 +67,7 @@ function useSessionState() {
    const [state, setState] = useState({
       id: 0,
       isOnline: false,
-      faderLabels: null
+      volumeScale: null
    });
 
    useEffect(() => {
@@ -100,8 +100,8 @@ function useSessionState() {
 
 async function fetchGlobals() {
    return {
-      faderLabels: await host.getFaderLabels()
-   }; 
+      volumeScale: await host.getVolumeScale()
+   };
 }
 
 function dbg_err(message) {
